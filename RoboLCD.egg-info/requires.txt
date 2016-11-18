@@ -1,0 +1,3 @@
+OctoPrint
+qrcode>=5.3
+sysv-ipc>=0.7.0

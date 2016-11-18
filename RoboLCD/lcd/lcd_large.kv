@@ -1,0 +1,136 @@
+<PrintFileScreen>
+    BoxLayout:
+        orientation: 'vertical'
+        Button:
+            text: 'Files'
+            on_press: app.root.go_back_to_main(root.name, 'files_tab')
+        Label:
+            text: root.file_name.replace('.gcode', '')
+        Label:
+            text: root.status
+        Label:
+            text: '{}m total'.format(root.print_duration/60)
+        Label:
+            text: '{}mL {}m'.format(root.print_volume, root.print_length/1000)
+        Button:
+            text: 'Start' if root.status == 'READY TO PRINT' else root.status
+            on_press: root.start_print(root.file_path, root.file_name, app.root.go_back_to_main(root.name, 'printer_status_tab'))
+
+<FileButton>:
+    markup: True
+    on_press: app.root.generate_file_screen(filename=self.filename, print_duration=self.duration, print_volume=self.volume, print_length=self.length, file_path=self.path)
+
+<FilesContent>
+    do_scroll_x: False
+
+<PrinterStatusContent>
+    rows: 2
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: root.filename
+            font_size: 45
+            markup: True
+        Label:
+            text: root.status
+            markup: True
+            on_ref_press: root.start_print()
+    BoxLayout:
+        orientation: 'horizontal'
+        GridLayout:
+            padding: 20
+            rows: 2
+            GridLayout:
+                cols: 2
+                Label:
+                    text: '<Img>'
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'EXTRUDER 1'
+                    Label:
+                        text: str(root.extruder_one_temp)
+            ProgressBar:
+                max: root.extruder_one_max_temp
+                value: root.extruder_one_temp
+        GridLayout:
+            padding: 20
+            rows: 2
+            GridLayout:
+                cols: 2
+                Label:
+                    text: '<Img>'
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'EXTRUDER 2'
+                    Label:
+                        text: str(root.extruder_two_temp)
+            ProgressBar:
+                max: root.extruder_two_max_temp
+                value: root.extruder_two_temp
+        GridLayout:
+            padding: 20
+            rows: 2
+            GridLayout:
+                cols: 2
+                Label:
+                    text: '<Img>'
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'BED TEMP'
+                    Label:
+                        text: str(root.bed_temp)
+            ProgressBar:
+                max: root.bed_max_temp
+                value: root.bed_temp
+
+<SettingsContent>
+    text: "Settings list!"
+
+<MainScreen>
+    name: 'main'
+    MainScreenTabbedPanel:
+        id: mstp
+        do_default_tab: False
+        tab_width: root.width / 3
+        tab_height: root.height / 4
+        background_color: (0,0,0,1)
+        FloatLayout:
+            FilesContent:
+                id: files_content
+            PrinterStatusContent:
+                id: printer_status_content
+            SettingsContent:
+                id: settings_content
+        FilesTab:
+            id: files_tab
+            text: "\n\n\n\nFiles"
+            content: files_content.__self__
+            Image:
+                source: "/home/pi/RoboLCD/RoboLCD/lcd/Icons/files.png"
+                pos: (self.parent.width/2) - 50, (self.parent.height/2.5)
+                allow_stretch: True
+                height: dp(60)
+        PrinterStatusTab:
+            id: printer_status_tab
+            text: "\n\n\n\nPrinter"
+            content: printer_status_content.__self__
+            Image:
+                source: "/home/pi/RoboLCD/RoboLCD/lcd/Icons/printer.png"
+                pos: self.parent.width+70, (self.parent.height/2.5)
+                allow_stretch: True
+                height: dp(60)
+        SettingsTab:
+            id: settings_tab
+            text: "\n\n\n\nSettings"
+            content: settings_content.__self__
+            Image:
+                source: "/home/pi/RoboLCD/RoboLCD/lcd/Icons/settings.png"
+                pos: self.parent.width * 2 + 70, (self.parent.height/2.5)
+                allow_stretch: True
+                height: dp(60)
+
+RoboScreenManager:
+    MainScreen
