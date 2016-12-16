@@ -46,3 +46,14 @@ class Mintemp_Warning_Popup(ModalView):
     def popup_timer(self,dt):
         self.dismiss()
 
+class Error_Popup(ModalView):
+    error_message = StringProperty('Error')
+
+    def __init__(self, error):
+        super(Error_Popup, self).__init__()
+        self.error_message = error
+        self.ids.error_ok.bind(on_press = self.dismiss)
+        self.open()
+
+
+

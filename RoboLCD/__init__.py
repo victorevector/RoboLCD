@@ -41,8 +41,10 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.AssetPlugi
         self._printer.register_callback(pconsole)
         self._logger.info('Callback Complete')
 
-        #get the helper function to determine if the board is updating or not
+        # #update eeprom settings so the user does not get a false error
+        # pconsole.query_eeprom()
 
+        #get the helper function to determine if the board is updating or not
         helpers = self._plugin_manager.get_helpers("firmwareupdater", "firmware_updating")
         if helpers and "firmware_updating" in helpers:
             self._logger.info("Firmware updater has a helper function")

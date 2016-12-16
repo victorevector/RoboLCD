@@ -23,6 +23,7 @@ RoboLCD/lcd/manualcontrol.py
 RoboLCD/lcd/netconnectd.py
 RoboLCD/lcd/noheaderscreen.py
 RoboLCD/lcd/pconsole.py
+RoboLCD/lcd/printer_jog.py
 RoboLCD/lcd/printerstatus.py
 RoboLCD/lcd/robo_controls.py
 RoboLCD/lcd/robo_screen_manager.py

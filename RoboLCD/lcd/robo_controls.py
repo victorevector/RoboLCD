@@ -77,6 +77,29 @@ class Preheat_Screen(BoxLayout):
     def stop_button(self):
         roboprinter.printer_instance._printer.set_temperature('tool0', 0)
 
+class Temperature_Label(Button):
+    extruder_one_temp = NumericProperty(0)
+
+    def __init__(self, robosm=None, **kwargs):
+        self.sm = robosm
+        Clock.schedule_interval(self.update, 1/30)
+
+    def update(self, dt):
+        temps = roboprinter.printer_instance._printer.get_current_temperatures()
+        current_data = roboprinter.printer_instance._printer.get_current_data()
+        if 'tool0' in temps.keys():
+            self.extruder_one_temp = temps['tool0']['actual']
+            self.extruder_one_max_temp = temps['tool0']['target']
+        else:
+            self.extruder_one_temp = 0
+            self.extruder_one_max_temp = 0
+
+        
+        if self.sm.current != 'extruder_control_screen':
+            return False
+
+
+
     
 
 

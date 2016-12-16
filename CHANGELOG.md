@@ -1,5 +1,17 @@
 # RoboLCD Changelog
 
+##1.2.0 (2016-12-15)
+
+###Improvements
+
+* Utilities are now displayed as icons
+
+###Bug Fixes
+
+* Incompatibilities with Octoprint 1.3.0 that caused screen to break are now fixed: manually moving the axises no longer freeze the screen
+
+* USB dismounts no longer freeze the screen
+
 ##1.1.0 (2016-11-18)
 
 ###Improvements
@@ -8,7 +20,7 @@
 
 * Alert user when printer is disconnected due to a mainboard firmware flash
 
-* Mintemp warning in Motor Control when you try to manually extrude or retract 
+* Mintemp warning in Motor Control when you try to manually extrude or retract
 
 ###Bug Fixes
 

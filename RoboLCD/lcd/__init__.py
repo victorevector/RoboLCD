@@ -46,7 +46,7 @@ def start():
     from noheaderscreen import NoHeaderScreen
     from manualcontrol import MotorControl, TemperatureControl, Motor_Control, Temperature_Control
     from wizard import Filament_Change_Wizard_Button, WizardButton, PreheatWizard, FilamentWizard, ZoffsetWizard, Z_Offset_Wizard_Button, Filament_Loading_Wizard_Button
-    from scrollbox import ScrollBox, Scroll_Box_Even
+    from scrollbox import ScrollBox, Scroll_Box_Even, Scroll_Box_Icons, Robo_Icons, Robo_Icons_Anchor, Scroll_Box_Icons_Anchor
     from netconnectd import NetconnectdClient
     from .. import roboprinter
     from kivy.logger import Logger
@@ -251,13 +251,24 @@ def start():
 
         def generate_network_utilities_screen(self, **kwargs):
             #generates network option screen. Utilities > Network > Network Utilities > wifi list || start ap
-            cw = WifiConfigureButton()
-            ap = APButton()
-            ip = IPAddressButton()
-            qr = QR_Button()
-            buttons = [cw, ap, ip, qr]
 
-            sb = Scroll_Box_Even(buttons)
+            cw = Robo_Icons('Icons/Icon_Buttons/Configure Wifi.png', 'Configure Wifi', 'CONFIGURE_WIFI')
+            ap = Robo_Icons('Icons/Icon_Buttons/Start Wifi.png', 'Start Wifi Hotspot', 'START_HOTSPOT')
+            ip = Robo_Icons('Icons/Icon_Buttons/Network status.png', 'Network Status', 'NETWORK_STATUS')
+            qr = Robo_Icons('Icons/Icon_Buttons/QR Code.png', 'API QR Code', 'QR_CODE')
+
+            buttons = [cw,ap,ip,qr]
+
+            sb = Scroll_Box_Icons(buttons)
+
+            #old way
+            # cw = WifiConfigureButton()
+            # ap = APButton()
+            # ip = IPAddressButton()
+            # qr = QR_Button()
+            # buttons = [cw, ap, ip, qr]
+
+            # sb = Scroll_Box_Even(buttons)
 
             self._generate_backbutton_screen(name=kwargs['name'], title=kwargs['title'], back_destination=kwargs['back_destination'], content=sb)
 
@@ -336,12 +347,23 @@ def start():
             title = kwargs['title']
             back_destination = kwargs['back_destination']
 
-            z = Z_Offset_Wizard_Button()
-            fl = Filament_Loading_Wizard_Button()
-            fc = Filament_Change_Wizard_Button()
-            buttons = [z,fl,fc]
+            #Old list way
+            # z = Z_Offset_Wizard_Button()
+            # fl = Filament_Loading_Wizard_Button()
+            # fc = Filament_Change_Wizard_Button()
+            # buttons = [z,fl,fc]
 
-            c = Scroll_Box_Even(buttons)
+            # c = Scroll_Box_Even(buttons)
+
+            #new icon way
+
+            z = Robo_Icons('Icons/Icon_Buttons/Z Offset.png', 'Z Offset Wizard', 'ZOFFSET')
+            fl = Robo_Icons('Icons/Icon_Buttons/Load Filament.png', 'Filament Loading Wizard', 'FIL_LOAD')
+            fc = Robo_Icons('Icons/Icon_Buttons/Change Filament.png', 'Filament Change Wizard', 'FIL_CHANGE')
+
+            buttons = [fc, fl, z]
+
+            c = Scroll_Box_Icons(buttons)
 
             self._generate_backbutton_screen(name=name, title=title, back_destination=back_destination, content=c)
 
@@ -426,14 +448,19 @@ def start():
         def generate_robo_controls(self, **kwargs):
             _name = kwargs['name']
 
-            extruder = Extruder_Controls()
-            manual = Motor_Control()
+            #old list way
+            # extruder = Extruder_Controls()
+            # manual = Motor_Control()
+            # buttons = [extruder, manual]
+            # layout = Scroll_Box_Even(buttons)
 
-
+            #new Icon Way
+            extruder = Robo_Icons('Icons/Icon_Buttons/Temperature.png', 'Temperature Controls', 'EXTRUDER_CONTROLS')
+            manual = Robo_Icons('Icons/Icon_Buttons/Motor_Controls.png', 'Motor Controls', 'MOTOR_CONTROLS')
 
             buttons = [extruder, manual]
 
-            layout = Scroll_Box_Even(buttons)
+            layout = Scroll_Box_Icons(buttons)            
 
             self._generate_backbutton_screen(name = _name, title = kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
             return
@@ -441,13 +468,24 @@ def start():
         def generate_extrudercontrol_screen(self, **kwargs):
             _name = kwargs['name']
 
-            t = Temperature_Control()
-            preheat = Preheat_Button()
-            cooldown = Cooldown_Button()
+            #old list way
+            # t = Temperature_Control()
+            # preheat = Preheat_Button()
+            # cooldown = Cooldown_Button()
 
-            buttons = [t, preheat,cooldown]
+            # buttons = [t, preheat,cooldown]
 
-            layout = Scroll_Box_Even(buttons)
+            # layout = Scroll_Box_Even(buttons)
+
+            #new Icon Way
+
+            t = Robo_Icons('Icons/Icon_Buttons/Temperature.png', 'Temperature Controls', 'TEMPERATURE_CONTROLS')
+            preheat = Robo_Icons('Icons/Icon_Buttons/Preheat.png', 'Preheat', 'PREHEAT')
+            cooldown = Robo_Icons('Icons/Icon_Buttons/CoolDown.png', 'Cooldown', 'COOLDOWN')
+
+            buttons = [preheat, t, cooldown]
+
+            layout = Scroll_Box_Icons(buttons)
 
             self._generate_backbutton_screen(name = _name, title = kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
             return
@@ -479,7 +517,7 @@ def start():
 
             self._generate_backbutton_screen(name = _name, title = kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
             pass
-        def cooldown_button(self, value):
+        def cooldown_button(self, **kwargs):
             roboprinter.printer_instance._printer.commands('M104 S0')
             roboprinter.printer_instance._printer.commands('M140 S0')
             self.go_back_to_main('printer_status_tab')
@@ -503,6 +541,23 @@ def start():
 
             return
 
+        def coming_soon(self, **kwargs):
+            _name = kwargs['name']
+            layout = GridLayout(cols = 3, rows = 3, orientation = 'vertical')
+            layout.add_widget(Label(size_hint_x = None))
+            layout.add_widget(Label(size_hint_x = None))
+            layout.add_widget(Label(size_hint_x = None))
+            layout.add_widget(Label(size_hint_x = None))
+            cb = Label(text = 'Coming Soon', font_size = 30,halign = 'center', valign = 'middle', width = 300, height = 100)
+            layout.add_widget(cb)
+            layout.add_widget(Label(size_hint_x = None))
+            layout.add_widget(Label(size_hint_x = None))
+            layout.add_widget(Label(size_hint_x = None))
+            layout.add_widget(Label(size_hint_x = None))
+            self._generate_backbutton_screen(name=_name, title=kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
+
+            return
+
 
         def generate_filament_wizard(self, **kwargs):
             # Instantiates the FilamentWizard and gives it a screen. Passes management of filament wizard related screens to FilamentWizard instance.
@@ -512,6 +567,50 @@ def start():
         def genetate_filament_change_wizard(self, **kwargs):
             FilamentWizard('CHANGE',self, name=kwargs['name'],title=kwargs['title'], back_destination=kwargs['back_destination']) #pass self so that FilamentWizard can render itself
             return
+
+        def generate_screens(self, screen):
+
+            acceptable_screens = {
+                #Utilities Screen
+                'ROBO_CONTROLS': {'name':'robo_controls','title':'Robo Controls','back_destination':'main', 'function': self.generate_robo_controls },
+                'WIZARDS' : {'name':'wizards_screen', 'title':'Wizards', 'back_destination':'main', 'function': self.generate_wizards_screen},
+                'NETWORK' : {'name':'network_utilities_screen', 'title':'Network Utilities', 'back_destination':'main', 'function': self.generate_network_utilities_screen},
+                'UPDATES' : {'name':'UpdateScreen', 'title':'Updates', 'back_destination':'main', 'function': self.generate_update_screen},
+                'FACTORY_RESET': {'name': 'factory_reset', 'title':'Factory Reset', 'back_destination': 'main', 'function': self.coming_soon},
+                'OPTIONS': {'name':'options', 'title': 'Options', 'back_destination':'main', 'function': self.coming_soon},
+
+                #Robo Controls sub screen
+                'EXTRUDER_CONTROLS': {'name':'extruder_control_screen', 'title':'Temperature Control', 'back_destination':'robo_controls', 'function':self.generate_extrudercontrol_screen},
+                'MOTOR_CONTROLS':{'name':'motor_control_screen','title':'Motor Control','back_destination':'robo_controls', 'function': self.generate_motor_controls},
+
+                #Extruder controls sub screen
+                'TEMPERATURE_CONTROLS': {'name':'temperature_button','title':'Temperature Control','back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls},
+                'PREHEAT':{'name':'preheat_wizard','title':'Preheat','back_destination':'extruder_control_screen', 'function': self.generate_preheat_list},
+                'COOLDOWN' : {'name':'cooldown_button','title':'Cooldown','back_destination':'extruder_control_screen', 'function':self.cooldown_button},
+
+                #Wizards sub screen
+                'ZOFFSET': {'name':'zoffset', 'title':'Z Offset Wizard', 'back_destination':'wizards_screen', 'function': self.generate_zaxis_wizard},
+                'FIL_LOAD': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.generate_filament_wizard},
+                'FIL_CHANGE': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.genetate_filament_change_wizard},
+
+                #Network sub screen
+                'CONFIGURE_WIFI': {'name':'', 'title':'', 'back_destination':'network_utilities_screen', 'function':self.generate_wificonfig},
+                'START_HOTSPOT': {'name':'start_apmode_screen', 'title':'Start Wifi Hotspot', 'back_destination':'network_utilities_screen', 'function':self.generate_start_apmode_screen},
+                'NETWORK_STATUS': {'name':'ip_screen', 'title':'Network Status', 'back_destination':'network_utilities_screen', 'function':self.generate_ip_screen},
+                'QR_CODE': {'name':'qrcode_screen', 'title':'QR Code', 'back_destination':'network_utilities_screen', 'function':self.generate_qr_screen}
+
+            }
+
+            if screen in acceptable_screens:
+                Logger.info("Changing screen to " + screen)
+                acceptable_screens[screen]['function'](name=acceptable_screens[screen]['name'],
+                                                     title = acceptable_screens[screen]['title'],
+                                                     back_destination = acceptable_screens[screen]['back_destination'])
+            else:
+                Logger.info(screen + " Is Not an acceptable screen")
+                return False
+
+            
 
 
     class RoboLcdApp(App):

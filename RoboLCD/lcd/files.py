@@ -22,7 +22,7 @@ from robo_sm import screen_manager
 import re
 from scrollbox import ScrollBox, Scroll_Box_Even
 import collections
-from connection_popup import Zoffset_Warning_Popup
+from connection_popup import Zoffset_Warning_Popup, Error_Popup
 
 USB_DIR = '/media/usb0'
 FILES_DIR = '/home/pi/.octoprint/uploads'
@@ -194,18 +194,26 @@ class FilesContent(BoxLayout):
         '''
         finds gcode files in usb. If any, writes symlinks to local folder. These usb files get written to Files list and shown to user
         '''
-        current_files = self._grab_local_files()
-        if current_files != self.files:
-            self._update_files_list(current_files)
+        try:
+             
+        
+            current_files = self._grab_local_files()
+            if current_files != self.files:
+                self._update_files_list(current_files)
+    
+            usb_files = self._find_gcode_in_usb()
+            if usb_files and not self.has_usb_attached: #new usb device attached
+                self.has_usb_attached = True
+                self._delete_symlinks() #clear all symlinks from local before writing to avoid any possible duplicates
+                self._write_symlinks(usb_files)
+            elif not usb_files and self.has_usb_attached: #usb device detached
+                self.has_usb_attached = False
+                self._delete_symlinks()
 
-        usb_files = self._find_gcode_in_usb()
-        if usb_files and not self.has_usb_attached: #new usb device attached
-            self.has_usb_attached = True
-            self._delete_symlinks() #clear all symlinks from local before writing to avoid any possible duplicates
-            self._write_symlinks(usb_files)
-        elif not usb_files and self.has_usb_attached: #usb device detached
+        except Exception as e:
             self.has_usb_attached = False
             self._delete_symlinks()
+
 
     def _grab_local_files(self):
         return roboprinter.printer_instance._file_manager.list_files()['local']
@@ -322,6 +330,7 @@ class PrintFile(GridLayout):
 
         self.status = self.is_ready_to_print()
         Clock.schedule_interval(self.update, .1)
+        pconsole.query_eeprom()
         self.current_z_offset = 'Current Z Offset: ' + str(pconsole.zoffset['Z'])
 
 
@@ -345,23 +354,35 @@ class PrintFile(GridLayout):
 
     def start_print(self, *args):
         #Throw a popup to display the ZOffset if the ZOffset is -10 or more
-        if self.status == "READY TO PRINT":
-            _offset = pconsole.zoffset['Z']
-    
-            if _offset <= -10:
-                zoff = Zoffset_Warning_Popup(self)
-                zoff.open()
-            else:
-                """Starts print but cannot start a print when the printer is busy"""
-                path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk(self.file_path, self.file_name)
-                roboprinter.printer_instance._printer.select_file(path=path_on_disk, sd=False, printAfterSelect=True)
-                Logger.info('Funtion Call: start_print')
+        try:
+            if self.status == "READY TO PRINT":
+                _offset = pconsole.zoffset['Z']
+        
+                if _offset <= -10:
+                    zoff = Zoffset_Warning_Popup(self)
+                    zoff.open()
+                else:
+                    """Starts print but cannot start a print when the printer is busy"""
+                    Logger.info(self.file_path)
+                    path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk(self.file_path, self.file_name)
+                    roboprinter.printer_instance._printer.select_file(path=path_on_disk, sd=False, printAfterSelect=True)
+                    Logger.info('Funtion Call: start_print')
+        except Exception as e:
+            #raise error
+            Error_Popup('[size=40][color=#69B3E7]File Error[/size][/color]\n[size=30]There was an error with the selected file\nPlease try again[/size]')
+
 
     def force_start_print(self, *args):
         """Starts print but cannot start a print when the printer is busy"""
-        path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk(self.file_path, self.file_name)
-        roboprinter.printer_instance._printer.select_file(path=path_on_disk, sd=False, printAfterSelect=True)
-        Logger.info('Funtion Call: start_print')
+        try:
+            path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk(self.file_path, self.file_name)
+            roboprinter.printer_instance._printer.select_file(path=path_on_disk, sd=False, printAfterSelect=True)
+            Logger.info('Funtion Call: start_print')
+        except Exception as e:
+            #raise error
+            Error_Popup('[size=40][color=#69B3E7]File Error[/size][/color]\n[size=30]There was an error with the selected file\nPlease try again[/size]')
+
+
 
 
 
@@ -379,10 +400,14 @@ class PrintUSB(PrintFile):
         This class encapsulates the dynamic properties that get rendered on the PrintUSB and the methods that allow the user to start a print from usb or save the file to local.
     """
     def save_file_to_local(self, *args):
-        usb_removed = self.file_name.replace('.usb', '')
-        link_path = FILES_DIR + '/' + self.file_name
-        copy_path = FILES_DIR + '/' + usb_removed
-        real_path = os.readlink(link_path)
-
-        shutil.copy2(real_path, copy_path)
-        os.unlink(link_path)
+        try:
+            usb_removed = self.file_name.replace('.usb', '')
+            link_path = FILES_DIR + '/' + self.file_name
+            copy_path = FILES_DIR + '/' + usb_removed
+            real_path = os.readlink(link_path)
+    
+            shutil.copy2(real_path, copy_path)
+            os.unlink(link_path)
+        except Exception as e:
+            #raise error
+            Error_Popup('[size=40][color=#69B3E7]File Error[/size][/color]\n[size=30]There was an error with the selected file\nPlease try again[/size]')

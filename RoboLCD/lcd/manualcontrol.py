@@ -14,6 +14,7 @@ from kivy.graphics import *
 from kivy.uix.label import Label
 from connection_popup import Mintemp_Warning_Popup
 from .. import roboprinter
+from printer_jog import printer_jog
 
 # class Control(Widget):
 #     manualcontrol = ObjectProperty(ManualControl() )
@@ -44,7 +45,8 @@ class MotorControl(GridLayout):
             self._move(axis, amnt)
 
     def _move(self, axis, amnt):
-        roboprinter.printer_instance._printer.jog(axis, amnt)
+        jogger = {axis:amnt}
+        printer_jog.jog(desired=jogger, speed=1500, relative=True)
 
     def toggle_mm(self):
         if self.inx == 3:

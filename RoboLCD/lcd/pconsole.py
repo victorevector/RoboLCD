@@ -23,8 +23,6 @@ class PConsole(octoprint.printer.PrinterCallback):
     eeprom = {}
     counter = 0
 
-
-
     def on_printer_add_message(self, data):
 
         #roboprinter.printer_instance._logger.info(data)
@@ -202,6 +200,9 @@ class PConsole(octoprint.printer.PrinterCallback):
             roboprinter.printer_instance._logger.info(self.eeprom)
         #roboprinter.printer_instance._logger.info(self.counter)
 
+    def query_eeprom(self):
+        roboprinter.printer_instance._printer.commands('M501')
+
     def get_eeprom(self):
         self.counter = 0
         self.eeprom_ready = False
@@ -273,7 +274,7 @@ class PConsole(octoprint.printer.PrinterCallback):
             'D' : 0
         }
         self.zoffset = {
-            'Z' : -10.0
+            'Z' : 0
         }
         self.eeprom = {
             'steps per unit' : self.steps_per_unit,

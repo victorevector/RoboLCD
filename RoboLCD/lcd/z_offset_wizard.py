@@ -7,6 +7,7 @@ from kivy.uix.label import Label
 from kivy.logger import Logger
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, NumericProperty, ListProperty
 from .. import roboprinter
+from printer_jog import printer_jog
 
 
 class Z_Offset_Wizard_1_4(FloatLayout):
@@ -31,8 +32,8 @@ class Z_Offset_Wizard_3_4(FloatLayout):
     def _jog(self, direction):
         # determine increment value
         increment = direction * self.f_toggle_mm[self.toggle_mm]
-       
-        roboprinter.printer_instance._printer.jog('z', increment)
+        jogger = {'z': increment}
+        printer_jog.jog(desired=jogger, speed=1500, relative=True)
 
 class Z_Offset_Wizard_4_4(FloatLayout):
     pass

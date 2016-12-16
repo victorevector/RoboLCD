@@ -536,6 +536,62 @@
                 center_y: popup.center_y - 50
 
 
+<Error_Popup>:
+    background_color: 0,0,0,1
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 600, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
+    GridLayout:
+        cols:1
+        rows:1
+        background_color: 0,0,0,1
+        FloatLayout:
+            Image:
+                source: 'Icons/Manual_Control/failure_icon.png'
+                size_hint: None, None
+                center_x: popup.center_x
+                center_y: popup.center_y + 120
+            Label:
+                id: modal_question
+                markup: True
+                size_hint: None, None
+                text: root.error_message
+                valign: 'middle'
+                halign: 'center'
+                center_x: popup.center_x
+                center_y: popup.center_y
+            Button:
+                size_hint: None, None
+                id: error_ok
+                background_normal: 'Icons/blue_button_style.png'
+                width: 225
+                height: 85
+                on_press: app.root.go_back_to_main('printer_status_tab')
+                center_x: popup.center_x
+                center_y: popup.center_y - 125
+                Image:
+                    source: 'Icons/Manual_Control/ok_button_icon.png'
+                    allow_stretch: False
+                    center_x: error_ok.center_x - 20
+                    center_y: error_ok.center_y
+                Label:
+                    background_color: 0,0,0,0
+                    text: 'OK'
+                    font_size: 30
+                    center_x: error_ok.center_x + 20
+                    center_y: error_ok.center_y
+
 <StartUpdateButton>:
     text: 'Install'
     font_size: 40
@@ -1182,12 +1238,13 @@
 
 <WifiUnencrypted>:
     Button:
+        id: connect
         text: 'Connect'
-        font_size: 30
+        font_size: 50
         pos_hint: {'center_x': .5, 'center_y': .5}
         size_hint: .5, .5
         border: 40,40,40,40
-        background_normal: "Icons/button_start_blank.png"
+        background_normal: "Icons/blue_button_style.png"
 
 <WifiPasswordInput>:
     Label:
@@ -2252,8 +2309,6 @@
         rows: 4
         cols: 1
         orientation: 'vertical'
-
-
     #scroll Buttons
     GridLayout:
         id:scroll
@@ -2272,6 +2327,102 @@
             background_down:"Icons/Down-arrow-blue.png"
             on_press: root.down_button()
 
+<Scroll_Box_Icons>:
+    background_color: (0,0,0,1)
+    grid: content
+    GridLayout:
+        center_y: self.parent.center_y
+        center_x: self.parent.center_x
+        id: content
+        rows: root.rows
+        cols: root.cols
+        orientation: 'vertical'
+
+<Robo_Icons>:
+    id: robo_icon
+    background_color: (0,0,0,1)
+    on_press: app.root.generate_screens(root.generator)
+    FloatLayout:
+        Image:
+            source: root.img_source
+            width: 100
+            height: 100
+            allow_stretch: False
+            size_hint_x: None
+            center_x: robo_icon.center_x
+            center_y: robo_icon.center_y + 30
+        Label:
+            text: root.icon_name
+            font_size: 30
+            text_size: robo_icon.width, None
+            markup: True
+            max_lines: 1
+            halign: 'center'
+            valign: 'center'
+            center_x: robo_icon.center_x
+            center_y: robo_icon.center_y - 50
+
+
+<Scroll_Box_Icons_Anchor>:
+    background_color: (0,0,0,1)
+    AnchorLayout:
+        id: left
+        anchor_x: 'left'
+        anchor_y: 'top'
+        
+    AnchorLayout:
+        id: right
+        anchor_x: 'right'
+        anchor_y: 'top'
+        
+    AnchorLayout:
+        id: center
+        anchor_x: 'center'
+        anchor_y: 'bottom'
+            
+
+<Robo_Icons_Anchor>:
+    id: robo_icon
+    background_color: (0,0,0,1)
+    on_press: app.root.generate_screens(root.generator)
+    FloatLayout:
+        Image:
+            source: root.img_source
+            width: 100
+            height: 100
+            size_hint_x: None
+            center_x: robo_icon.center_x
+            center_y: robo_icon.center_y + 30
+        Label:
+            text: root.icon_name
+            font_size: 30
+            text_size: robo_icon.width, None
+            markup: True
+            max_lines: 1
+            halign: 'center'
+            valign: 'center'
+            center_x: robo_icon.center_x
+            center_y: robo_icon.center_y - 50
+
+<Temperature_Label>:
+    id: temp_icon
+    background_color: (0,0,0,1)
+    text: 'TEXT'
+    FloatLayout
+        Image:
+            source: 'Icons/Icon_Buttons/Preheat.png'
+            width: 100
+            height: 100
+            size_hint_x: None
+            center_x: temp_icon.center_x 
+            center_y: temp_icon.center_y 
+        Label:
+            text: str(root.extruder_one_temp) + '°C'
+            font_size: 50
+            halign: 'left'
+            text_size: temp_icon.width, None
+            center_x: temp_icon.center_x 
+            center_y: temp_icon.center_y 
 
 
 

@@ -263,6 +263,9 @@ class WifiUnencrypted(FloatLayout):
     for cases where wifi is not encrypted
     """
     ssid = StringProperty('')
+    def __init__(self, **kwargs):
+        super(WifiUnencrypted, self).__init__()
+        self.ssid = kwargs['ssid']
 
 class WifiConfirmation(FloatLayout):
     ssid = StringProperty('')
