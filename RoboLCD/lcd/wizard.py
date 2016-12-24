@@ -169,7 +169,6 @@ class FilamentWizard(Widget):
         # updates the temperature
         r = roboprinter.printer_instance._printer.get_current_temperatures()
         self.temp = r['tool0']['actual']
-        Logger.info('Temp: {}'.format(self.temp))
         if self.layout2 != None:
             self.layout2.update_temp(self.temp)
 
@@ -253,15 +252,26 @@ class FilamentWizard(Widget):
 
     def extrude(self, *args):
         # wrapper that can accept the data pushed to it by Clock.schedule_interval when called
-        roboprinter.printer_instance._printer.extrude(5.0)
-
+        if self.sm.current == 'filamentwizard[4]':
+            roboprinter.printer_instance._printer.extrude(5.0)
+        else:
+            self.end_extrude_event()
+            Logger.info("Canceling due to Screen change")
     def retract(self, *args):
-        roboprinter.printer_instance._printer.extrude(-5.0)
+        if self.sm.current == 'filamentwizard[2]':
+            roboprinter.printer_instance._printer.extrude(-5.0)
+        else:
+            self.end_extrude_event()
+            Logger.info("Canceling due to Screen change")
+
+    def retract_after_session(self, *args):
+        roboprinter.printer_instance._printer.extrude(-10.0)
 
     def end_extrude_event(self, *args):
         self.extrude_event.cancel()
 
     def end_wizard(self, *args):
+        self.retract_after_session()
         self.extrude_event.cancel()
         c = Filament_Wizard_Finish()
 
@@ -270,7 +280,8 @@ class FilamentWizard(Widget):
             
         else:
             _title = 'Filament Wizard 4/4'
-            
+        
+        self.sm.cooldown_button()
 
         self.sm._generate_backbutton_screen(name=self.name+'[5]', title=_title, back_destination=self.name+'[4]', content=c)
 
@@ -294,7 +305,7 @@ class ZoffsetWizard(Widget):
         super(ZoffsetWizard, self).__init__()
         self.sm = robosm
         self.name = 'zoffset' #name of initial screen
-        self.z_pos_init = 10.00
+        self.z_pos_init = 20.00
         self.z_pos_end = 0.0
         self.first_screen(back_destination=back_destination)
 
@@ -386,7 +397,7 @@ class ZoffsetWizard(Widget):
     #####Helper Functions#######
     def _prepare_printer(self):
         # Prepare printer for zoffset configuration
-        roboprinter.printer_instance._printer.commands(['M851 Z-10', 'M500', 'G90'])
+        roboprinter.printer_instance._printer.commands(['M851 Z-'+ str(self.z_pos_init), 'M500', 'G90'])
         roboprinter.printer_instance._printer.commands(['G28', 'G91', 'G1 X5 Y30 F800', 'G90' ])
         
 
@@ -395,7 +406,7 @@ class ZoffsetWizard(Widget):
         xpos = int(float(pos[0]))
         ypos = int(float(pos[1]))
         zpos = int(float(pos[2]))
-        if self.counter > 3 and  xpos == 71.00 and ypos == 62.00 and zpos == 10:
+        if self.counter > 3 and  xpos == 71.00 and ypos == 62.00 and zpos == self.z_pos_init :
             if self.sm.current == 'zoffset[1]':
                 Logger.info('Succesfully found position')
                 self.third_screen()

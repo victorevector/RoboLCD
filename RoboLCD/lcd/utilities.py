@@ -35,7 +35,7 @@ class UtilitiesContent(BoxLayout):
         rc = Robo_Icons('Icons/Icon_Buttons/Robo_Controls.png', 'Robo Controls', 'ROBO_CONTROLS')
         wiz = Robo_Icons('Icons/Icon_Buttons/Wizards.png', 'Wizards', 'WIZARDS')
         net = Robo_Icons('Icons/Icon_Buttons/Networking.png', 'Network', 'NETWORK')
-        upd = Robo_Icons('Icons/Icon_Buttons/Updates.png', 'Updates', 'UPDATES')
+        upd = Robo_Icons('Icons/Icon_Buttons/Updates.png', 'Version', 'UPDATES')
         fac = Robo_Icons('Icons/Icon_Buttons/Factory Reset.png', 'Factory Reset', 'FACTORY_RESET')
         opt = Robo_Icons('Icons/Icon_Buttons/Options.png', 'Options', 'OPTIONS')
 

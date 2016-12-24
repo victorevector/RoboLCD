@@ -6,6 +6,7 @@ from kivy.graphics import RoundedRectangle
 from kivy.clock import Clock
 from kivy.logger import Logger
 
+
 DEFAULT_FONT = 'Roboto'
 
 
@@ -19,15 +20,27 @@ class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         Clock.schedule_interval(self.update, .1)
+        
 
-    def update(self, dt):
+    def update(self,dt):
         self.ids.printer_status_content.update(dt)
         self.ids.files_content.update(dt)
 
+    
     def open_tab(self, tab_id):
         t = self.ids[tab_id]
         Logger.info('Tab: {}'.format(t))
         self.ids.mstp.switch_to(t)
+
+
+    def entering_callback(self):
+        Logger.info("Is this working?###################################################################")
+        
+
+    
+        
+
+
 
 
 class MainScreenTabbedPanel(TabbedPanel):

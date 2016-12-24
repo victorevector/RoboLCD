@@ -27,7 +27,7 @@ from printer_jog import printer_jog
 
 class MotorControl(GridLayout):
     mms = ListProperty([0.1,1,10,100])
-    inx = NumericProperty(0)
+    inx = NumericProperty(2)
     toggle_pic = ['Icons/Manual_Control/increments_4_1.png', 'Icons/Manual_Control/increments_4_2.png', 'Icons/Manual_Control/increments_4_3.png', 'Icons/Manual_Control/increments_4_4.png' ]
 
     def move_pos(self, axis):
@@ -45,8 +45,12 @@ class MotorControl(GridLayout):
             self._move(axis, amnt)
 
     def _move(self, axis, amnt):
-        jogger = {axis:amnt}
-        printer_jog.jog(desired=jogger, speed=1500, relative=True)
+        if axis != 'e':
+            jogger = {axis:amnt}
+            printer_jog.jog(desired=jogger, speed=1500, relative=True)
+        else:
+            jogger = {axis:amnt}
+            printer_jog.jog(desired=jogger, speed=100, relative=True)
 
     def toggle_mm(self):
         if self.inx == 3:

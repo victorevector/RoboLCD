@@ -1,5 +1,18 @@
 # RoboLCD Changelog
 
+##1.2.1 (2016-12-23)
+
+###Bug Fixes
+
+* removed update screen's call to action button that would break the screen; replaced it with version number
+
+* filament wizard now retracts after its finished
+
+* filament loading wizard stops extruding after exiting it 
+
+* fixed z offset wizard misreading when using blue tape on bed
+
+
 ##1.2.0 (2016-12-15)
 
 ###Improvements

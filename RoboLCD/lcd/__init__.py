@@ -58,6 +58,8 @@ def start():
     from robo_sm import screen_manager
     from connection_popup import Connection_Popup, Updating_Popup
     import subprocess
+    from Print_Tuning import Print_Tuning
+    from Versioning import Versioning
     Logger.info('Start')
 
     # ========== Starting Message queue thread.===================
@@ -90,7 +92,6 @@ def start():
             Clock.schedule_interval(self.check_connection_status, .5)
             pconsole.initialize_eeprom()
             pconsole.generate_eeprom()
-
 
         def check_connection_status(self, dt):
             """Is aware of printer-sbc connection """
@@ -567,6 +568,17 @@ def start():
         def genetate_filament_change_wizard(self, **kwargs):
             FilamentWizard('CHANGE',self, name=kwargs['name'],title=kwargs['title'], back_destination=kwargs['back_destination']) #pass self so that FilamentWizard can render itself
             return
+        def generate_tuning_screen(self, **kwargs):
+            _name = kwargs['name']
+
+            layout = Print_Tuning()
+
+            self._generate_backbutton_screen(name=_name, title=kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
+
+        def generate_versioning(self, **kwargs):
+            _name = kwargs['name']
+            layout = Versioning()
+            self._generate_backbutton_screen(name=_name, title=kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
 
         def generate_screens(self, screen):
 
@@ -575,9 +587,9 @@ def start():
                 'ROBO_CONTROLS': {'name':'robo_controls','title':'Robo Controls','back_destination':'main', 'function': self.generate_robo_controls },
                 'WIZARDS' : {'name':'wizards_screen', 'title':'Wizards', 'back_destination':'main', 'function': self.generate_wizards_screen},
                 'NETWORK' : {'name':'network_utilities_screen', 'title':'Network Utilities', 'back_destination':'main', 'function': self.generate_network_utilities_screen},
-                'UPDATES' : {'name':'UpdateScreen', 'title':'Updates', 'back_destination':'main', 'function': self.generate_update_screen},
+                'UPDATES' : {'name':'UpdateScreen', 'title':'Version', 'back_destination':'main', 'function': self.generate_versioning},#self.generate_update_screen},
                 'FACTORY_RESET': {'name': 'factory_reset', 'title':'Factory Reset', 'back_destination': 'main', 'function': self.coming_soon},
-                'OPTIONS': {'name':'options', 'title': 'Options', 'back_destination':'main', 'function': self.coming_soon},
+                'OPTIONS': {'name':'options', 'title': 'Options', 'back_destination':'main', 'function': self.coming_soon},#self.generate_tuning_screen},#self.coming_soon},
 
                 #Robo Controls sub screen
                 'EXTRUDER_CONTROLS': {'name':'extruder_control_screen', 'title':'Temperature Control', 'back_destination':'robo_controls', 'function':self.generate_extrudercontrol_screen},
@@ -610,6 +622,7 @@ def start():
                 Logger.info(screen + " Is Not an acceptable screen")
                 return False
 
+        
             
 
 

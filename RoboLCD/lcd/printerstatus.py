@@ -11,6 +11,7 @@ from kivy.uix.modalview import ModalView
 from .. import roboprinter
 from connection_popup import Zoffset_Warning_Popup
 import math
+import subprocess
 
 
 class PrinterStatusTab(TabbedPanelHeader):
@@ -23,7 +24,6 @@ class PrinterStatusTab(TabbedPanelHeader):
 class PrinterStatusContent(GridLayout):
     """
     """
-
     filename = StringProperty("")
     status = StringProperty("[ref=status][/ref]")
     extruder_one_temp = NumericProperty(0)
@@ -33,6 +33,15 @@ class PrinterStatusContent(GridLayout):
     bed_max_temp = NumericProperty(200)
     bed_temp = NumericProperty(0)
     progress = StringProperty('')
+    startup = False 
+    safety_counter = 0
+    
+
+    def __init__(self,**kwargs):
+        super(PrinterStatusContent, self).__init__(**kwargs)
+        
+        self.splash_event = Clock.schedule_interval(self.turn_off_splash, .1)
+        Clock.schedule_interval(self.safety, 1)
 
     def update(self, dt):
         temps = roboprinter.printer_instance._printer.get_current_temperatures()
@@ -63,6 +72,8 @@ class PrinterStatusContent(GridLayout):
         if 'tool0' in temps.keys():
             self.extruder_one_temp = temps['tool0']['actual']
             self.extruder_one_max_temp = temps['tool0']['target']
+            
+
         else:
             self.extruder_one_temp = 0
             self.extruder_one_max_temp = 0
@@ -90,6 +101,28 @@ class PrinterStatusContent(GridLayout):
 
     def start_print(self):
         roboprinter.printer_instance._printer.start_print()
+
+    def turn_off_splash(self, dt):
+        #turn off the splash screen
+        if self.extruder_one_temp != 0 and self.startup == False:
+            #Logger.info("Turning Off the Splash Screen!")
+            subprocess.call(['sudo pkill omxplayer'], shell=True)
+            self.startup = True
+            return False
+
+    def safety(self,dt):
+        self.safety_counter += 1
+        safety_time = 60
+
+        if self.safety_counter == safety_time and self.startup == False:
+            #Logger.info("Safety Counter went off!")
+            subprocess.call(['sudo pkill omxplayer'], shell=True)
+            Clock.unschedule(self.splash_event)
+            return False
+        elif self.safety_counter == safety_time and self.startup == True:
+            #Logger.info("Unscheduling safety event")
+            return False
+
        
 
 class StartPauseButton(Button):

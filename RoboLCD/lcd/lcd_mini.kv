@@ -803,92 +803,11 @@
 
 <UtilitiesContent>
 
-<Robo_Controls>:
-    background_color: (0,0,0,1)
-    on_press: app.root.generate_robo_controls(name='robo_controls',title='Robo Controls',back_destination='main')
-    text: '   Robo Controls'
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-<Wizards>:
-    background_color: (0,0,0,1)
-    on_press: app.root.generate_wizards_screen(name='wizards_screen', title='Wizards', back_destination='main')
-    text:'   Wizards'
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-
-<Network>:
-    background_color: (0,0,0,1)
-    text: '   Network'
-    on_press: app.root.generate_network_utilities_screen(name='network_utilities_screen', title='Network Utilities', back_destination='main')
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-
-<Updates>:
-    background_color: (0,0,0,1)
-    text: '   Updates'
-    on_press: app.root.generate_update_screen(name='UpdateScreen', title='Updates', back_destination='main')
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-
-<Factory_Reset>:
-    background_color: (0,0,0,1)
-    text: '   Factory reset'
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-
-<Z_Offset_Wizard_Button>:
-    background_color: (0,0,0,1)
-    text: '   Z Offset Wizard'
-    on_press: app.root.generate_zaxis_wizard(name='zoffset', title='Z Offset Wizard', back_destination='wizards_screen')
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-
-<Filament_Loading_Wizard_Button>:
-    background_color: (0,0,0,1)
-    text: '   Filament Loading Wizard'
-    on_press: app.root.generate_filament_wizard(name='filamentwizard',title="Filament",back_destination='wizards_screen')
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
 
 
-<Filament_Change_Wizard_Button>:
-    background_color: (0,0,0,1)
-    text: '   Filament Change Wizard'
-    on_press: app.root.genetate_filament_change_wizard(name='filamentwizard',title="Filament",back_destination='wizards_screen')
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
+
+
+
 
 <QRCodeScreen>:
     orientation: 'vertical'
@@ -978,43 +897,6 @@
             id: content_layout #self.content gets added to ScrollView via WifiScreen_instance.populate_layout()
             do_scroll_x: False
             scroll_distance: 45
-
-<WifiConfigureButton>:
-    background_color: (0,0,0,1)
-    on_press: app.root.generate_wificonfig( back_destination='network_utilities_screen')
-    text: '   Configure Wifi'
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-
-<QR_Button>:
-    markup: True
-    background_color: (0,0,0,1)
-    text: '   QR Code'
-    font_size: 30
-    on_press: app.root.generate_qr_screen(name='qrcode_screen', title='QR Code', back_destination='network_utilities_screen')
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-
-<APButton>:
-    markup: True
-    background_color: (0,0,0,1)
-    markup: True
-    text: '   Start Wifi Hotspot'
-    on_press: app.root.generate_start_apmode_screen(name='start_apmode_screen', title='Start Wifi Hotspot', back_destination='network_utilities_screen')
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
 
 <AP_Mode_1_4>:
     id: screen
@@ -1153,18 +1035,6 @@
 
 <APConfirmation>:
     font_size: 30
-
-<IPAddressButton>:
-    markup: True
-    background_color: (0,0,0,1)
-    text: '   Network Status'
-    on_press: app.root.generate_ip_screen(name='ip_screen', title='Network Status', back_destination='network_utilities_screen')
-    font_size: 30
-    text_size: 300, None
-    halign: 'left'
-    valign: 'middle'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
 
 <WifiButton>:
     background_color: (0,0,0,1)
@@ -1681,28 +1551,6 @@
             background_normal: 'Icons/blue_button_style.png'
 
 
-<Extruder_Controls>:
-    markup: True
-    size_hint_y: None
-    markup: True
-    background_color: (0,0,0,1)
-    text: '[size=30]   Temperature Controls[/size]'
-    valign: 'middle'
-    halign: 'left'
-    text_size: self.width, self.height
-    on_press: app.root.generate_extrudercontrol_screen(name='extruder_control_screen', title='Temperature Control', back_destination='robo_controls')
-
-
-<Preheat_Button>:
-    markup: True
-    size_hint_y: None
-    markup: True
-    background_color: (0,0,0,1)
-    text: '[size=30]   Preheat[/size]'
-    valign: 'middle'
-    halign: 'left'
-    text_size: self.width, self.height
-    on_press: app.root.generate_preheat_list(name='preheat_wizard',title='Preheat Wizard',back_destination='extruder_control_screen')
 
 <PLA_Button>:
     markup: True
@@ -1740,18 +1588,6 @@
     valign: 'middle'
     halign: 'left'
     text_size: self.width, self.height
-
-<Cooldown_Button>:
-    markup: True
-    size_hint_y: None
-    height: 100
-    markup: True
-    background_color: (0,0,0,1)
-    text: '[size=30]   Cooldown[/size]'
-    valign: 'middle'
-    halign: 'left'
-    text_size: self.width, self.height
-    on_press: app.root.generate_cooldown(name='cooldown_button',title='Cooldown',back_destination='extruder_control_screen')
 
 <Preheat_Screen>:
     rows: 2
@@ -2272,32 +2108,6 @@
             center_x: save.center_x + 20
             center_y: save.center_y
 
-
-<Motor_Control>:
-    markup: True
-    size_hint_y: None
-    markup: True
-    background_color: (0,0,0,1)
-    text: '[size=30]   Motor Control[/size]'
-    valign: 'middle'
-    halign: 'left'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-    on_press: app.root.generate_motor_controls(name='motor_control_screen',title='Motor Control',back_destination='robo_controls')
-
-<Temperature_Control>:
-    markup: True
-    size_hint_y: None
-    markup: True
-    background_color: (0,0,0,1)
-    text: '[size=30]   Temperature Control[/size]'
-    valign: 'middle'
-    halign: 'left'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-    on_press: app.root.generate_temperature_controls(name='temperature_button',title='Temperature Control',back_destination='extruder_control_screen')
-
-
 <Scroll_Box_Even>:
     grid:content
     scroll: scroll
@@ -2422,8 +2232,113 @@
             halign: 'left'
             text_size: temp_icon.width, None
             center_x: temp_icon.center_x 
-            center_y: temp_icon.center_y 
+            center_y: temp_icon.center_y
 
+<Print_Tuning>:
+    id: tuning_screen
+    
+    Label:
+        id: title_label
+        text: root.title_label_text
+        font_size: 30
+        size_hint: None, None
+        markup: True
+        max_lines: 1
+        halign: 'center'
+        valign: 'center'
+        center_x: tuning_screen.center_x - 10
+        center_y: tuning_screen.center_y + 150
+    Label:
+        id: tuning_number
+        text: root.tuning_number
+        font_size: 30
+        size_hint: None, None
+        text_size: self.width, None
+        markup: True
+        max_lines: 1
+        halign: 'center'
+        valign: 'center'
+        center_x: tuning_screen.center_x - 10
+        center_y: tuning_screen.center_y - 20
+
+    Button:
+        id: up
+        text: '+'
+        on_press: root.add_button(1)
+        size_hint: None, None
+        size: 125,125
+        center_x: tuning_screen.center_x + 125
+        center_y: tuning_screen.center_y + 50
+
+    Button:
+        id: down
+        on_press: root.add_button(-1)
+        text: '-'
+        size_hint: None, None
+        size: 125,125
+        center_x: tuning_screen.center_x + 125
+        center_y: tuning_screen.center_y - 100
+
+    Button:
+        id: up_plus
+        on_press: root.add_button(10)
+        text: '++'
+        size_hint: None, None
+        size: 125,125
+        center_x: tuning_screen.center_x + 270
+        center_y: tuning_screen.center_y + 50
+
+    Button:
+        id: down_plus
+        on_press: root.add_button(-10)
+        text: '--'
+        size_hint: None, None
+        size: 125,125
+        center_x: tuning_screen.center_x + 270
+        center_y: tuning_screen.center_y - 100
+
+    #----------------------------------------tuning buttons------------------------------------
+    Button:
+        id: flow
+        on_press: root.flow_button()
+        text: 'flow'
+        size_hint: None, None
+        size: 100,100
+        center_x: tuning_screen.center_x - 250
+        center_y: tuning_screen.center_y + 25
+
+    Button:
+        id: feed_rate
+        on_press: root.feed_button()
+        text: 'feed_rate'
+        size_hint: None, None
+        size: 100,100
+        center_x: tuning_screen.center_x - 140
+        center_y: tuning_screen.center_y + 25
+
+    Button:
+        id: fans
+        on_press: root.fan_button()
+        text: 'fans'
+        size_hint: None, None
+        size: 210,100
+        center_x: tuning_screen.center_x - 195
+        center_y: tuning_screen.center_y - 85
+
+<Versioning>:
+    id: screen
+    Label:
+        id: version_number
+        text: root.version
+        font_size: 30
+        size_hint: None, None
+        text_size: screen.width, None
+        markup: True
+        max_lines: 1
+        halign: 'center'
+        valign: 'center'
+        center_x: screen.center_x 
+        center_y: screen.center_y 
 
 
 <MainScreen>

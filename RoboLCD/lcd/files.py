@@ -358,7 +358,7 @@ class PrintFile(GridLayout):
             if self.status == "READY TO PRINT":
                 _offset = pconsole.zoffset['Z']
         
-                if _offset <= -10:
+                if _offset <= -20 or _offset >= 0:
                     zoff = Zoffset_Warning_Popup(self)
                     zoff.open()
                 else:

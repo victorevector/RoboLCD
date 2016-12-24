@@ -9,10 +9,11 @@ import qrcode
 from . import lcd
 from . import roboprinter
 from .lcd.pconsole import pconsole
+from .lcd.session_saver import session_saver
 
 
 
-class RobolcdPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.AssetPlugin, octoprint.plugin.StartupPlugin):
+class RobolcdPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.AssetPlugin, octoprint.plugin.StartupPlugin,octoprint.plugin.EventHandlerPlugin):
     def _get_api_key(self):
         return self._settings.global_get(['api', 'key'])
 
@@ -52,6 +53,29 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.AssetPlugi
         else :
             self._logger.info("Firmware updater does not have a helper function")
             self.firmware_updating = self.updater_placeholder
+
+    def on_event(self,event, payload):
+        
+        def reset_data():
+            session_saver.save_variable('FLOW', 100)
+            session_saver.save_variable('FEED', 100)
+            session_saver.save_variable('FAN', 100)
+            self._printer.feed_rate(100)
+            self._printer.flow_rate(100)
+            self._printer.commands('M106 S255')
+
+        if event == 'PrintStarted':
+            reset_data()
+        elif event == 'PrintFailed':
+            reset_data()
+        elif event == 'PrintDone':
+            reset_data()
+        elif event == 'PrintCancelled':
+            reset_data()
+        elif event == "FileDeselected":
+            reset_data()
+
+        
 
     def updater_placeholder(self):
         return False
