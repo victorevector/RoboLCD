@@ -1,5 +1,20 @@
 # RoboLCD Changelog
 
+##1.2.2 (2017-1-4)
+
+###Improvements
+
+* RoboOS Update available through Utilities --> Update (RoboOS 1.0.4)
+
+###Bug Fixes
+
+* mainboard firmware (RoboOS 1.0.4)
+
+* RoboOS does not time out when you unplug usb while printer is off (RoboOS 1.0.4)
+
+* RoboTheme is updateable via webapp software update (RoboOS 1.0.4)
+
+
 ##1.2.1 (2016-12-23)
 
 ###Bug Fixes
@@ -8,7 +23,7 @@
 
 * filament wizard now retracts after its finished
 
-* filament loading wizard stops extruding after exiting it 
+* filament loading wizard stops extruding after exiting it
 
 * fixed z offset wizard misreading when using blue tape on bed
 

@@ -162,8 +162,12 @@ class CancelButton(Button):
         if self.is_printing() or roboprinter.printer_instance._printer.is_paused() == True:
             roboprinter.printer_instance._printer.cancel_print()
             Logger.info('Cancellation: Successful')
-            roboprinter.printer_instance._printer.unselect_file()
-            Logger.info('Unselect: Successful')
+            Clock.schedule_once(self.unselect_callback, 10)
+            
+
+    def unselect_callback(self, dt):
+        roboprinter.printer_instance._printer.unselect_file()
+        Logger.info('Unselect: Successful')
     def no_button(self, instance):
         pass
     def modal_view(self):

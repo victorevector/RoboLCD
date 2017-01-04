@@ -1,0 +1,43 @@
+<Updating_Popup>:
+    background_color: 0,0,0,1
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 600, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
+    GridLayout:
+        cols:1
+        rows:1
+        background_color: 0,0,0,1
+        FloatLayout:
+            Image:
+                source: 'icons/failure_icon.png'
+                size_hint: None, None
+                center_x: popup.center_x
+                center_y: popup.center_y + 110
+            Label:
+                id: modal_question
+                markup: True
+                size_hint: None, None
+                text: '[size=40][color=#69B3E7]Robo is Updating[/size][/color]\n\n[size=30]Your printer will restart after the\nupdate is finished\n\n[color=#FF0000]Please do not turn off the printer[/color][/size]'
+                valign: 'middle'
+                halign: 'center'
+                center_x: popup.center_x
+                center_y: popup.center_y - 50
+
+<MainScreen>:
+    name: 'main'
+    background_color: 0,0,0,1
+
+
+Updater_Screen_Manager:
+    MainScreen

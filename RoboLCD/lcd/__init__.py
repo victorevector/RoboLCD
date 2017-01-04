@@ -25,7 +25,6 @@ def start():
     from kivy.app import App
     from kivy.lang import Builder
     from kivy.resources import resource_add_path
-    from kaapopup import KaaPopup, UpdateScreen
     from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
     from kivy.uix.boxlayout import BoxLayout
     from kivy.uix.floatlayout import FloatLayout
@@ -34,7 +33,7 @@ def start():
     from kivy.uix.gridlayout import GridLayout
     from kivy.uix.label import Label
     from functools import partial
-    from kaapopup import KaaPopup, UpdateScreen,CompletePopup, ErrorPopup, get_update_lists, UPDATE_LOG, NoupdatePopup
+    from kaapopup import KaaPopup,CompletePopup, ErrorPopup, get_update_lists, UPDATE_LOG, NoupdatePopup
     from mainscreen import MainScreen, MainScreenTabbedPanel
     from files import FilesTab, FilesContent, PrintFile, PrintUSB
     from utilities import UtilitiesTab, UtilitiesContent, QRCodeScreen
@@ -60,6 +59,7 @@ def start():
     import subprocess
     from Print_Tuning import Print_Tuning
     from Versioning import Versioning
+    from updater import UpdateScreen
     Logger.info('Start')
 
     # ========== Starting Message queue thread.===================
@@ -118,7 +118,7 @@ def start():
 
         def generate_connection_popup(self, *args, **kwargs):
             if roboprinter.printer_instance.firmware_updating() == False:
-            
+
                 p = Connection_Popup()
 
                 p.open()
@@ -137,7 +137,7 @@ def start():
                 subprocess.call("sudo service octoprint restart", shell=True)
 
                 return False
-            
+
 
         def receive_message(*args):
             """
@@ -461,7 +461,7 @@ def start():
 
             buttons = [extruder, manual]
 
-            layout = Scroll_Box_Icons(buttons)            
+            layout = Scroll_Box_Icons(buttons)
 
             self._generate_backbutton_screen(name = _name, title = kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
             return
@@ -587,7 +587,7 @@ def start():
                 'ROBO_CONTROLS': {'name':'robo_controls','title':'Robo Controls','back_destination':'main', 'function': self.generate_robo_controls },
                 'WIZARDS' : {'name':'wizards_screen', 'title':'Wizards', 'back_destination':'main', 'function': self.generate_wizards_screen},
                 'NETWORK' : {'name':'network_utilities_screen', 'title':'Network Utilities', 'back_destination':'main', 'function': self.generate_network_utilities_screen},
-                'UPDATES' : {'name':'UpdateScreen', 'title':'Version', 'back_destination':'main', 'function': self.generate_versioning},#self.generate_update_screen},
+                'UPDATES' : {'name':'UpdateScreen', 'title':'Update', 'back_destination':'main', 'function': self.generate_update_screen},#self.generate_update_screen},
                 'FACTORY_RESET': {'name': 'factory_reset', 'title':'Factory Reset', 'back_destination': 'main', 'function': self.coming_soon},
                 'OPTIONS': {'name':'options', 'title': 'Options', 'back_destination':'main', 'function': self.coming_soon},#self.generate_tuning_screen},#self.coming_soon},
 
@@ -622,8 +622,23 @@ def start():
                 Logger.info(screen + " Is Not an acceptable screen")
                 return False
 
-        
-            
+        def run_updatechecker(self):
+            from updates.Update_Checker.Update_Checker import Update_Checker
+            Logger.info('Update: run_updatechecker')
+            from multiprocessing import Process
+            p = Process(target=Update_Checker)
+            Logger.info('Update: run command')
+            p.start()
+
+            # import subprocess, os.path, os
+            # current_path = os.path.dirname(os.path.realpath(__file__))
+            # Logger.info('Update: path {}'.format(current_path))
+            # cmd = "sudo bash " + current_path + "/updates/main.sh"
+            # Logger.info('Update: command-- {}'.format(cmd))
+            # subprocess.call(cmd, shell=True)
+            # Logger.info('Update: run command')
+            # os.fork(Update_Checker()
+
 
 
     class RoboLcdApp(App):

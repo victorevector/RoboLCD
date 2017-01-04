@@ -444,7 +444,7 @@
         rows:1
         background_color: 0,0,0,1
         FloatLayout:
-            
+
             Label:
                 id: modal_question
                 markup: True
@@ -601,57 +601,32 @@
     background_normal: "Icons/button_pause_blank.png"
 
 <UpdateScreen>
-    orientation: 'horizontal'
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint_x: 0.8
-        size_hint_y: 1
-        ScrollView:
-            id: update_scroll_view
-            do_scroll: False
-            scroll_distance: 5
-            size_hint_y: 0.7
-            size_hint_x: 1
-            background_color: 0,0,0,1
-            GridLayout:
-                id: update_grid
-                cols: 1
-                size_hint_y: None
-                size_hint_x: 1
-                height: self.minimum_height
-
-        BoxLayout:
-            id: install_grid
-            orientation: 'vertical'
-            size_hint_x: 1
-            size_hint_y: 0.3
-            background_color: 0,0,0,1
-            Button:
-                text: 'Install'
-                font_size: 40
-                pos_hint: {'center_x': .5, 'center_y': .5}
-                size_hint: .7, .3
-                border: 40,40,40,40
-                background_normal: "Icons/button_pause_blank.png"
-                on_press: app.root.run_kaapopup()
-
-    GridLayout:
-        rows: 2
-        size_hint_x: 0.2
-        spacing: 20
-        padding: 10,10,10,10
-        background_color: (0, 0, 0, 1)
-        Button:
-            markup: True
-            background_normal: "Icons/Up-arrow-grey.png"
-            background_down: "Icons/Up-arrow-blue.png"
-            on_press: self.parent.parent.up_action()
-
-        Button:
-            markup: True
-            background_normal: "Icons/Down-arrow-grey.png"
-            background_down: "Icons/Down-arrow-blue.png"
-            on_press: self.parent.parent.down_action()
+    id: updatescreen
+    background_color: 0,0,0,1
+    Label:
+        id: version_number
+        text: '[size=40][color=#69B3E7] RoboOS ' + root.installed_version
+        font_size: 30
+        size_hint: None, None
+        text_size: updatescreen.width, None
+        markup: True
+        max_lines: 1
+        halign: 'center'
+        valign: 'center'
+        pos_hint: {'center_y': .75}
+        center_x: updatescreen.center_x
+    Button:
+        id: updatebtn
+        text: 'Up-to-date' if root.installed_version >= root.avail_version else 'Update'
+        disabled: True if root.installed_version >= root.avail_version else False
+        font_size: 40
+        pos_hint: {'center_x': .5, 'center_y': .25}
+        size_hint: .7, .3
+        border: 40,40,40,40
+        background_normal: "Icons/button_blue.png"
+        background_disabled_down: "Icons/button_blue.png"
+        background_disabled_normal: "Icons/button_blue.png"
+        on_press: root.disable_me(app.root)
 
 <KaaPopup>:
     size_hint: .8, .6
@@ -2179,17 +2154,17 @@
         id: left
         anchor_x: 'left'
         anchor_y: 'top'
-        
+
     AnchorLayout:
         id: right
         anchor_x: 'right'
         anchor_y: 'top'
-        
+
     AnchorLayout:
         id: center
         anchor_x: 'center'
         anchor_y: 'bottom'
-            
+
 
 <Robo_Icons_Anchor>:
     id: robo_icon
@@ -2224,19 +2199,19 @@
             width: 100
             height: 100
             size_hint_x: None
-            center_x: temp_icon.center_x 
-            center_y: temp_icon.center_y 
+            center_x: temp_icon.center_x
+            center_y: temp_icon.center_y
         Label:
             text: str(root.extruder_one_temp) + '°C'
             font_size: 50
             halign: 'left'
             text_size: temp_icon.width, None
-            center_x: temp_icon.center_x 
+            center_x: temp_icon.center_x
             center_y: temp_icon.center_y
 
 <Print_Tuning>:
     id: tuning_screen
-    
+
     Label:
         id: title_label
         text: root.title_label_text
@@ -2337,8 +2312,8 @@
         max_lines: 1
         halign: 'center'
         valign: 'center'
-        center_x: screen.center_x 
-        center_y: screen.center_y 
+        center_x: screen.center_x
+        center_y: screen.center_y
 
 
 <MainScreen>

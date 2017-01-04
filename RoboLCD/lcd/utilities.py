@@ -35,7 +35,7 @@ class UtilitiesContent(BoxLayout):
         rc = Robo_Icons('Icons/Icon_Buttons/Robo_Controls.png', 'Robo Controls', 'ROBO_CONTROLS')
         wiz = Robo_Icons('Icons/Icon_Buttons/Wizards.png', 'Wizards', 'WIZARDS')
         net = Robo_Icons('Icons/Icon_Buttons/Networking.png', 'Network', 'NETWORK')
-        upd = Robo_Icons('Icons/Icon_Buttons/Updates.png', 'Version', 'UPDATES')
+        upd = Robo_Icons('Icons/Icon_Buttons/Updates.png', 'Update', 'UPDATES')
         fac = Robo_Icons('Icons/Icon_Buttons/Factory Reset.png', 'Factory Reset', 'FACTORY_RESET')
         opt = Robo_Icons('Icons/Icon_Buttons/Options.png', 'Options', 'OPTIONS')
 
@@ -50,9 +50,9 @@ class UtilitiesContent(BoxLayout):
         # net = Network()
         # upd = Updates()
         # fac = Factory_Reset()
-    
+
         # buttons = [rc, wiz, net, upd, fac]
-    
+
         # layout = Scroll_Box_Even(buttons)
         # self.add_widget(layout)
 
@@ -64,4 +64,3 @@ class UtilitiesContent(BoxLayout):
 
 class QRCodeScreen(BoxLayout):
     img_source = roboprinter.printer_instance.get_plugin_data_folder() + '/qr_code.png'
-
