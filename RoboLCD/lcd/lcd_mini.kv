@@ -605,12 +605,12 @@
     background_color: 0,0,0,1
     Label:
         id: version_number
-        text: '[size=40][color=#69B3E7] RoboOS ' + root.installed_version
+        text: '[size=40][color=#69B3E7]RoboOS\n[/size][size=35]Installed: {} \nAvailable: {}'.format(root.installed_version, root.avail_version)
         font_size: 30
         size_hint: None, None
         text_size: updatescreen.width, None
         markup: True
-        max_lines: 1
+        max_lines: 0
         halign: 'center'
         valign: 'center'
         pos_hint: {'center_y': .75}
@@ -626,7 +626,7 @@
         background_normal: "Icons/button_blue.png"
         background_disabled_down: "Icons/button_blue.png"
         background_disabled_normal: "Icons/button_blue.png"
-        on_press: root.disable_me(app.root)
+        on_press: root.run_updater()
 
 <KaaPopup>:
     size_hint: .8, .6

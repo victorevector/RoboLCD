@@ -622,23 +622,6 @@ def start():
                 Logger.info(screen + " Is Not an acceptable screen")
                 return False
 
-        def run_updatechecker(self):
-            from updates.Update_Checker.Update_Checker import Update_Checker
-            Logger.info('Update: run_updatechecker')
-            from multiprocessing import Process
-            p = Process(target=Update_Checker)
-            Logger.info('Update: run command')
-            p.start()
-
-            # import subprocess, os.path, os
-            # current_path = os.path.dirname(os.path.realpath(__file__))
-            # Logger.info('Update: path {}'.format(current_path))
-            # cmd = "sudo bash " + current_path + "/updates/main.sh"
-            # Logger.info('Update: command-- {}'.format(cmd))
-            # subprocess.call(cmd, shell=True)
-            # Logger.info('Update: run command')
-            # os.fork(Update_Checker()
-
 
 
     class RoboLcdApp(App):

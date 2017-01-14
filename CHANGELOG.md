@@ -1,5 +1,11 @@
 # RoboLCD Changelog
 
+##1.2.3 (2017-1-13)
+
+###Improvements
+
+* Utilities-->Update is aware of any RoboOS updates without the need to upgrade RoboLCD source code
+
 ##1.2.2 (2017-1-4)
 
 ###Improvements
