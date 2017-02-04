@@ -9,7 +9,11 @@ RoboLCD.egg-info/entry_points.txt
 RoboLCD.egg-info/not-zip-safe
 RoboLCD.egg-info/requires.txt
 RoboLCD.egg-info/top_level.txt
+RoboLCD/lcd/EEPROM.py
 RoboLCD/lcd/Filament_Wizard.py
+RoboLCD/lcd/Firmware_Wizard.py
+RoboLCD/lcd/Meta_Reader.py
+RoboLCD/lcd/Modal_Popup.py
 RoboLCD/lcd/Print_Tuning.py
 RoboLCD/lcd/RoboPrinter.py
 RoboLCD/lcd/Versioning.py
@@ -32,8 +36,12 @@ RoboLCD/lcd/robo_screen_manager.py
 RoboLCD/lcd/robo_sm.py
 RoboLCD/lcd/scrollbox.py
 RoboLCD/lcd/session_saver.py
+RoboLCD/lcd/updater.py
 RoboLCD/lcd/utilities.py
 RoboLCD/lcd/wifi.py
 RoboLCD/lcd/wizard.py
 RoboLCD/lcd/z_offset_wizard.py
+RoboLCD/lcd/updates/__init__.py
+RoboLCD/lcd/updates/Update_Checker/Update_Checker.py
+RoboLCD/lcd/updates/Update_Checker/__init__.py
 RoboLCD/roboprinter/__init__.py

@@ -1,3 +1,4 @@
+# coding: UTF-8
 from .. import roboprinter
 from kivy.uix.screenmanager import Screen
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, NumericProperty
@@ -22,13 +23,45 @@ class Preheat_Button(Button):
 class Cooldown_Button(Button):
     pass
 class PLA_Button(Button):
+    # TODO refactor PLA and ABS button so that they inherit from a common source. Why? DRY (don't repeat yourself)
+    button_text = StringProperty('[size=40]   PLA[/size]\n[size=20][color=#AEAEAE]      Preheat your print head to 200°C[/color][/size]')
+    def __init__(self, setup, **kwargs):
+        super(PLA_Button, self).__init__()
+        self.setup = setup
+
+        if 'bed' in self.setup:
+            if self.setup['bed'] == True:
+                self.button_text = '[size=40]   PLA[/size]\n[size=20][color=#AEAEAE]      Preheat your print head to 200°C and your bed to 70°C[/color][/size]'
+
+        self.name = kwargs.get('name', 'main')
+
     def _preheat_pla(self):
-        # pre heat to 200 degrees celsius
-        roboprinter.printer_instance._printer.set_temperature('tool0', 200.0)
+        if self.setup['tool0']:
+            roboprinter.printer_instance._printer.set_temperature('tool0', 200.0)
+        if self.setup['tool1']:
+            roboprinter.printer_instance._printer.set_temperature('tool1', 200.0)
+        if self.setup['bed']:
+            roboprinter.printer_instance._printer.set_temperature('bed', 70.0)
 class ABS_Button(Button):
+    button_text = StringProperty('[size=40]   PLA[/size]\n[size=20][color=#AEAEAE]      Preheat your print head to 200°C[/color][/size]')
+    def __init__(self, setup, **kwargs):
+        super(ABS_Button, self).__init__()
+        self.setup = setup
+
+        if 'bed' in self.setup:
+            if self.setup['bed'] == True:
+                self.button_text = '[size=40]   ABS[/size]\n[size=20][color=#AEAEAE]      Preheat your print head to 230°C and your bed to 100°C[/color][/size]'
+
+        self.name = kwargs.get('name', 'main')
+
     def _preheat_abs(self):
         # pre heat to 230 degrees celsius
-        roboprinter.printer_instance._printer.set_temperature('tool0', 230.0)
+        if self.setup['tool0']:
+            roboprinter.printer_instance._printer.set_temperature('tool0', 230.0)
+        if self.setup['tool1']:
+            roboprinter.printer_instance._printer.set_temperature('tool1', 230.0)
+        if self.setup['bed']:
+            roboprinter.printer_instance._printer.set_temperature('bed', 100.0)
 class Empty_Button(Button):
     pass
 class Preheat_Screen(BoxLayout):
@@ -42,6 +75,8 @@ class Preheat_Screen(BoxLayout):
     screen_up = True
 
     def update(self, dt):
+
+
         temps = roboprinter.printer_instance._printer.get_current_temperatures()
         current_data = roboprinter.printer_instance._printer.get_current_data()
         if 'tool0' in temps.keys():
@@ -94,13 +129,6 @@ class Temperature_Label(Button):
             self.extruder_one_temp = 0
             self.extruder_one_max_temp = 0
 
-        
+
         if self.sm.current != 'extruder_control_screen':
             return False
-
-
-
-    
-
-
-    

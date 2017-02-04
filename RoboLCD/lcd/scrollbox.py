@@ -79,8 +79,8 @@ class Scroll_Box_Even(GridLayout):
         self.buttons = button_array
         if len(button_array) <= 4:
             self.scroll.clear_widgets()
-            self.scroll.size_hint_x = None
-            self.scroll.width = 1
+            self.scroll.size_hint_x = 0
+            self.scroll.width = 0.1
         self.populate_buttons()
 
     def up_button(self):
@@ -107,6 +107,18 @@ class Scroll_Box_Even(GridLayout):
                 content.add_widget(self.buttons[self.position + x])
             else:
                 content.add_widget(Button(text='', background_color = [0,0,0,1]))
+
+class Scroll_Box_Even_Button(Button):
+    button_text = StringProperty("[size=30]Error")
+    generator= ObjectProperty("0")
+    arg = ObjectProperty("ERROR")
+    def __init__(self, text_button, generator_fuction, arg):
+        super(Scroll_Box_Even_Button, self).__init__()
+        self.button_text = str(text_button)
+        self.generator = generator_fuction
+        self.arg = arg
+
+
 
 class Scroll_Box_Icons(GridLayout):
     """We should try to not have more than six icons on the screen"""

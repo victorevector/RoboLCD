@@ -15,10 +15,19 @@ class Print_Tuning(FloatLayout):
 
     tuning_number = StringProperty('[size=30]999')
     title_label_text = StringProperty('[size=40][color=#69B3E7]Flow Rate')
+    up_icon = StringProperty("Icons/Tuning/Up +1.png")
+    down_icon = StringProperty("Icons/Tuning/Down +1.png")
 
     flow_rate_number = NumericProperty(100)
     feed_rate_number = NumericProperty(100)
     fan_speed_number = NumericProperty(100)
+    button_size = [200,200]
+
+
+    change_amount_value = [1,10]
+    change_icon_up = ["Icons/Tuning/Up +1.png", "Icons/Tuning/Up +10.png"]
+    change_icon_down = ["Icons/Tuning/Down +1.png", "Icons/Tuning/Down +10.png"]
+    change_value = 0
 
     def __init__(self, **kwargs):
         super(Print_Tuning, self).__init__(**kwargs)
@@ -32,9 +41,28 @@ class Print_Tuning(FloatLayout):
         self.current_tuner = 'FLOW'
         self.set_active(self.current_tuner)
 
+        self.max_rates = {'FLOW': 125,
+                          'FEED': 200,
+                          'FAN': 255}
+
+        self.min_rates = {'FLOW': 75,
+                          'FEED': 50,
+                          'FAN': 0}
+
+    
     def add_button(self, amount):
         self.tune_rates[self.current_tuner] += amount
-        self.tuning_number = str(self.tune_rates[self.current_tuner])
+        if self.tune_rates[self.current_tuner] in range(self.min_rates[self.current_tuner], self.max_rates[self.current_tuner]):
+            self.tuning_number = str(self.tune_rates[self.current_tuner])
+
+        elif self.tune_rates[self.current_tuner] > self.max_rates[self.current_tuner]:
+            self.tune_rates[self.current_tuner] = self.max_rates[self.current_tuner]
+            self.tuning_number = str(self.tune_rates[self.current_tuner])
+
+        elif self.tune_rates[self.current_tuner] < self.min_rates[self.current_tuner]:
+            self.tune_rates[self.current_tuner] = self.min_rates[self.current_tuner]
+            self.tuning_number = str(self.tune_rates[self.current_tuner])
+
         self.apply_tunings()
         self.save_tuning_info()
 
@@ -107,4 +135,16 @@ class Print_Tuning(FloatLayout):
                            'FAN': self.fan_speed_number}
 
         self.save_tuning_info()
+
+    def change_amount(self):
+        self.change_value += 1
+
+        if self.change_value > 1:
+            self.change_value = 0
+
+        self.ids.change_text.text = "[size=60]{}".format(self.change_amount_value[self.change_value]) 
+        self.ids.up_image.source = self.change_icon_up[self.change_value]
+        self.ids.down_image.source = self.change_icon_down[self.change_value] 
+
+
 

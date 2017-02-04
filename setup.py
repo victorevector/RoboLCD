@@ -1,5 +1,31 @@
 # coding=utf-8
 
+
+from setuptools import setup
+from setuptools.command.install import install
+from setuptools.command.develop import develop
+import sys
+
+class Install_Deps(object):
+    def install_deps(self):
+        import pip
+        r = pip.main(['install', 'https://github.com/Robo3D/OctoPrint-FirmwareUpdater/tarball/master#egg=octoprint_firmwareupdater-0.1.4', "https://github.com/Robo3D/Meta-Reader/tarball/master#egg=Meta_Reader-1.0.4"])
+        if r is not 0:
+            print("Could not install RoboLCD dependencies: Meta_Reader and/or OctoPrint_FirmwareUpdater")
+            sys.exit(-1)
+        else:
+            pass
+
+class Install_Deps(install, Install_Deps):
+    def run(self):
+        self.install_deps()
+        install.run(self)
+
+class Install_Deps_Dev(develop, Install_Deps):
+    def run(self):
+        self.install_deps()
+        develop.run(self)
+
 ########################################################################################################################
 ### Do not forget to adjust the following variables to your own plugin.
 
@@ -14,7 +40,7 @@ plugin_package = "RoboLCD"
 plugin_name = "RoboLCD"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "1.2.3"
+plugin_version = "1.3.0"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
@@ -34,6 +60,7 @@ plugin_license = "TBD"
 
 # Any additional requirements besides OctoPrint should be listed here
 plugin_requires = ['qrcode>=5.3', 'sysv-ipc>=0.7.0', 'gitpython>=2.1.1']
+
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point
@@ -57,18 +84,17 @@ plugin_ignored_packages = []
 # Example:
 #     plugin_requires = ["someDependency==dev"]
 #     additional_setup_parameters = {"dependency_links": ["https://github.com/someUser/someRepo/archive/master.zip#egg=someDependency-dev"]}
-additional_setup_parameters = {}
+additional_setup_parameters = {'cmdclass': {'install': Install_Deps, 'develop': Install_Deps_Dev},}
 
 ########################################################################################################################
 
-from setuptools import setup
+
 
 try:
     import octoprint_setuptools
 except:
     print("Could not import OctoPrint's setuptools, are you sure you are running that under "
           "the same python installation that OctoPrint is installed under?")
-    import sys
 
     sys.exit(-1)
 

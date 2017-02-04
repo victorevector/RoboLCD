@@ -22,18 +22,24 @@ from robo_sm import screen_manager
 import re
 from scrollbox import ScrollBox, Scroll_Box_Even
 import collections
-from connection_popup import Zoffset_Warning_Popup, Error_Popup
+from connection_popup import Zoffset_Warning_Popup, Error_Popup, USB_Progress_Popup
+import subprocess
+from Meta_Reader import Meta_Reader
+import threading
+from session_saver import session_saver
+import traceback
+import octoprint.filemanager
+from multiprocessing import Process
+
 
 USB_DIR = '/media/usb0'
 FILES_DIR = '/home/pi/.octoprint/uploads'
 
 class FileButton(Button):
-    def __init__(self, filename, layer_height, layers, length, date, path, is_usb=False, **kwargs):
+    def __init__(self, filename, length, date, path, is_usb=False, **kwargs):
         super(FileButton, self).__init__(**kwargs)
 
         self.filename = filename
-        self.layer_height = layer_height
-        self.layers = layers
         self.path = path
         self.length = length
         self.date = date
@@ -52,12 +58,12 @@ class FileButton(Button):
 
 
 
-
 class FilesTab(TabbedPanelHeader):
     """
     Represents the Files tab header and dynamic content
     """
     pass
+
 
 
 class FilesContent(BoxLayout):
@@ -67,54 +73,18 @@ class FilesContent(BoxLayout):
     Files content is a Boxlayout made up of 2 boxes: files list (widget type == ScrollView) and scrolling buttons (widget type == Gridlayout)
     self.update() handles generating the Files content and it will generate only when the files list changes; such as when a user adds a file via the webapp or ios app
     """
-    files = ObjectProperty(None)
+    files = ObjectProperty([])
     has_usb_attached = BooleanProperty(False)
+    screen_lock = False
+    usb_lock = False
 
-    #This method reads the file to get the unread meta data from it. if there is none then it returns nothing
-    def cura_meta_reader(self, filename):
-        _layer_height = 0
-        _layers = 0
-        meta = {}
-
-        _lh_found = False
-        _ls_found = False
-        #example cura layer height and layer count
-        #Layer height: 0.08
-        #;Layer count: 1856
-
-        lh = "Layer height: ([0-9.]+)"
-        ls = ";Layer count: ([0-9.]+)"
-
-        _filename = path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk('local', filename)
-
-        file = open(_filename, 'r')
-
-        for x in range(0,50):
-            line = file.readline()
-
-
-            _lh = re.findall(lh, line)
-            _ls = re.findall(ls, line)
-
-            if _lh != []:
-                _layer_height = float(_lh[0])
-                _lh_found = True
-
-            if _ls != []:
-                _layers = int(_ls[0])
-                _ls_found = True
-        file.close()
-
-        # Logger.info(_layers)
-        # Logger.info(_layer_height)
-        if _lh_found & _ls_found:
-            meta = {
-                'layer height' : _layer_height,
-                'layers' : _layers
-            }
-            return meta
-        else:
-            return -1
+    def __init__(self, **kwargs):
+        super(FilesContent, self).__init__(**kwargs)
+        Clock.schedule_interval(self.collect_meta_data, 0.1)
+    #This function uses a shared funtion in the Meta Reader Plugin to collect information from a pipe
+    #without disturbing the main thread
+    def collect_meta_data(self, dt):
+        roboprinter.printer_instance.collect_data()
 
 
 
@@ -122,21 +92,8 @@ class FilesContent(BoxLayout):
         """
         Returns a button widget based on the filename defined in parameter
         """
-        layer_height = 0
-        layers = 0
-        cura_meta = self.cura_meta_reader(filename)
 
-        if cura_meta != -1:
-            layer_height = cura_meta['layer height']
-            layers = cura_meta['layers']
-        else:
-            layer_height = '--'
-            layers = '--'
         try:
-
-            #duration = math.ceil(metadata['analysis']['estimatedPrintTime'])/60
-            # TODO how to calculate volume when there are 2 extruders?
-            #volume = math.ceil(metadata['analysis']['filament']['tool0']['volume'])
             length = math.ceil(metadata['analysis']['filament']['tool0']['length'])/1000
             date = str(metadata['date'])
             path = 'local'  # TODO remove hardcoding and utitlize path defined in self.update()
@@ -146,8 +103,8 @@ class FilesContent(BoxLayout):
             path = 'local'
 
         if is_usb:
-            return FileButton(filename=filename, layer_height=layer_height, layers = layers, length=length, date=date, path=path, is_usb=True, color=(1,0,0,1))
-        return FileButton(filename=filename, layer_height=layer_height, layers = layers, length=length, date=date, path=path)
+            return FileButton(filename=filename, length=length, date=date, path=path, is_usb=True, color=(1,0,0,1))
+        return FileButton(filename=filename, length=length, date=date, path=path)
 
     def create_scroll_view(self):
         scroll = ScrollView(id='files_scroll_view', do_scroll_x=False, do_scroll_y=False, size_hint_y=1, size_hint_x=0.8, effect_cls=ScrollEffect)
@@ -190,41 +147,76 @@ class FilesContent(BoxLayout):
         self.scroll.scroll_y -= scroll_distance
         Logger.info('bar: {}'.format(self.scroll.vbar))
 
+
     def update(self, dt):
         '''
         finds gcode files in usb. If any, writes symlinks to local folder. These usb files get written to Files list and shown to user
         '''
         try:
-             
-        
-            current_files = self._grab_local_files()
-            if current_files != self.files:
-                self._update_files_list(current_files)
-    
-            usb_files = self._find_gcode_in_usb()
-            if usb_files and not self.has_usb_attached: #new usb device attached
-                self.has_usb_attached = True
-                self._delete_symlinks() #clear all symlinks from local before writing to avoid any possible duplicates
-                self._write_symlinks(usb_files)
-            elif not usb_files and self.has_usb_attached: #usb device detached
-                self.has_usb_attached = False
-                self._delete_symlinks()
 
+            #find files in the USB first in order to catch symlink errors
+            if os.path.isdir(USB_DIR):
+                if len(os.listdir(USB_DIR)) != 0 and self.usb_lock == False:
+                    Logger.info("USB Inserted")
+                    self.usb_popup = USB_Progress_Popup("Importing USB Files", 200) #throw the error up without updating anything
+                    self.usb_popup.show()
+                    self.usb_lock = True
+                    #fire off this in half a second so the USB warning has time to start up
+                    Clock.schedule_once(self.usb_worker, 0.5)
+                elif len(os.listdir(USB_DIR)) == 0 and self.usb_lock == True:
+                    Logger.info("USB Removed")
+                    self.usb_lock = False
+                    self.has_usb_attached = False
+                    self._delete_symlinks()
+
+
+            current_files = self._grab_local_files()
+            if len(current_files) != len(self.files):
+                Logger.info( "current files length: " + str(len(current_files)) + " Self.Files length: " + str(len(self.files))) 
+                self._update_files_list(current_files)
+
+                #helper function from the Meta Rader
+                roboprinter.printer_instance.start_analysis()
+
+            
         except Exception as e:
+            Logger.info("USB Removed")
+            self.usb_lock = False
+            self.has_usb_attached = False
+            self._delete_symlinks()
+            Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
+            traceback.print_exc()
+
+        
+    def usb_worker(self,dt):
+       
+        #find the amount of files that we have in the usb
+        usb_files = self._find_gcode_in_usb()
+        self.usb_popup.update_max(len(usb_files))
+        if usb_files and not self.has_usb_attached: #new usb device attached
+            self.has_usb_attached = True
+            self._delete_symlinks() #clear all symlinks from local before writing to avoid any possible duplicates
+            self._write_symlinks(usb_files)
+        elif not usb_files and self.has_usb_attached: #usb device detached
             self.has_usb_attached = False
             self._delete_symlinks()
 
+        #get rid of popup 
+        self.usb_popup.hide()
 
     def _grab_local_files(self):
         return roboprinter.printer_instance._file_manager.list_files()['local']
 
     def _find_gcode_in_usb(self):
+        arbitraty_counter = 0
         gcode_files = {}
         for r, d, files in os.walk(USB_DIR):
             for f in files:
                 if (f.endswith('.gcode') or f.endswith('.gco')) and not f.startswith('._') :
                     path = r + '/' + f
                     gcode_files[f] = path
+                    arbitraty_counter += 1
+                    self.usb_popup.update_progress(arbitraty_counter)
                 else:
                     continue
         return gcode_files
@@ -251,6 +243,7 @@ class FilesContent(BoxLayout):
 
     def _write_symlinks(self, files):
         # writes local symlinks for the files found in USB storage device
+        file_counter = 0
         links = []
         for name, path in files.iteritems():
             s_name = roboprinter.printer_instance._file_manager.sanitize_name('local',name) #sanitize the name according to octoprint standards
@@ -258,15 +251,37 @@ class FilesContent(BoxLayout):
             new_path = FILES_DIR + '/' + new_name
             os.symlink(path, new_path)
             links.append(new_name)
+            #add one to the file_counter
+            file_counter += 1
+            self.usb_popup.update_progress(file_counter)
         return links
 
     def _update_files_list(self, current_files):
+
+        #find the current tab
+        current_tab = roboprinter.open_tab
         self.files = current_files
+        self._update_file_screen()
+
+        # #if we are on the files tab we should run a callback that waits for the screen to change and then populates the file changes
+        # if current_tab == "file_screen":
+        #     #callback or wait
+        #     if not self.screen_lock:
+        #         self.screen_lock = True
+        #         self._update_file_screen()
+        #         #start callback
+
+
+        # else:
+            
+        #     self._update_file_screen()
+
+    def _update_file_screen(self):
         self.clear_widgets()
         buttons = []
 
 
-        for fm, md in current_files.iteritems():
+        for fm, md in self.files.iteritems():
             name, ext = os.path.splitext(fm)
             if name.endswith('.usb'):
                 buttons.append(self.create_file_button(fm, md, is_usb=True))
@@ -279,6 +294,16 @@ class FilesContent(BoxLayout):
 
         self.scroll = Scroll_Box_Even(sorted_buttons)
         self.add_widget(self.scroll)
+
+
+    def wait_for_screen_change(self, dt):
+        current_tab = roboprinter.open_tab
+
+        if current_tab != "file_screen":
+            self.screen_lock = False
+            self._update_file_screen()
+            return False
+
 
 
 
@@ -302,8 +327,6 @@ class FilesContent(BoxLayout):
             sorted_array.append(button[0])
 
         return sorted_array
-        #datetime.fromtimestamp(metadata['date']).strftime("%b %d")
-        #datetime.fromtimestamp(metadata['date']).strftime("%b %d")
 
 
 
@@ -320,6 +343,10 @@ class PrintFile(GridLayout):
     print_layer_height = ObjectProperty(None)
     print_layers = ObjectProperty(None)
     print_length = ObjectProperty(None)
+    hours = NumericProperty(0)
+    minutes = NumericProperty(0)
+    seconds = NumericProperty(0)
+    infill = ObjectProperty(None)
     file_path = ObjectProperty(None)
     status = StringProperty('--')
     subtract_amount = NumericProperty(30)
@@ -330,9 +357,58 @@ class PrintFile(GridLayout):
 
         self.status = self.is_ready_to_print()
         Clock.schedule_interval(self.update, .1)
-        pconsole.query_eeprom()
-        self.current_z_offset = 'Current Z Offset: ' + str(pconsole.zoffset['Z'])
 
+        self.current_z_offset = str(pconsole.zoffset['Z'])
+
+        cura_meta = self.check_saved_data()
+        self.print_layer_height = '--'
+        self.print_layers = '--'
+        self.infill = '--'
+        self.hours = 0
+        self.minutes = 0
+        self.seconds = 0
+
+        if cura_meta != False:
+            if 'layer height' in cura_meta:
+                self.print_layer_height = cura_meta['layer height']
+            else:
+                self.print_layer_height = "--"
+            if 'layers' in cura_meta:
+                self.print_layers = cura_meta['layers']
+            else:
+                layers = "--"
+            if 'infill' in cura_meta:
+                self.infill = cura_meta['infill']
+            else:
+                infill = "--"
+
+            if 'time' in cura_meta:
+                self.hours = int(cura_meta['time']['hours'])
+                self.minutes = int(cura_meta['time']['minutes'])
+                self.seconds = int(cura_meta['time']['seconds'])
+            else:
+                self.hours = 0
+                self.minutes = 0
+                self.seconds = 0
+
+        else:
+            self.print_layer_height = '--'
+            self.print_layers = '--'
+            self.infill = '--'
+            self.hours = 0
+            self.minutes = 0
+            self.seconds = 0
+
+    #This function will check the filename against saved data on the machine and return saved meta data
+    def check_saved_data(self):
+        self.octo_meta = roboprinter.printer_instance._file_manager
+        saved_data = self.octo_meta.get_metadata(octoprint.filemanager.FileDestinations.LOCAL, self.file_name)
+
+
+        if 'robo_data' in saved_data:
+            return saved_data['robo_data']
+        else:
+            return False
 
 
     def update(self, dt):
@@ -357,7 +433,7 @@ class PrintFile(GridLayout):
         try:
             if self.status == "READY TO PRINT":
                 _offset = pconsole.zoffset['Z']
-        
+
                 if _offset <= -20 or _offset >= 0:
                     zoff = Zoffset_Warning_Popup(self)
                     zoff.open()
@@ -369,8 +445,9 @@ class PrintFile(GridLayout):
                     Logger.info('Funtion Call: start_print')
         except Exception as e:
             #raise error
-            Error_Popup('[size=40][color=#69B3E7]File Error[/size][/color]\n[size=30]There was an error with the selected file\nPlease try again[/size]')
-
+            error = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
+            error.open()
+            Logger.info(e)
 
     def force_start_print(self, *args):
         """Starts print but cannot start a print when the printer is busy"""
@@ -380,7 +457,8 @@ class PrintFile(GridLayout):
             Logger.info('Funtion Call: start_print')
         except Exception as e:
             #raise error
-            Error_Popup('[size=40][color=#69B3E7]File Error[/size][/color]\n[size=30]There was an error with the selected file\nPlease try again[/size]')
+            error = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
+            error.open()
 
 
 
@@ -405,9 +483,9 @@ class PrintUSB(PrintFile):
             link_path = FILES_DIR + '/' + self.file_name
             copy_path = FILES_DIR + '/' + usb_removed
             real_path = os.readlink(link_path)
-    
+
             shutil.copy2(real_path, copy_path)
             os.unlink(link_path)
         except Exception as e:
             #raise error
-            Error_Popup('[size=40][color=#69B3E7]File Error[/size][/color]\n[size=30]There was an error with the selected file\nPlease try again[/size]')
+            Error_Popup('File Error','There was an error with the selected file\nPlease try again')

@@ -1,5 +1,35 @@
 # RoboLCD Changelog
 
+##1.3.0 (2017-2-3)
+
+###Improvements
+
+* Update Firmware from the Screen
+
+* Display more gcode metadata: estimated time, z offset, infill, layer height, and layer count
+
+* System Menu: Poweroff, Reboot and Restart Octoprint
+
+* Options Menu: Unmount USB and Edit EEPROM settings
+
+* Control temperature for dual extruders and heated bed (if applicable)
+
+* Saves wifi password(s)
+
+* Print tuning: fan speed, feed rate, and flow rate
+
+* Z Offset wizard safeguard: turns off extruder before initiation to avoid melted beds
+
+* Progress bar added for mounting usb files
+
+###Bug Fixes
+
+* Mounting USB can now handle 35+ gcode files
+
+* Cannot update OS with no internet connection
+
+* Mounting USB no longer causes loading delays
+
 ##1.2.3 (2017-1-13)
 
 ###Improvements

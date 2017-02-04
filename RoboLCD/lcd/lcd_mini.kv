@@ -9,64 +9,93 @@
             size: self.size
 
 <PrintFile>:
-
+    id: screen
     orientation: 'vertical'
     rows: 3
+    cols: 1
     BoxLayout:
         padding: 10,10,10,10
         cols: 2
+        rows: 1
         size_hint_y: 0.25
         Label:
         Label:
-            text: '[size=22]'+root.current_z_offset+'[/size]'
+            text: "[size=22]Estimated Time: {0:02d}:".format(root.hours) + "{0:02d}:".format(root.minutes) + "{0:02d}[/size]".format(root.seconds)
             text_size: self.size
             markup: True
             halign: 'right'
             valign: 'center'
-    BoxLayout:
-
-        orientation: 'vertical'
+    GridLayout:
+        id: grid0
         rows: 2
-        FloatLayout:
+        cols: 2
+        width: screen.width
+        padding: 125,0,125,0
+        spacing: 20,20
+
+        GridLayout:
             id: box
+            cols: 2
+            rows: 1
             Label:
-                text: '[size=50]{}[/size][size=30] Meters[/size]'.format(root.print_length)
+                text: '[size=50]{}[/size]'.format(root.current_z_offset)
                 markup: True
-                size_hint: None,None
                 valign: 'middle'
                 halign: 'center'
-                center_x: box.center_x
-                center_y: box.center_y
-        GridLayout:
-            cols: 6
-            rows: 1
-            width: 75
+
             Label:
-                text: ''
+                text: '[size=30]Z Offset[/size]'
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+        GridLayout:
+            id: box1
+            cols: 2
+            rows: 1
+            Label:
+                text: '[size=50]{}%[/size]'.format(root.infill)
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
+            Label:
+                text: '[size=30]Infill[/size]'
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
+        GridLayout:
+            id: box2
+            cols: 2
+            rows: 1
             Label:
                 text: '[size=50]{}[/size]'.format(root.print_layer_height)
                 markup: True
-            GridLayout:
-                cols:1
-                rows:4
-                Label:
-                    text: ''
-                Label:
-                    text: '[size=30]Layer[/size]'
-                    markup: True
-                Label:
-                    text: '[size=30]Height[/size]'
-                    markup: True
-                Label:
-                    text: ''
+                valign: 'middle'
+                halign: 'center'
+
+            Label:
+                text: '[size=30]Layer\nHeight[/size]'
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
+        GridLayout:
+            id: box3
+            cols: 2
+            rows: 1
             Label:
                 text: '[size=50]{}[/size]'.format(root.print_layers)
-                markup:True
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
             Label:
                 text: '[size=30]Layers[/size]'
                 markup: True
-            Label:
-                text: ''
+                valign: 'middle'
+                halign: 'center'
+
     BoxLayout:
         size_hint_y: 0.5
         padding: [root.width/4, 10, root.width/4, 10]
@@ -88,55 +117,92 @@
                 center_y: start.center_y
 
 <-PrintUSB>:
+    id: screen
     orientation: 'vertical'
     rows: 3
+    cols: 1
     BoxLayout:
+        padding: 10,10,10,10
         cols: 2
+        rows: 1
         size_hint_y: 0.25
         Label:
         Label:
-            text: '[size=22]'+root.current_z_offset+'[/size]'
+            text: "[size=22]Estimated Time: {0:02d}:".format(root.hours) + "{0:02d}:".format(root.minutes) + "{0:02d}[/size]".format(root.seconds)
             text_size: self.size
             markup: True
             halign: 'right'
             valign: 'center'
-    BoxLayout:
-        orientation: 'vertical'
+    GridLayout:
+        id: grid0
         rows: 2
-        Label:
-            text: '[size=50]{}[/size][size=30] Meters[/size]'.format(root.print_length)
-            markup: True
-            size_hint_y: 0.2
+        cols: 2
+        width: screen.width
+        padding: 125,0,125,0
+        spacing: 20,20
+
         GridLayout:
-            cols: 6
+            id: box
+            cols: 2
             rows: 1
-            width: 75
             Label:
-                text: ''
+                text: '[size=50]{}[/size]'.format(root.current_z_offset)
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
+            Label:
+                text: '[size=30]Z Offset[/size]'
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+        GridLayout:
+            id: box1
+            cols: 2
+            rows: 1
+            Label:
+                text: '[size=50]{}%[/size]'.format(root.infill)
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
+            Label:
+                text: '[size=30]Infill[/size]'
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
+        GridLayout:
+            id: box2
+            cols: 2
+            rows: 1
             Label:
                 text: '[size=50]{}[/size]'.format(root.print_layer_height)
                 markup: True
-            GridLayout:
-                cols:1
-                rows:4
-                Label:
-                    text: ''
-                Label:
-                    text: '[size=30]Layer[/size]'
-                    markup: True
-                Label:
-                    text: '[size=30]Height[/size]'
-                    markup: True
-                Label:
-                    text: ''
+                valign: 'middle'
+                halign: 'center'
+
+            Label:
+                text: '[size=30]Layer\nHeight[/size]'
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
+        GridLayout:
+            id: box3
+            cols: 2
+            rows: 1
             Label:
                 text: '[size=50]{}[/size]'.format(root.print_layers)
-                markup:True
+                markup: True
+                valign: 'middle'
+                halign: 'center'
+
             Label:
                 text: '[size=30]Layers[/size]'
                 markup: True
-            Label:
-                text: ''
+                valign: 'middle'
+                halign: 'center'
     BoxLayout:
         size_hint_y: 0.5
         padding: [root.width/7, 10, root.width/7, 10]
@@ -179,7 +245,7 @@
 <FileButton>:
     markup: True
     background_color: (0,0,0,1)
-    on_press: app.root.generate_file_screen(filename=self.filename, layer_height = self.layer_height, layers = self.layers, print_length=self.length, file_path=self.path, is_usb=self.is_usb)
+    on_press: app.root.generate_file_screen(filename=self.filename, print_length=self.length, file_path=self.path, is_usb=self.is_usb)
     GridLayout:
         height: self.parent.height
         width: 1
@@ -417,7 +483,7 @@
                 id: modal_question
                 markup: True
                 size_hint: None, None
-                text: '[size=40][color=#69B3E7]Firmware is updating[/size][/color]\n[size=30]Your printer will restart the printer\nafter update is finished[/size]'
+                text: '[size=40][color=#69B3E7]Firmware is updating[/size][/color]\n[size=30]Your printer will restart\nafter the update is finished[/size]'
                 valign: 'middle'
                 halign: 'center'
                 center_x: popup.center_x
@@ -535,6 +601,42 @@
                 center_x: popup.center_x
                 center_y: popup.center_y - 50
 
+<Warning_Popup>:
+    background_color: 0,0,0,1
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 600, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
+    GridLayout:
+        cols:1
+        rows:1
+        background_color: 0,0,0,1
+        FloatLayout:
+            Image:
+                source: 'Icons/Manual_Control/failure_icon.png'
+                size_hint: None, None
+                center_x: popup.center_x
+                center_y: popup.center_y + 80
+            Label:
+                id: modal_question
+                markup: True
+                size_hint: None, None
+                text: '[size=40][color=#69B3E7]' + root.warning  + '[/size][/color]\n[size=30]' + root.body_text
+                valign: 'middle'
+                halign: 'center'
+                center_x: popup.center_x
+                center_y: popup.center_y - 50
+
 
 <Error_Popup>:
     background_color: 0,0,0,1
@@ -566,7 +668,7 @@
                 id: modal_question
                 markup: True
                 size_hint: None, None
-                text: root.error_message
+                text: '[size=40][color=#69B3E7]'+ root.error + '[/size][/color]\n[size=30]'+ root.body_text + '[/size]'
                 valign: 'middle'
                 halign: 'center'
                 center_x: popup.center_x
@@ -591,6 +693,107 @@
                     font_size: 30
                     center_x: error_ok.center_x + 20
                     center_y: error_ok.center_y
+
+<Status_Popup>:
+    background_color: 0,0,0,1
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 600, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
+    GridLayout:
+        cols:1
+        rows:1
+        background_color: 0,0,0,1
+        FloatLayout:
+            Image:
+                source: 'Icons/Manual_Control/failure_icon.png'
+                size_hint: None, None
+                center_x: popup.center_x
+                center_y: popup.center_y + 120
+            Label:
+                id: modal_question
+                markup: True
+                size_hint: None, None
+                text: '[size=40][color=#69B3E7]'+ root.error + '[/size][/color]\n[size=30]'+ root.body_text + '[/size]'
+                valign: 'middle'
+                halign: 'center'
+                center_x: popup.center_x
+                center_y: popup.center_y
+            Button:
+                size_hint: None, None
+                id: error_ok
+                background_normal: 'Icons/blue_button_style.png'
+                width: 225
+                height: 85
+                on_press: root.hide()
+                center_x: popup.center_x
+                center_y: popup.center_y - 125
+                Image:
+                    source: 'Icons/Manual_Control/ok_button_icon.png'
+                    allow_stretch: False
+                    center_x: error_ok.center_x - 20
+                    center_y: error_ok.center_y
+                Label:
+                    background_color: 0,0,0,0
+                    text: 'OK'
+                    font_size: 30
+                    center_x: error_ok.center_x + 20
+                    center_y: error_ok.center_y
+
+<USB_Progress_Popup>:
+    background_color: 0,0,0,1
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 600, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
+    GridLayout:
+        cols:1
+        rows:1
+        background_color: 0,0,0,1
+        FloatLayout:
+            Image:
+                source: 'Icons/Manual_Control/failure_icon.png'
+                size_hint: None, None
+                center_x: popup.center_x
+                center_y: popup.center_y + 80
+            Label:
+                id: modal_question
+                markup: True
+                size_hint: None, None
+                text: '[size=40][color=#69B3E7]' + root.error
+                valign: 'middle'
+                halign: 'center'
+                center_x: popup.center_x
+                center_y: popup.center_y - 35
+
+            ProgressBar:
+                max: root.max_progress
+                value: root.value_progress
+                size_hint: None, None
+                x: popup.center_x - 150
+                y: popup.y + 20
+                width: 300
+
 
 <StartUpdateButton>:
     text: 'Install'
@@ -618,7 +821,7 @@
     Button:
         id: updatebtn
         text: 'Up-to-date' if root.installed_version >= root.avail_version else 'Update'
-        disabled: True if root.installed_version >= root.avail_version else False
+        disabled: True
         font_size: 40
         pos_hint: {'center_x': .5, 'center_y': .25}
         size_hint: .7, .3
@@ -777,12 +980,6 @@
     font_size: 30
 
 <UtilitiesContent>
-
-
-
-
-
-
 
 <QRCodeScreen>:
     orientation: 'vertical'
@@ -1537,7 +1734,7 @@
     valign: 'middle'
     halign: 'left'
     text_size: self.width, self.height
-    on_press: app.root.generate_Preheat_Screen(name='preheat_screen',title='Extruder Temperature',back_destination='main')
+    on_press: app.root.generate_Preheat_Screen(name='preheat_screen',title='Extruder Temperature',back_destination=self.name)
     on_press: root._preheat_pla()
 
 <ABS_Button>:
@@ -1550,7 +1747,7 @@
     valign: 'middle'
     halign: 'left'
     text_size: self.width, self.height
-    on_press: app.root.generate_Preheat_Screen(name='preheat_screen',title='Extruder Temperature',back_destination='main')
+    on_press: app.root.generate_Preheat_Screen(name='preheat_screen',title='Extruder Temperature',back_destination=self.name)
     on_press: root._preheat_abs()
 
 <Empty_Button>:
@@ -1930,6 +2127,32 @@
         center_x: screen.center_x
         center_y: screen.center_y - 40
 
+<Z_Offset_Temperature_Wait_Screen>:
+    id: screen
+    Image:
+        size_hint: None, None
+        source: 'Icons/Icon_Buttons/Preheat.png'
+        center_x: screen.center_x
+        center_y: screen.center_y + 70
+        allow_stretch: True
+        size: 125,125
+    Label:
+        markup: True
+        size_hint: None, None
+        text: '[size=30]' + root.body_text
+        valign: 'middle'
+        halign: 'center'
+        center_x: screen.center_x
+        center_y: screen.center_y - 40
+    Label:
+        markup: True
+        size_hint: None, None
+        text: '[size=30]{}°C/100°C'.format(root.temperature)
+        valign: 'middle'
+        halign: 'center'
+        center_x: screen.center_x
+        center_y: screen.center_y - 120
+
 <Z_Offset_Wizard_3_4>:
     id: screen
     Label:
@@ -2112,6 +2335,18 @@
             background_down:"Icons/Down-arrow-blue.png"
             on_press: root.down_button()
 
+<Scroll_Box_Even_Button>:
+    markup: True
+    size_hint_y: None
+    markup: True
+    background_color: (0,0,0,1)
+    text: "[size=30]" + root.button_text
+    valign: 'middle'
+    halign: 'left'
+    text_size: self.width, self.height
+    on_press: root.generator(root.arg)
+
+
 <Scroll_Box_Icons>:
     background_color: (0,0,0,1)
     grid: content
@@ -2212,93 +2447,253 @@
 <Print_Tuning>:
     id: tuning_screen
 
+    #background_color: (0,0,0,0)
+    #tuning buttons
+    GridLayout:
+        cols: 2
+        rows: 1
+        spacing: 5,5
+
+        GridLayout:
+            cols:2
+            rows:2
+            spacing: 5,5
+            padding: 0,20,0,0
+
+            #fans
+            Button:
+                id: fans
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.fan_button()
+                size: root.button_size
+                Image:
+                    source: "Icons/Tuning/Fan speed.png"
+                    center_x: fans.center_x
+                    center_y: fans.center_y
+            #empty
+            Label:
+                background_color: (0,0,0,0)
+
+            #Flow rate
+            Button:
+                id: flow
+                on_press: root.flow_button()
+                size: root.button_size
+                background_normal: 'Icons/button_pause_blank.png'
+                Image:
+                    source: "Icons/Tuning/Flow rate.png"
+                    center_x: flow.center_x
+                    center_y: flow.center_y
+
+
+            #Number
+            #feed Rate
+            Button:
+                id: feed_rate
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.feed_button()
+
+                size: root.button_size
+                Image:
+                    source: "Icons/Tuning/Print speed.png"
+                    center_x: feed_rate.center_x
+                    center_y: feed_rate.center_y
+
+            #tuning up donw
+        GridLayout:
+            cols:2
+            rows:2
+            spacing: 5,5
+            padding: 0,20,0,0
+
+             #empty
+            Button:
+                background_color: (0,0,0,0)
+
+                size: root.button_size
+
+            Button:
+                id: up
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.add_button(root.change_amount_value[root.change_value])
+
+
+                size: root.button_size
+                Image:
+                    id: up_image
+                    source: "Icons/Tuning/Up +1.png"
+                    center_x: up.center_x
+                    center_y: up.center_y
+
+
+
+
+            #change speed Button
+            Button:
+                id: change_increment
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.change_amount()
+
+                size: root.button_size
+                Label:
+                    id: change_text
+                    markup: True
+                    text : "[size=60]{}".format(root.change_amount_value[root.change_value])
+
+                    center_x: change_increment.center_x
+                    center_y: change_increment.center_y
+            #down
+
+            Button:
+                id: down
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.add_button(-root.change_amount_value[root.change_value])
+
+
+                size: root.button_size
+                Image:
+                    id: down_image
+                    source: "Icons/Tuning/Down +1.png"
+                    center_x: down.center_x
+                    center_y: down.center_y
+
     Label:
         id: title_label
+        background_color: (0,0,0,0)
         text: root.title_label_text
         font_size: 30
         size_hint: None, None
+        size: 200, 50
         markup: True
         max_lines: 1
         halign: 'center'
         valign: 'center'
-        center_x: tuning_screen.center_x - 10
+        center_x: tuning_screen.center_x
         center_y: tuning_screen.center_y + 150
+
     Label:
         id: tuning_number
+        background_color: (0,0,0,0)
         text: root.tuning_number
-        font_size: 30
+        size: 200, 50
+        font_size: 50
         size_hint: None, None
-        text_size: self.width, None
         markup: True
         max_lines: 1
         halign: 'center'
         valign: 'center'
-        center_x: tuning_screen.center_x - 10
-        center_y: tuning_screen.center_y - 20
-
-    Button:
-        id: up
-        text: '+'
-        on_press: root.add_button(1)
-        size_hint: None, None
-        size: 125,125
-        center_x: tuning_screen.center_x + 125
+        center_x: tuning_screen.center_x
         center_y: tuning_screen.center_y + 50
 
-    Button:
-        id: down
-        on_press: root.add_button(-1)
-        text: '-'
-        size_hint: None, None
-        size: 125,125
-        center_x: tuning_screen.center_x + 125
-        center_y: tuning_screen.center_y - 100
+<Change_Value>:
+    id: tuning_screen
+    #background_color: (0,0,0,0)
+    #tuning buttons
+    GridLayout:
+        cols: 2
+        rows: 1
+        spacing: 5,5
 
-    Button:
-        id: up_plus
-        on_press: root.add_button(10)
-        text: '++'
-        size_hint: None, None
-        size: 125,125
-        center_x: tuning_screen.center_x + 270
-        center_y: tuning_screen.center_y + 50
+        GridLayout:
+            cols:2
+            rows:2
+            spacing: 5,5
+            padding: 0,0,0,0
 
-    Button:
-        id: down_plus
-        on_press: root.add_button(-10)
-        text: '--'
-        size_hint: None, None
-        size: 125,125
-        center_x: tuning_screen.center_x + 270
-        center_y: tuning_screen.center_y - 100
+            #Apply
+            Button:
+                id: apply_change
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.go_back()
 
-    #----------------------------------------tuning buttons------------------------------------
-    Button:
-        id: flow
-        on_press: root.flow_button()
-        text: 'flow'
-        size_hint: None, None
-        size: 100,100
-        center_x: tuning_screen.center_x - 250
-        center_y: tuning_screen.center_y + 25
+                size: root.button_size
+                Label:
+                    id: change_text
+                    markup: True
+                    text : "[size=40]Apply"
 
-    Button:
-        id: feed_rate
-        on_press: root.feed_button()
-        text: 'feed_rate'
-        size_hint: None, None
-        size: 100,100
-        center_x: tuning_screen.center_x - 140
-        center_y: tuning_screen.center_y + 25
+                    center_x: apply_change.center_x
+                    center_y: apply_change.center_y
+            #empty
+            Label:
+                background_color: (0,0,0,0)
 
-    Button:
-        id: fans
-        on_press: root.fan_button()
-        text: 'fans'
+           #change speed Button
+            Button:
+                id: change_increment
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.change_amount()
+
+                size: root.button_size
+                Label:
+                    id: change_text
+                    markup: True
+                    text : "[size=60]{}".format(root.change_amount_value[root.change_value])
+
+                    center_x: change_increment.center_x
+                    center_y: change_increment.center_y
+           #empty
+            Label:
+                background_color: (0,0,0,0)
+
+            #tuning up donw
+        GridLayout:
+            cols:2
+            rows:2
+            spacing: 5,5
+            padding: 0,0,0,0
+
+             #empty
+            Button:
+                background_color: (0,0,0,0)
+
+                size: root.button_size
+
+            Button:
+                id: up
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.add_button(root.change_amount_value[root.change_value])
+
+                size: root.button_size
+                Image:
+                    source: "Icons/Tuning/Up.png"
+                    center_x: up.center_x
+                    center_y: up.center_y
+
+
+
+            #empty
+            Label:
+                background_color: (0,0,0,0)
+            #down
+
+            Button:
+                id: down
+                background_normal: 'Icons/button_pause_blank.png'
+                on_press: root.add_button(-root.change_amount_value[root.change_value])
+
+                size: root.button_size
+                Image:
+                    source: "Icons/Tuning/Down.png"
+                    center_x: down.center_x
+                    center_y: down.center_y
+
+    Label:
+        id: tuning_number
+        background_color: (0,0,0,0)
+        text: root.number
+        size: 200, 50
+        font_size: 50
         size_hint: None, None
-        size: 210,100
-        center_x: tuning_screen.center_x - 195
-        center_y: tuning_screen.center_y - 85
+        markup: True
+        max_lines: 1
+        halign: 'center'
+        valign: 'center'
+        center_x: tuning_screen.center_x
+        center_y: tuning_screen.center_y
+
+
+
 
 <Versioning>:
     id: screen
@@ -2314,6 +2709,126 @@
         valign: 'center'
         center_x: screen.center_x
         center_y: screen.center_y
+
+<Modal_Popup>:
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 600, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
+
+    BoxLayout:
+        orientation: 'vertical'
+        id:box_layout
+        padding: 0,0,0,20
+
+        Image:
+            id:image
+            source: 'Icons/Manual_Control/failure_icon.png'
+            # center_x: popup.center_x
+            # center_y: popup.center_y + 200
+        Label:
+            id: modal_question
+            markup: True
+            width: popup.width
+            height: 300
+            text: "[size=40][color=#69B3E7]" + root.title_text + "[/color][/size]\n[size=30]" + root.body_text
+            valign: 'middle'
+            halign: 'center'
+            # center_x: popup.center_x
+            # center_y: popup.center_y
+
+
+
+<Popup_Button>:
+    id:popup
+    Button:
+        size_hint: None, None
+        id: error_ok
+        background_normal: root.color
+        width: 225
+        height: 85
+        on_press: root.function()
+        center_x: popup.center_x
+        center_y: popup.center_y - 125
+        Label:
+            background_color: 0,0,0,0
+            text: '[size=30]' + root.button_text
+            font_size: 30
+            center_x: error_ok.center_x + 20
+            center_y: error_ok.center_y
+
+<Popup_Grid>
+    cols: 3
+    rows: 1
+    background_color: 0,0,0,0
+
+<Hex_Button>:
+    id: hexx
+    markup: True
+    size_hint_y: None
+    background_color: (0,0,0,1)
+    on_press: root.button_function(root.hex_name, root.path)
+    Label:
+        markup: True
+        text: "[size=30]" + root.button_text
+        text_size: hexx.size
+        valign: 'middle'
+        halign: 'left'
+        center_x: hexx.center_x
+        center_y: hexx.center_y
+
+<Hex_Confirmation_Screen>:
+    id: screen
+    orientation: 'vertical'
+    rows: 3
+    BoxLayout:
+        cols: 2
+        orientation: 'vertical'
+        size_hint_y: 0.25
+        Label:
+        Label:
+            text: '[size=40][color=#69B3E7]{}[/size]'.format(root.hex_name)
+            markup: True
+            valign: 'middle'
+            halign: 'center'
+
+    Label:
+        text: '[size=30]Press start to flash firmware\nThis action will cause octoprint to restart[/size]'
+        markup: True
+        valign: 'middle'
+        halign: 'center'
+    BoxLayout:
+        size_hint_y: 0.5
+        padding: [root.width/7, 10, root.width/7, 10]
+        spacing: 10
+        Button:
+            id: start
+            font_size: 30
+            on_press: root.button_function(root.path)
+            background_normal: "Icons/green_button_style.png"
+            Image:
+                id: start_icon
+                source: "Icons/Manual_Control/start_button_icon.png"
+                center_x: start.center_x - 30
+                center_y: start.center_y
+            Label:
+                id: start_label
+                markup: True
+                text: '[size=30]Start[/size]'
+                center_x: start.center_x + 30
+                center_y: start.center_y
+
+
 
 
 <MainScreen>
@@ -2340,9 +2855,11 @@
             font_size: 25
             background_color: (0.3, 0.3, 0.3, 1) if root.ids.files_tab.state == 'normal' else (0.5,0.5,0.5,1)
             content: files_content.__self__
+            on_press: root.query_eeprom()
             Image:
                 source: "Icons/files.png" if root.ids.files_tab.state == 'normal' else "Icons/files_active.png"
-                pos: (self.parent.width/2) - 50, (self.parent.height/2.5) + 5
+                center_x: files_tab.center_x
+                center_y: files_tab.center_y + 20
                 allow_stretch: True
                 height: dp(60)
 
@@ -2356,7 +2873,8 @@
             background_color: (0.3, 0.3, 0.3, 1) if root.ids.printer_status_tab.state == 'normal' else (0.5,0.5,0.5,1)
             Image:
                 source: "Icons/printer.png" if root.ids.printer_status_tab.state == 'normal' else "Icons/printer_active.png"
-                pos: self.parent.width+70, (self.parent.height/2.5) + 5
+                center_x: printer_status_tab.center_x
+                center_y: printer_status_tab.center_y + 20
                 allow_stretch: True
                 height: dp(60)
         UtilitiesTab:
@@ -2369,7 +2887,8 @@
             background_color: (0.3, 0.3, 0.3, 1) if root.ids.utilities_tab.state == 'normal' else (0.5,0.5,0.5,1)
             Image:
                 source: "Icons/settings.png" if root.ids.utilities_tab.state == 'normal' else "Icons/settings_active.png"
-                pos: self.parent.width * 2 + 70, (self.parent.height/2.5) + 5
+                center_x: utilities_tab.center_x
+                center_y: utilities_tab.center_y + 20
                 allow_stretch: True
                 height: dp(60)
 

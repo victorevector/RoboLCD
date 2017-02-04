@@ -13,7 +13,9 @@ from kivy.clock import Clock
 from pconsole import pconsole
 import thread
 from Filament_Wizard import Filament_Wizard_Finish, Filament_Wizard_1_5, Filament_Wizard_2_5, Filament_Wizard_3_5, Filament_Wizard_4_5, Filament_Wizard_5_5
-from z_offset_wizard import Z_Offset_Wizard_Finish, Z_Offset_Wizard_1_4, Z_Offset_Wizard_2_4, Z_Offset_Wizard_3_4, Z_Offset_Wizard_4_4
+from z_offset_wizard import Z_Offset_Wizard_Finish, Z_Offset_Wizard_1_4, Z_Offset_Wizard_2_4, Z_Offset_Wizard_3_4, Z_Offset_Wizard_4_4, Z_Offset_Temperature_Wait_Screen
+from printer_jog import printer_jog
+
 class WizardButton(Button):
     pass
 
@@ -301,13 +303,18 @@ class FilamentWizard(Widget):
 
 
 class ZoffsetWizard(Widget):
-    def __init__(self, robosm, back_destination, **kwargs):
+    def __init__(self, robosm, back_destination, temp_pop, **kwargs):
         super(ZoffsetWizard, self).__init__()
         self.sm = robosm
         self.name = 'zoffset' #name of initial screen
         self.z_pos_init = 20.00
         self.z_pos_end = 0.0
+        self.temp_pop = temp_pop
         self.first_screen(back_destination=back_destination)
+
+        #position callback variables
+        self.old_xpos = 0
+        self.old_ypos = 0
 
     def first_screen(self, **kwargs):
         
@@ -333,6 +340,21 @@ class ZoffsetWizard(Widget):
         Logger.info("2nd Screen: RENDERED")
         # self.third_screen()
 
+    def temperature_wait_screen(self, *args):
+        title = "Waiting on Temperature"
+        name = self.name + "temperature"
+        back_destination = self.name
+
+        layout = Z_Offset_Temperature_Wait_Screen(self.third_screen)
+
+        self.sm._generate_backbutton_screen(name = name,
+                                            title = title,
+                                            back_destination = back_destination,
+                                            content = layout)
+        Logger.info("Temperature Wait Screen Activated")
+
+
+
     def third_screen(self, *args):
         """
         Instructions screen
@@ -340,6 +362,8 @@ class ZoffsetWizard(Widget):
         title = "Z Offset 2/4"
         name = self.name + "[2]"
         back_destination = self.name
+
+        Logger.info("Updated Zoffset is: " + str(self.z_pos_init))
 
         layout = Z_Offset_Wizard_3_4()
         layout.ids.done.fbind('on_press', self.fourth_screen)
@@ -397,32 +421,66 @@ class ZoffsetWizard(Widget):
     #####Helper Functions#######
     def _prepare_printer(self):
         # Prepare printer for zoffset configuration
+        #jog the Z Axis Down to prevent any bed interference
+        jogger = {'z': 10}
+        printer_jog.jog(desired=jogger, speed=1500, relative=True)
+        #kill the extruder
+        roboprinter.printer_instance._printer.commands('M104 S0')
+        roboprinter.printer_instance._printer.commands('M140 S0')
+        roboprinter.printer_instance._printer.commands('M106 S255')
+
         roboprinter.printer_instance._printer.commands(['M851 Z-'+ str(self.z_pos_init), 'M500', 'G90'])
         roboprinter.printer_instance._printer.commands(['G28', 'G91', 'G1 X5 Y30 F800', 'G90' ])
+
+
         
 
     def position_callback(self, dt):
+        temps = roboprinter.printer_instance._printer.get_current_temperatures()
         pos = pconsole.get_position()
         xpos = int(float(pos[0]))
         ypos = int(float(pos[1]))
         zpos = int(float(pos[2]))
-        if self.counter > 3 and  xpos == 71.00 and ypos == 62.00 and zpos == self.z_pos_init :
+
+        extruder_one_temp = 105
+       
+        #find the temperature
+        if 'tool0' in temps.keys():
+            extruder_one_temp = temps['tool0']['actual']
+
+
+        #check the extruder physical position
+        if self.counter > 2 and  xpos == self.old_xpos and ypos == self.old_ypos :
             if self.sm.current == 'zoffset[1]':
-                Logger.info('Succesfully found position')
-                self.third_screen()
-                return False
+                if extruder_one_temp < 100:
+                    Logger.info('Succesfully found position')
+                    self.third_screen()
+                    return False
+                else:
+                    self.temperature_wait_screen()
+                    return False
             else:
                 Logger.info('User went to a different screen Unscheduling self.')
                 return False
+
+        #if finding the position fails it will wait 30 seconds and continue
         self.counter += 1
         if self.counter > 30:
             if self.sm.current == 'zoffset[1]':
                 Logger.info('could not find position, but continuing anyway')
-                self.third_screen()
-                return False
+                if extruder_one_temp < 100:
+                    self.third_screen()
+                    return False
+                else:
+                    self.temperature_wait_screen()
+                    return False
             else:
                 Logger.info('User went to a different screen Unscheduling self.')
                 return False
+
+        #position tracking
+        self.old_xpos = xpos
+        self.old_ypos = ypos
 
     def z_capture_callback(self, dt):
         self.counter += 1

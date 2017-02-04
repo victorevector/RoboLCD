@@ -7,6 +7,7 @@ from kivy.properties import NumericProperty, ObjectProperty, StringProperty
 from .. import roboprinter
 from netconnectd import NetconnectdClient
 from kivy.logger import Logger
+from kivy.clock import Clock
 
 #Buttons
 
@@ -31,33 +32,37 @@ class UtilitiesTab(TabbedPanelHeader):
 class UtilitiesContent(BoxLayout):
     def __init__(self, **kwargs):
         super(UtilitiesContent, self).__init__()
-        #icon way
-        rc = Robo_Icons('Icons/Icon_Buttons/Robo_Controls.png', 'Robo Controls', 'ROBO_CONTROLS')
-        wiz = Robo_Icons('Icons/Icon_Buttons/Wizards.png', 'Wizards', 'WIZARDS')
-        net = Robo_Icons('Icons/Icon_Buttons/Networking.png', 'Network', 'NETWORK')
-        upd = Robo_Icons('Icons/Icon_Buttons/Updates.png', 'Update', 'UPDATES')
-        fac = Robo_Icons('Icons/Icon_Buttons/Factory Reset.png', 'Factory Reset', 'FACTORY_RESET')
-        opt = Robo_Icons('Icons/Icon_Buttons/Options.png', 'Options', 'OPTIONS')
 
-        icons = [rc, wiz, net, upd, fac, opt]
+        self.state = 'NOT_PRINTING'
+        self.last_state = None
+        Clock.schedule_interval(self.monitor_layout, 1)
 
-        layout = Scroll_Box_Icons(icons)
+    def monitor_layout(self, dt):
+        if roboprinter.printer_instance._printer.is_printing() != True:
+            self.state = 'NOT_PRINTING'
+        elif roboprinter.printer_instance._printer.is_printing() == True:
+            self.state = 'PRINTING'
 
-        self.add_widget(layout)
-        # list way
-        # rc = Robo_Controls()
-        # wiz = Wizards()
-        # net = Network()
-        # upd = Updates()
-        # fac = Factory_Reset()
+        if self.last_state != self.state:
+            self.last_state = self.state
+            self.clear_widgets()
 
-        # buttons = [rc, wiz, net, upd, fac]
+            if self.state == 'NOT_PRINTING':
+                rc = Robo_Icons('Icons/White_Utilities/Controls.png', 'Robo Controls', 'ROBO_CONTROLS')
+            elif self.state == 'PRINTING' :
+                rc = Robo_Icons('Icons/White_Utilities/Print tuning_White.png', 'Print Tuning', 'PRINT_TUNING')
 
-        # layout = Scroll_Box_Even(buttons)
-        # self.add_widget(layout)
+            wiz = Robo_Icons('Icons/White_Utilities/Wizards.png', 'Wizards', 'WIZARDS')
+            net = Robo_Icons('Icons/White_Utilities/Networking.png', 'Network', 'NETWORK')
+            upd = Robo_Icons('Icons/White_Utilities/Updates.png', 'Update', 'UPDATES')
+            sys = Robo_Icons('Icons/System_Icons/Shutdown 2.png', 'System', 'SYSTEM')
+            opt = Robo_Icons('Icons/White_Utilities/Options.png', 'Options', 'OPTIONS')
 
+            icons = [rc, wiz, net, upd, opt, sys]
 
+            layout = Scroll_Box_Icons(icons)
 
+            self.add_widget(layout)
 
 
 

@@ -10,10 +10,21 @@ from . import lcd
 from . import roboprinter
 from .lcd.pconsole import pconsole
 from .lcd.session_saver import session_saver
+import os
 
 
 
-class RobolcdPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.AssetPlugin, octoprint.plugin.StartupPlugin,octoprint.plugin.EventHandlerPlugin):
+class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
+                    octoprint.plugin.AssetPlugin,
+                    octoprint.plugin.StartupPlugin,
+                    octoprint.plugin.EventHandlerPlugin):
+
+    def get_settings_defaults(self):
+        return dict(
+            Wifi = {},
+            Model = None
+            )
+
     def _get_api_key(self):
         return self._settings.global_get(['api', 'key'])
 
@@ -42,20 +53,50 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.AssetPlugi
         self._printer.register_callback(pconsole)
         self._logger.info('Callback Complete')
 
-        # #update eeprom settings so the user does not get a false error
-        # pconsole.query_eeprom()
-
         #get the helper function to determine if the board is updating or not
-        helpers = self._plugin_manager.get_helpers("firmwareupdater", "firmware_updating")
-        if helpers and "firmware_updating" in helpers:
-            self._logger.info("Firmware updater has a helper function")
-            self.firmware_updating = helpers["firmware_updating"]
+        helpers = self._plugin_manager.get_helpers("firmwareupdater", "firmware_updating","flash_usb")
+        if helpers:
+            self._logger.info("Firmware updater has helper functions")
+
+            #Grab firmware updating
+            if "firmware_updating" in helpers:            
+                self.firmware_updating = helpers["firmware_updating"]
+            else:
+                self.firmware_updating = self.updater_placeholder
+
+            #Grab flash usb
+            if "flash_usb" in helpers:
+                self.flash_usb = helpers["flash_usb"]
+            else:
+                self.flash_usb = self.updater_placeholder
+        #if there aren't any helpers then use place holders
         else :
             self._logger.info("Firmware updater does not have a helper function")
             self.firmware_updating = self.updater_placeholder
+            self.flash_usb = self.updater_placeholder
+
+        #Get the helpers for Meta Reader
+        file_helpers = self._plugin_manager.get_helpers("Meta_Reader", "start_analysis", "collect_data")
+        if file_helpers:
+            #Grab start analysis
+            if "start_analysis" in file_helpers:
+                self.start_analysis = file_helpers["start_analysis"]
+            else:
+                self.start_analysis = self.updater_placeholder
+
+            #Grab Collect Data
+            if "collect_data" in file_helpers:
+                self.collect_data = file_helpers["collect_data"]
+            else:
+                self.collect_data = self.updater_placeholder
+        #if there aren't any helpers then use place holders
+        else:
+            self._logger.info("Meta Reader does not have helper Functions")
+            self.start_analysis = self.updater_placeholder
+            self.collect_data = self.updater_placeholder
 
     def on_event(self,event, payload):
-        
+
         def reset_data():
             session_saver.save_variable('FLOW', 100)
             session_saver.save_variable('FEED', 100)
@@ -75,7 +116,7 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.AssetPlugi
         elif event == "FileDeselected":
             reset_data()
 
-        
+
 
     def updater_placeholder(self):
         return False

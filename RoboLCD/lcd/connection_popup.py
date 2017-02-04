@@ -47,13 +47,60 @@ class Mintemp_Warning_Popup(ModalView):
         self.dismiss()
 
 class Error_Popup(ModalView):
-    error_message = StringProperty('Error')
-
-    def __init__(self, error):
+    error = StringProperty('Error')
+    body_text = StringProperty('error')
+    def __init__(self, error, body_text):
         super(Error_Popup, self).__init__()
-        self.error_message = error
+        self.error = error
+        self.body_text = body_text
         self.ids.error_ok.bind(on_press = self.dismiss)
+
+    def show(self):
+        self.open()
+       
+
+class Warning_Popup(ModalView):
+    warning = StringProperty("None")
+    body_text = StringProperty("none")
+    def __init__(self, warning, body_text):
+        super(Warning_Popup, self).__init__()
+        self.warning = warning
+        self.body_text = body_text
+
+    def show(self):
         self.open()
 
+class Status_Popup(ModalView):
+    error = StringProperty('Error')
+    body_text = StringProperty('error')
+    def __init__(self, error, body_text):
+        super(Status_Popup, self).__init__()
+        self.error = error
+        self.body_text = body_text
+        
 
+    def show(self):
+        self.open()
+    def hide(self):
+        self.dismiss()
 
+class USB_Progress_Popup(ModalView):
+    max_progress = NumericProperty(100)
+    value_progress = NumericProperty(0)
+
+    error = StringProperty('Error')
+    
+    def __init__(self, error, max_progress):
+        super(USB_Progress_Popup, self).__init__()
+        self.error = error
+        self.max_progress = max_progress
+
+    def show(self):
+        self.open()
+    def hide(self):
+        self.dismiss()
+
+    def update_progress(self, progress):
+        self.value_progress = progress
+    def update_max(self, max_prog):
+        self.max_progress = max_prog

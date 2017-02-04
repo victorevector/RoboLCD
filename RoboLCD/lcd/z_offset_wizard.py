@@ -8,13 +8,19 @@ from kivy.logger import Logger
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, NumericProperty, ListProperty
 from .. import roboprinter
 from printer_jog import printer_jog
+from kivy.clock import Clock
 
 
 class Z_Offset_Wizard_1_4(FloatLayout):
     pass
 
 class Z_Offset_Wizard_2_4(FloatLayout):
-    pass
+    
+    def __init__(self):
+        super(Z_Offset_Wizard_2_4, self).__init__()
+        pass
+
+    
 
 class Z_Offset_Wizard_3_4(FloatLayout):
     i_toggle_mm = ['Icons/Manual_Control/increments_2_1.png', 'Icons/Manual_Control/increments_2_2.png']
@@ -41,3 +47,31 @@ class Z_Offset_Wizard_4_4(FloatLayout):
 class Z_Offset_Wizard_Finish(FloatLayout):
     z_value = NumericProperty(0)
     pass
+
+class Z_Offset_Temperature_Wait_Screen(FloatLayout):
+    body_text = StringProperty("To avoid melting the bed, the printer will now wait for\nthe Extruder to cool down")
+    temperature = StringProperty("999")
+
+
+    def __init__(self, callback):
+        super(Z_Offset_Temperature_Wait_Screen, self).__init__()
+        #setup callback
+        self.callback = callback
+        Clock.schedule_interval(self.temperature_callback, 0.5)
+
+    def temperature_callback(self,dt):
+        temps = roboprinter.printer_instance._printer.get_current_temperatures()
+        position_found_waiting_for_temp = False
+
+        #get current temperature
+        if 'tool0' in temps.keys():
+            temp = temps['tool0']['actual']
+            self.temperature = str(temp)
+
+            if temp < 100:
+                position_found_waiting_for_temp = True
+                #go to the next screen
+                self.callback()
+                return False
+
+

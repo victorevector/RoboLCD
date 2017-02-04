@@ -15,6 +15,7 @@ from kivy.uix.label import Label
 from connection_popup import Mintemp_Warning_Popup
 from .. import roboprinter
 from printer_jog import printer_jog
+from kivy.logger import Logger
 
 # class Control(Widget):
 #     manualcontrol = ObjectProperty(ManualControl() )
@@ -74,9 +75,23 @@ class TemperatureControl(GridLayout):
     current_temp = StringProperty('--')
     input_temp = StringProperty('')
 
-    def __init__(self, **kwargs):
+    def __init__(self, selected_tool= "TOOL1" ,**kwargs):
         super(TemperatureControl, self).__init__(**kwargs)
+        acceptable_toolheads = {"TOOL1": 'tool0',
+                                "TOOL2": 'tool1',
+                                "BED": 'bed',
+                                "tool0": 'tool0',
+                                "tool1": 'tool1',
+                                "bed": 'bed'}
+
+        if selected_tool in acceptable_toolheads:
+            self.selected_tool = acceptable_toolheads[selected_tool]
+
+        else:
+            Logger.info("TOOL CANNOT BE SELECTED: " + selected_tool)
+            self.selected_tool = 'tool0'
         Clock.schedule_interval(self.update, .1)
+
 
     def update(self, dt):
         if self.input_temp == '':
@@ -94,8 +109,9 @@ class TemperatureControl(GridLayout):
     def temperature(self):
         temps  = roboprinter.printer_instance._printer.get_current_temperatures()
         current_temperature = ''
+        
         try:
-            current_temperature = str(int(temps['tool0']['actual']))
+            current_temperature = str(int(temps[self.selected_tool]['actual']))
         except Exception as e:
             current_temperature = '--'
         return current_temperature
@@ -107,12 +123,16 @@ class TemperatureControl(GridLayout):
             self.input_temp = "0"
         else:
             temp = int(self.input_temp)
-            if temp > 290:
+            if temp > 290 and (self.selected_tool == 'tool0' or self.selected_tool == 'tool1'):
                 temp = 290
                 self.input_temp = "290"
 
+            elif temp > 165 and self.selected_tool == 'bed':
+                temp = 165
+                self.input_temp = "165"
+
         
-            
+        Logger.info("Setting " + str(ext) + " to " + str(temp))
         roboprinter.printer_instance._printer.set_temperature(ext, temp )
 
 class Motor_Control(Button):

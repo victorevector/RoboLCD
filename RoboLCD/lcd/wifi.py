@@ -21,6 +21,7 @@ from kivy.core.window import Window
 from scrollbox import ScrollBox, Scroll_Box_Even
 
 from netconnectd import NetconnectdClient
+import base64
 
 class QR_Button(Button):
     pass
@@ -43,6 +44,7 @@ class AP_Mode():
         self.name = name #name of initial screen
         self.title = 'Wi-Fi Hotspot'
         self.ap_mode_1_4()
+        self.settings = roboprinter.printer_instance._settings
 
 
     def ap_mode_1_4(self, **kwargs):
@@ -88,8 +90,11 @@ class AP_Mode():
         s = AP_Mode_Success(self)
         c.add_widget(s)
 
+
         self.sm.add_widget(c)
         self.sm.current = c.name
+
+        self.save_connection_info()
 
     def generate_ap_confirmation_screen(self, **kwargs):
         self.ap_mode_fail = False
@@ -116,6 +121,10 @@ class AP_Mode():
         netcon.command('reset', None)
         #retry
         self.ap_mode_2_4()
+
+    def save_connection_info(self):
+        self.settings.set(['tester'], 'sure')
+        self.settings.save()
 
 
 
@@ -206,7 +215,31 @@ class WifiPasswordInput(FloatLayout):
         self.ssid = kwargs['ssid']
         self._keyboard = None
         self._set_keyboard('keyboards/abc.json')
+        self.settings = roboprinter.printer_instance._settings
 
+        saved_pword = self.check_for_password()
+        if  saved_pword != False:
+            self.ids.password.text = saved_pword
+
+    def check_for_password(self):
+        saved_wifi = self.settings.get(['Wifi'])
+
+        if self.ssid in saved_wifi:
+            pw = self.cypher_decrypt(self.ssid, saved_wifi[self.ssid])
+            return pw
+        else:
+            return False
+
+    def cypher_decrypt(self,key, string):
+        decoded_chars = []
+        string = base64.urlsafe_b64decode(string)
+        for i in xrange(len(string)):
+            key_c = key[i % len(key)]
+            encoded_c = chr(abs(ord(string[i]) - ord(key_c) % 256))
+            decoded_chars.append(encoded_c)
+        decoded_string = "".join(decoded_chars)
+        return decoded_string
+        
     def _set_keyboard(self, layout):
         #Dock the keyboard
         kb = Window.request_keyboard(self._keyboard_close, self)
@@ -227,7 +260,7 @@ class WifiPasswordInput(FloatLayout):
     def _style_keyboard(self):
         if self._keyboard:
             self._keyboard.margin_hint = 0,.02,0,0.02
-            self._keyboard.height = 270
+            self._keyboard.height = 250
             self._keyboard.key_background_normal = 'Icons/Keyboard/keyboard_button.png'
             self.scale_min = .4
             self.scale_max = 1.6
@@ -296,6 +329,41 @@ class WifiConfiguration(Widget):
         self.name = 'wifi_config'
         self.back_destination = back_destination
         self.generate_wifi_list_screen()
+        self.settings = roboprinter.printer_instance._settings
+        
+
+    def save_connection_info(self):
+        #self.wifi_data = {'ssid': ssid, 'psk': psk, 'force': True}
+        saved_wifi = self.settings.get(['Wifi'])
+
+        pw = self.cypher_encrypt(self.wifi_data['ssid'], self.wifi_data['psk'])
+
+        if self.wifi_data['ssid'] not in saved_wifi:
+            
+            saved_wifi[self.wifi_data['ssid']] = pw
+            self.settings.set(['Wifi'], saved_wifi, force=True)
+            self.settings.save(force=True)
+
+        elif saved_wifi[self.wifi_data['ssid']] != pw:
+
+            saved_wifi[self.wifi_data['ssid']] = pw
+            self.settings.set(['Wifi'], saved_wifi, force=True)
+            self.settings.save(force=True)
+
+    def cypher_encrypt(self,key, string):
+        encoded_chars = []
+        for i in xrange(len(string)):
+            key_c = key[i % len(key)]
+            encoded_c = chr(ord(string[i]) + ord(key_c) % 256)
+            encoded_chars.append(encoded_c)
+        encoded_string = "".join(encoded_chars)
+        return base64.urlsafe_b64encode(encoded_string)
+
+    
+
+
+
+
 
 
     def generate_wifi_list_screen(self):
@@ -368,6 +436,7 @@ class WifiConfiguration(Widget):
                 ssid = self.wifi_data['ssid']
                 self._generate_success_screen(ssid)
                 self.rsm.remove_widget(self.temp_screen)
+                self.save_connection_info()
                 return False
             else:
                 self.counter = 0

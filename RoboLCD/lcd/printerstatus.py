@@ -1,6 +1,7 @@
 # coding=utf-8
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty
 from kivy.uix.label import Label
@@ -12,6 +13,7 @@ from .. import roboprinter
 from connection_popup import Zoffset_Warning_Popup
 import math
 import subprocess
+from multiprocessing import Process
 
 
 class PrinterStatusTab(TabbedPanelHeader):
@@ -35,15 +37,21 @@ class PrinterStatusContent(GridLayout):
     progress = StringProperty('')
     startup = False 
     safety_counter = 0
+    update_lock = False
     
 
     def __init__(self,**kwargs):
         super(PrinterStatusContent, self).__init__(**kwargs)
         
+        
         self.splash_event = Clock.schedule_interval(self.turn_off_splash, .1)
+        
         Clock.schedule_interval(self.safety, 1)
 
+
     def update(self, dt):
+
+        
         temps = roboprinter.printer_instance._printer.get_current_temperatures()
         current_data = roboprinter.printer_instance._printer.get_current_data()
         filename = current_data['job']['file']['name']
@@ -54,6 +62,8 @@ class PrinterStatusContent(GridLayout):
         progress = current_data['progress']['completion']
         status = current_data['state']['text']
         #TODO: REFACTOR because the following variable assignments WILL fail when we starting implementing lcd_large.kv since these widgets wont exists for that iteration
+
+       
         left_of_extruder = self.ids.left_of_extruder_status
         right_of_extruder = self.ids.right_of_extruder_status
         e_children = left_of_extruder.children + right_of_extruder.children
@@ -71,8 +81,7 @@ class PrinterStatusContent(GridLayout):
 
         if 'tool0' in temps.keys():
             self.extruder_one_temp = temps['tool0']['actual']
-            self.extruder_one_max_temp = temps['tool0']['target']
-            
+            self.extruder_one_max_temp = temps['tool0']['target']            
 
         else:
             self.extruder_one_temp = 0
@@ -99,6 +108,48 @@ class PrinterStatusContent(GridLayout):
             left_of_extruder.clear_widgets()
             right_of_extruder.clear_widgets()
 
+    def detirmine_layout(self):
+        printer_type = roboprinter.printer_instance._settings.global_get(['printerProfiles', 'defaultProfile'])
+        model = printer_type['model']
+
+        tool0 = False
+        tool1 = False
+        bed = False
+
+
+        if model == "Robo R2":
+            if printer_type['extruder']['count'] == 1:
+                tool0 = True
+            elif printer_type['extruder']['count'] > 1:
+                tool0 = True
+                tool1 = True
+            if printer_type['heatedBed']:
+                bed = True
+        elif model == "Robo C2":
+            return
+
+        if tool0 and tool1 and bed:
+            tool_0 = Tool_Status("Extruder 1", "tool0")
+            tool_1 = Tool_Status("Extruder 2", "tool1")
+            bed = Tool_Status("Bed", "bed")
+
+            self.ids.tools.add_widget(tool_0)
+            self.ids.tools.add_widget(tool_1)
+            self.ids.tools.add_widget(bed)
+
+        elif tool0 and bed:
+            tool_0 = Tool_Status("Extruder 1", "tool0")
+            bed = Tool_Status("Bed", "bed")
+            self.ids.tools.add_widget(tool_0)
+            self.ids.tools.add_widget(bed)
+            
+        elif tool0:
+            tool_0 = Tool_Status("Extruder 1", "tool0")
+            self.ids.tools.add_widget(tool_0)
+            
+        else:
+            Logger.info("##################### TOOL STATUS ERROR #######################")
+
     def start_print(self):
         roboprinter.printer_instance._printer.start_print()
 
@@ -106,8 +157,11 @@ class PrinterStatusContent(GridLayout):
         #turn off the splash screen
         if self.extruder_one_temp != 0 and self.startup == False:
             #Logger.info("Turning Off the Splash Screen!")
+            self.detirmine_layout()
             subprocess.call(['sudo pkill omxplayer'], shell=True)
             self.startup = True
+             
+            
             return False
 
     def safety(self,dt):
@@ -116,6 +170,7 @@ class PrinterStatusContent(GridLayout):
 
         if self.safety_counter == safety_time and self.startup == False:
             #Logger.info("Safety Counter went off!")
+            self.detirmine_layout()
             subprocess.call(['sudo pkill omxplayer'], shell=True)
             Clock.unschedule(self.splash_event)
             return False
@@ -191,4 +246,34 @@ class ModalPopup(ModalView):
     def dismiss_popup(self, *args):
         self.cancellation_feedback()
         self.dismiss()
-        Logger.info('Dismiss Popup: Successful')
+
+class Tool_Status(FloatLayout):
+    name = StringProperty("Error")
+    current_temperature = NumericProperty(0)
+    max_temp = NumericProperty(0)
+    tool = StringProperty('tool0')
+
+    def __init__(self, name, tool, **kwargs):
+        super(Tool_Status, self).__init__(**kwargs)
+        self.name=name
+        self.tool = tool
+        Clock.schedule_interval(self.update_temp_and_progress, .1)
+
+    def update_temp_and_progress(self, dt):
+        self.temperature()
+
+
+    def temperature(self):
+        temps  = roboprinter.printer_instance._printer.get_current_temperatures()
+        
+        try:
+            self.current_temperature = temps[self.tool]['actual']
+            
+            self.max_temp = temps[self.tool]['target']
+            
+            #Logger.info(str(self.current_temperature) + " "  + str(self.max_temp))
+        except Exception as e:
+            #Logger.info("Temperature Error")
+            pass
+        
+        

@@ -5,7 +5,9 @@ from kivy.uix.label import Label
 from kivy.graphics import RoundedRectangle
 from kivy.clock import Clock
 from kivy.logger import Logger
-
+from pconsole import pconsole
+from .. import roboprinter
+from multiprocessing import Process
 
 DEFAULT_FONT = 'Roboto'
 
@@ -22,6 +24,13 @@ class MainScreen(Screen):
         Clock.schedule_interval(self.update, .1)
         
 
+
+    def query_eeprom(self):
+        if not roboprinter.printer_instance._printer.is_printing():
+
+            pconsole.query_eeprom()
+        
+
     def update(self,dt):
         self.ids.printer_status_content.update(dt)
         self.ids.files_content.update(dt)
@@ -33,8 +42,8 @@ class MainScreen(Screen):
         self.ids.mstp.switch_to(t)
 
 
-    def entering_callback(self):
-        Logger.info("Is this working?###################################################################")
+    def update_tab(self,tab):
+        roboprinter.open_tab = tab
         
 
     
