@@ -1,5 +1,12 @@
 # RoboLCD Changelog
 
+##1.3.1 (2017-2-4)
+
+###Bug Fixes
+
+* Fixed issue where updating through the webapp would break future upgrades 
+
+
 ##1.3.0 (2017-2-3)
 
 ###Improvements

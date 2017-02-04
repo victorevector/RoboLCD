@@ -107,8 +107,8 @@ class UpdateScreen(FloatLayout):
         p = Process(
             target=Update_Checker,
             args=(
-                (output_p, input_p),
                 self.versioning_path,
+                (output_p, input_p),
             )
         )
         p.start()
