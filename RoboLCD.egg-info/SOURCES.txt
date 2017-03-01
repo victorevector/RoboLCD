@@ -41,7 +41,4 @@ RoboLCD/lcd/utilities.py
 RoboLCD/lcd/wifi.py
 RoboLCD/lcd/wizard.py
 RoboLCD/lcd/z_offset_wizard.py
-RoboLCD/lcd/updates/__init__.py
-RoboLCD/lcd/updates/Update_Checker/Update_Checker.py
-RoboLCD/lcd/updates/Update_Checker/__init__.py
 RoboLCD/roboprinter/__init__.py

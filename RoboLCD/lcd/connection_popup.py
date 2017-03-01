@@ -9,6 +9,18 @@ from wizard import ZoffsetWizard
 
 
 class Connection_Popup(ModalView):
+    warning = StringProperty('error')
+    body_text = StringProperty('error')
+
+
+    def __init__(self, warning, body_text):
+        super(Connection_Popup, self).__init__()
+        self.warning = warning
+        self.body_text = body_text
+
+    def show(self):
+        self.open()
+
     def reconnect_button(self):
         options = roboprinter.printer_instance._printer.connect()
 

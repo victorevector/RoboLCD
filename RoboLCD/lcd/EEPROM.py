@@ -22,14 +22,22 @@ class EEPROM():
             'Filament Settings' : 'FILAMENT_SETTINGS',
             'Feed Rates': 'FEED_RATES',
             'PID Settings' : 'PID',
+            'Bed PID Settings': 'BPID',
             'Steps Per Unit' : 'STEPS_PER_UNIT',
             'Accelerations' : 'ACCELERATIONS',
             'Max Accelerations' : 'MAX_ACCELERATIONS',
             'Advanced Variables': 'ADVANCED_VARIABLES',
 
         }
-        self.button_order = ['Z Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations','Home Offsets',  
-                            'Filament Settings', 'Feed Rates', 'PID Settings', 'Advanced Variables']
+        model = roboprinter.printer_instance._settings.get(['Model'])
+
+        if model == "Robo R2":
+            #add bed PID for the R2
+            self.button_order = ['Z Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations','Home Offsets',  
+                                'Filament Settings', 'Feed Rates', 'PID Settings','Bed PID Settings', 'Advanced Variables']
+        else:
+            self.button_order = ['Z Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations','Home Offsets',  
+                                'Filament Settings', 'Feed Rates', 'PID Settings', 'Advanced Variables']
         self.load_eeprom()
 
         
@@ -60,6 +68,7 @@ class EEPROM():
                                  'FILAMENT_SETTINGS': 'filament settings',
                                  'FEED_RATES' : 'max feed rate',
                                  'PID': 'PID',
+                                 'BPID': "BPID",
                                  'STEPS_PER_UNIT': 'steps per unit',
                                  'ACCELERATIONS': 'accelerations',
                                  'MAX_ACCELERATIONS':'max acceleration',
@@ -86,6 +95,7 @@ class EEPROM():
                                  'FILAMENT_SETTINGS': 'M200',
                                  'FEED_RATES' : 'M203',
                                  'PID': 'M301',
+                                 'BPID': 'M304',
                                  'STEPS_PER_UNIT': 'M92',
                                  'ACCELERATIONS': 'M204',
                                  'MAX_ACCELERATIONS': 'M201',
@@ -95,6 +105,7 @@ class EEPROM():
                                  'FILAMENT_SETTINGS': pconsole.eeprom['filament settings'],
                                  'FEED_RATES' : pconsole.eeprom['max feed rate'],
                                  'PID': pconsole.eeprom['PID'],
+                                 'BPID': pconsole.eeprom['BPID'],
                                  'STEPS_PER_UNIT': pconsole.eeprom['steps per unit'],
                                  'ACCELERATIONS': pconsole.eeprom['accelerations'],
                                  'MAX_ACCELERATIONS': pconsole.eeprom['max acceleration'],

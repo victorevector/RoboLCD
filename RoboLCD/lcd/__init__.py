@@ -87,6 +87,7 @@ def start():
         Encapsulates methods that are both neeeded globally and needed by descendant widgets to execute screen related functions. For example, self.generate_file_screen(**) is stored in this class but gets used by its descendant, the FileButton widget.
         """
         connection_popup = None
+        wait_temp = None
         wifi_grid = []
         wifi_list = []
 
@@ -97,7 +98,7 @@ def start():
             Logger.info("Starting kaa_thread...")
             Clock.schedule_interval(self.check_connection_status, .5)
             pconsole.initialize_eeprom()
-            roboprinter.printer_instance.robo_screen = self.get_current_screen
+            roboprinter.robo_screen = self.get_current_screen
 
         def get_current_screen(self):
             return self.current
@@ -115,22 +116,58 @@ def start():
 
             if is_closed and self.connection_popup is None:
                 Logger.info('Popup: Init')
-                self.connection_popup = self.generate_connection_popup()
+                if 'bed' in pconsole.temperature:
+                    if float(pconsole.temperature['bed']) <= 0:
+                        self.connection_popup = self.generate_connection_popup(warning = 'bed')
+                    else:
+                        self.connection_popup = self.generate_connection_popup(warning = 'main')
+                else:
+                    self.connection_popup = self.generate_connection_popup(warning = 'main')
 
             if is_error and self.connection_popup is None:
-                self.connection_popup = self.generate_connection_popup()
+                if 'bed' in pconsole.temperature:
+                    if float(pconsole.temperature['bed']) <= 0:
+                        self.connection_popup = self.generate_connection_popup(warning = 'bed')
+                    else:
+                        self.connection_popup = self.generate_connection_popup(warning = 'main')
+                else:
+                    self.connection_popup = self.generate_connection_popup(warning = 'main')
 
             if not is_closed_or_error and self.connection_popup is not None:
                 Logger.info('Popup: Dismissed')
                 self.connection_popup.dismiss()
                 self.connection_popup = None
 
-        def generate_connection_popup(self, *args, **kwargs):
-            if roboprinter.printer_instance.firmware_updating() == False:
+                #Wait until temperature reappears if it is an R2
+                model = roboprinter.printer_instance._settings.get(['Model'])
+                if model == "Robo R2": 
+                    self.wait_temp = Warning_Popup("Initializing Printer", 'Please Wait')
+                    self.wait_temp.show()
+                    Clock.schedule_interval(self.check_temp, 0.1)
+                
 
-                p = Connection_Popup()
+        def check_temp(self, dt):
+            if 'tool1' in pconsole.temperature and 'bed' in pconsole.temperature:
+                if float(pconsole.temperature['tool1']) > 0 and float(pconsole.temperature['bed']) > 0:
+                    self.wait_temp.dismiss()
+                    return False
+
+        def generate_connection_popup(self, warning='main', *args, **kwargs):
+            if roboprinter.printer_instance.firmware_updating() == False:
+                #set a default so it opens something
+                p = Connection_Popup('Main Board Not Detected','Try to Reconnect')
+                if warning == 'main':
+                    p = Connection_Popup('Main Board Not Detected','Try to Reconnect')
+                elif warning == 'bed':
+                    p = Connection_Popup('Bed Disconnected','Reconnect the bed')
+
+                #check to see if another popup is open
+                if self.wait_temp != None:
+                    self.wait_temp.dismiss()
+                    self.wait_temp = None
 
                 p.open()
+                self.go_back_to_main('printer_status_tab')
                 return p
             elif roboprinter.printer_instance.firmware_updating() == True:
                 p = Updating_Popup()
@@ -272,15 +309,6 @@ def start():
             buttons = [cw,ap,ip,qr]
 
             sb = Scroll_Box_Icons(buttons)
-
-            #old way
-            # cw = WifiConfigureButton()
-            # ap = APButton()
-            # ip = IPAddressButton()
-            # qr = QR_Button()
-            # buttons = [cw, ap, ip, qr]
-
-            # sb = Scroll_Box_Even(buttons)
 
             self._generate_backbutton_screen(name=kwargs['name'], title=kwargs['title'], back_destination=kwargs['back_destination'], content=sb)
 
@@ -425,7 +453,7 @@ def start():
         def generate_zaxis_wizard(self, **kwargs):
             """
             """
-            temp_pop = Warning_Popup("High Temperature", "Waiting for the printer\nto cool down")
+            temp_pop = Error_Popup("Bed Not Connected", "Please Reconnect the bed and try again")
             ZoffsetWizard(robosm=self, back_destination=kwargs['back_destination'], temp_pop = temp_pop)
 
         def generate_manualcontrol_screen(self, **kwargs):
@@ -462,12 +490,6 @@ def start():
 
         def generate_robo_controls(self, **kwargs):
             _name = kwargs['name']
-
-            #old list way
-            # extruder = Extruder_Controls()
-            # manual = Motor_Control()
-            # buttons = [extruder, manual]
-            # layout = Scroll_Box_Even(buttons)
 
             #new Icon Way
             extruder = Robo_Icons('Icons/Icon_Buttons/Temperature.png', 'Temperature Controls', 'EXTRUDER_CONTROLS')

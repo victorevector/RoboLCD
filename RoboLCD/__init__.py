@@ -103,7 +103,7 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
             session_saver.save_variable('FAN', 100)
             self._printer.feed_rate(100)
             self._printer.flow_rate(100)
-            self._printer.commands('M106 S255')
+            self._printer.commands('M106 S0')
 
         if event == 'PrintStarted':
             reset_data()

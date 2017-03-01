@@ -16,6 +16,7 @@ from connection_popup import Mintemp_Warning_Popup
 from .. import roboprinter
 from printer_jog import printer_jog
 from kivy.logger import Logger
+from pconsole import pconsole
 
 # class Control(Widget):
 #     manualcontrol = ObjectProperty(ManualControl() )
@@ -127,7 +128,7 @@ class TemperatureControl(GridLayout):
                 temp = 290
                 self.input_temp = "290"
 
-            elif temp > 165 and self.selected_tool == 'bed':
+            elif temp > 165 and self.selected_tool == 'bed' and float(pconsole.temperature['bed']) > 0:
                 temp = 165
                 self.input_temp = "165"
 

@@ -4,7 +4,13 @@
 
 ###Bug Fixes
 
-* Fixed issue where updating through the webapp would break future upgrades 
+* Fixed issue with detecting R2 Bed
+
+* Fixed issue where R2 bed disconnect freezes screen
+
+* Added heated bed warning to avoid burns during z offset wizard
+
+* Fans turn off after print is done
 
 
 ##1.3.0 (2017-2-3)

@@ -49,15 +49,24 @@ class Z_Offset_Wizard_Finish(FloatLayout):
     pass
 
 class Z_Offset_Temperature_Wait_Screen(FloatLayout):
+
     body_text = StringProperty("To avoid melting the bed, the printer will now wait for\nthe Extruder to cool down")
     temperature = StringProperty("999")
+    bed_temp = StringProperty("999")
 
 
     def __init__(self, callback):
         super(Z_Offset_Temperature_Wait_Screen, self).__init__()
         #setup callback
+        model = roboprinter.printer_instance._settings.get(['Model'])
+        if model == "Robo R2": 
+            self.body_text = "To avoid melting the bed, the printer will now wait for\nthe Extruder and the bed to cool down"
+            Clock.schedule_interval(self.temp_callback_R2, 0.5)
+        else:
+            Clock.schedule_interval(self.temperature_callback, 0.5)
+
         self.callback = callback
-        Clock.schedule_interval(self.temperature_callback, 0.5)
+        
 
     def temperature_callback(self,dt):
         temps = roboprinter.printer_instance._printer.get_current_temperatures()
@@ -73,5 +82,29 @@ class Z_Offset_Temperature_Wait_Screen(FloatLayout):
                 #go to the next screen
                 self.callback()
                 return False
+        
+
+    def temp_callback_R2(self, dt):
+        temps = roboprinter.printer_instance._printer.get_current_temperatures()
+        position_found_waiting_for_temp = False
+        bed = 100
+        #get current temperature
+        if 'tool0' in temps.keys():
+            temp = temps['tool0']['actual']
+            self.temperature = str(temp)
+
+        if 'bed' in temps.keys():
+            bed = temps['bed']['actual']
+            self.bed_temp = str(bed)
+
+            if temp < 100 and bed < 60:
+                position_found_waiting_for_temp = True
+                #go to the next screen
+                self.callback()
+                return False
+
+        
+
+
 
 

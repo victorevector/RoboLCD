@@ -14,6 +14,7 @@ from connection_popup import Zoffset_Warning_Popup
 import math
 import subprocess
 from multiprocessing import Process
+from pconsole import pconsole
 
 
 class PrinterStatusTab(TabbedPanelHeader):
@@ -52,7 +53,7 @@ class PrinterStatusContent(GridLayout):
     def update(self, dt):
 
         
-        temps = roboprinter.printer_instance._printer.get_current_temperatures()
+        # temps = roboprinter.printer_instance._printer.get_current_temperatures()
         current_data = roboprinter.printer_instance._printer.get_current_data()
         filename = current_data['job']['file']['name']
         is_operational = current_data['state']['flags']['operational']
@@ -79,27 +80,20 @@ class PrinterStatusContent(GridLayout):
         if progress == 100:
             roboprinter.printer_instance._printer.unselect_file()
 
-        if 'tool0' in temps.keys():
-            self.extruder_one_temp = temps['tool0']['actual']
-            self.extruder_one_max_temp = temps['tool0']['target']            
+       
 
-        else:
-            self.extruder_one_temp = 0
-            self.extruder_one_max_temp = 0
+        temp1 = self.grab_target_and_actual('tool0')
+        self.extruder_one_max_temp = temp1['target']
+        self.extruder_one_temp = temp1['actual']
 
-        if 'bed' in temps.keys():
-            self.bed_temp = temps['bed']['actual']
-            self.bed_max_temp = temps['bed']['target']
-        else:
-            self.bed_temp = 0
-            self.bed_max_temp = 0
+        temp2 = self.grab_target_and_actual('tool1')
+        self.extruder_two_max_temp = temp2['target']
+        self.extruder_two_temp = temp2['actual']
 
-        if 'tool1' in temps.keys():
-            self.extruder_two_temp = temps['tool1']['actual']
-            self.extruder_two_max_temp = temps['tool1']['target']
-        else:
-            self.extruder_two_temp = 0
-            self.extruder_two_max_temp = 0
+        bed = self.grab_target_and_actual('bed')
+        self.bed_max_temp = bed['target']
+        self.bed_temp = bed['actual']
+
 
         if is_printing and len(e_children) == 0:
             left_of_extruder.add_widget(StartPauseButton())
@@ -107,6 +101,32 @@ class PrinterStatusContent(GridLayout):
         elif len(e_children) > 0 and not is_printing and not is_paused:
             left_of_extruder.clear_widgets()
             right_of_extruder.clear_widgets()
+
+    def grab_target_and_actual(self, tool):
+        acceptable_tools = {'tool0': 'tool0',
+                        'tool1': 'tool1',
+                        'bed' : 'bed'
+        }
+
+        actual = 0
+        target = 0
+
+        if tool in acceptable_tools:
+            temps = roboprinter.printer_instance._printer.get_current_temperatures()
+
+            if tool in temps:
+                if 'actual' in temps[tool] and 'target' in temps[tool]:
+                    if temps[tool]['actual'] == None:
+                        actual = 0
+                        target = 0
+                    else:
+                        actual = temps[tool]['actual']
+                        target = temps[tool]['target'] 
+                else:
+                    actual = 0
+                    target = 0
+
+        return {'actual':actual, 'target':target}
 
     def detirmine_layout(self):
         printer_type = roboprinter.printer_instance._settings.global_get(['printerProfiles', 'defaultProfile'])
@@ -270,10 +290,20 @@ class Tool_Status(FloatLayout):
             self.current_temperature = temps[self.tool]['actual']
             
             self.max_temp = temps[self.tool]['target']
+
+            if self.tool == 'bed':
+                if 'bed' in pconsole.temperature:
+                    if float(pconsole.temperature['bed']) <= 0:
+                        self.current_temperature = 0
+
             
             #Logger.info(str(self.current_temperature) + " "  + str(self.max_temp))
         except Exception as e:
             #Logger.info("Temperature Error")
-            pass
+            if self.tool == 'bed':
+                if 'bed' in pconsole.temperature:
+                    if float(pconsole.temperature['bed']) <= 0:
+                        self.current_temperature = 0
+          
         
         

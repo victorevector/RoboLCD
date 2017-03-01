@@ -427,7 +427,7 @@
                 id: modal_question
                 markup: True
                 size_hint: None, None
-                text: '[size=40][color=#69B3E7]Main Board Not Detected[/size][/color]\n[size=30]Try to Reconnect[/size]'
+                text: '[size=40][color=#69B3E7]' + root.warning + '[/size][/color]\n[size=30]'+ root.body_text + '[/size]'
                 valign: 'middle'
                 halign: 'center'
                 center_x: popup.center_x
@@ -1465,7 +1465,7 @@
         FloatLayout:
             Image:
                 id: toggle_pic
-                source: 'Icons/Manual_Control/increments_4_1.png'
+                source: 'Icons/Manual_Control/increments_4_3.png'
                 allow_stretch: False
                 center_x: toggle_mm.center_x
                 center_y: toggle_mm.center_y + 20
@@ -2169,7 +2169,17 @@
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
-        center_y: screen.center_y - 120
+        center_y: screen.center_y - 105
+
+    
+    Label:
+        markup: True
+        size_hint: None, None
+        text: '[size=30]{}°C/60°C'.format(root.bed_temp)
+        valign: 'middle'
+        halign: 'center'
+        center_x: screen.center_x
+        center_y: screen.center_y - 145
 
 <Z_Offset_Wizard_3_4>:
     id: screen

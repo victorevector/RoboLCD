@@ -318,6 +318,13 @@ class ZoffsetWizard(Widget):
 
     def first_screen(self, **kwargs):
         
+        model = roboprinter.printer_instance._settings.get(['Model'])
+        if model == "Robo R2":
+            bed_temp = float(pconsole.temperature['bed'])
+            Logger.info(str(bed_temp))
+            if bed_temp <= 0:
+                self.temp_pop.show()
+                return
         c = Z_Offset_Wizard_1_4()
         c.ids.start.fbind('on_press', self.second_screen)
 
@@ -329,7 +336,7 @@ class ZoffsetWizard(Widget):
         self._prepare_printer()
 
         title = "Z Offset 1/4"
-        back_destination = self.name
+        back_destination = roboprinter.robo_screen()
         name = self.name + "[1]"
 
         layout = Z_Offset_Wizard_2_4()
@@ -343,7 +350,7 @@ class ZoffsetWizard(Widget):
     def temperature_wait_screen(self, *args):
         title = "Waiting on Temperature"
         name = self.name + "temperature"
-        back_destination = self.name
+        back_destination = roboprinter.robo_screen()
 
         layout = Z_Offset_Temperature_Wait_Screen(self.third_screen)
 
@@ -361,7 +368,7 @@ class ZoffsetWizard(Widget):
         """
         title = "Z Offset 2/4"
         name = self.name + "[2]"
-        back_destination = self.name
+        back_destination = roboprinter.robo_screen()
 
         Logger.info("Updated Zoffset is: " + str(self.z_pos_init))
 
@@ -381,7 +388,7 @@ class ZoffsetWizard(Widget):
         """
         title = "Z Offset 3/4"
         name = self.name + "[3]"
-        back_destination = self.name + "[2]"
+        back_destination = roboprinter.robo_screen()
 
        
         layout = Z_Offset_Wizard_4_4()
@@ -402,7 +409,7 @@ class ZoffsetWizard(Widget):
     def fifth_screen(self, *args):
         title = "Z Offset 4/4"
         name = self.name + "[4]"
-        back_destination = self.name + "[3]"
+        back_destination = roboprinter.robo_screen()
 
         layout = Z_Offset_Wizard_Finish()
         self.zoffset = self.z_pos_end - self.z_pos_init

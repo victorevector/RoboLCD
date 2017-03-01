@@ -2,6 +2,8 @@ import octoprint.printer
 from .. import roboprinter
 import re
 import signal
+import time
+
 
 class PConsole(octoprint.printer.PrinterCallback):
 
@@ -18,10 +20,13 @@ class PConsole(octoprint.printer.PrinterCallback):
     advanced_variables = {}
     home_offset = {}
     PID = {}
+    BPID = {}
     filament_settings = {}
     zoffset = {}
     eeprom = {}
     counter = 0
+    t_counter = 2
+    temperature = {}
 
     def on_printer_add_message(self, data):
 
@@ -35,9 +40,51 @@ class PConsole(octoprint.printer.PrinterCallback):
         M205 = data.find('M205')
         M206 = data.find('M206')
         M301 = data.find('M301')
+        M304 = data.find('M304')
         M200 = data.find('M200')
         M851 = data.find('M851')
         _Zoffset_update = data.find('Z Offset')
+
+        #Disconnect and reconnect if Marlin stops because of bed heater issues
+        printer_bed_error = 'Error:MINTEMP triggered, system stopped! Heater_ID: bed'
+        printer_bed_error2 = "Error:Heating failed, system stopped! Heater_ID: bed"
+        general_error = "Error:Printer halted. kill() called!"
+        connection_error = "Error:No Line Number with checksum, Last Line: 0"
+
+        if re.match(printer_bed_error, data) or re.match(printer_bed_error2,data) or re.match(general_error, data) or re.match(connection_error,data):
+            roboprinter.printer_instance._logger.info("Disconnecting")
+            roboprinter.printer_instance._printer.disconnect()
+            time.sleep(2)
+            roboprinter.printer_instance._logger.info("Reconnecting")
+            roboprinter.printer_instance._printer.connect()
+
+        #Find out if octoprint is not reporting a bed temp loss
+        model = roboprinter.printer_instance._settings.get(['Model'])
+        if model == "Robo R2":
+            temperature =  "[+-]?\d+(?:\.\d+)?"
+
+            current_temp = re.findall(temperature, data)
+            if current_temp != [] and len(current_temp) == 6 and data.find("ok T") != -1:
+                self.temperature = {
+                    'tool1': current_temp[0],
+                    'tool1_desired': current_temp[1],
+                    'bed': current_temp[2],
+                    'bed_desired': current_temp[3],
+                    'tool1_pwm': current_temp[4],
+                    'bed_pwm': current_temp[5]
+                }
+                #disconnect if the bed reports a negative number two times in a row
+                if float(self.temperature['bed']) <= 0:
+                    self.t_counter -= 1
+                    roboprinter.printer_instance._logger.info(str(self.t_counter))
+                    if self.t_counter == 0:
+                        roboprinter.printer_instance._logger.info("Shutting down")
+                        roboprinter.printer_instance._printer.disconnect()
+                        self.t_counter = 2
+             
+                
+
+
 
         #Steps Per Unit
         if M92 != -1:
@@ -135,6 +182,19 @@ class PConsole(octoprint.printer.PrinterCallback):
                     'D' : float(pid[0][2])
                 }
 
+        elif M304 != -1:
+            #roboprinter.printer_instance._logger.info("M301 "+ str(self.counter))
+            p = "P([0-9.]+) I([0-9.]+) D([0-9.]+)"
+            pid = re.findall(p, data)
+
+            if pid != []:
+                self.BPID = {
+                    'P' : float(pid[0][0]),
+                    'I' : float(pid[0][1]),
+                    'D' : float(pid[0][2])
+                }
+
+
         #filament settings
 
         elif M200 != -1:
@@ -190,6 +250,7 @@ class PConsole(octoprint.printer.PrinterCallback):
             'advanced variables' : self.advanced_variables,
             'home offset' : self.home_offset,
             'PID' : self.PID,
+            'BPID': self.BPID,
             'filament settings' : self.filament_settings,
             'z offset' : self.zoffset
         }
@@ -264,6 +325,11 @@ class PConsole(octoprint.printer.PrinterCallback):
             'I' : 0,
             'D' : 0
         }
+        self.BPID = {
+            'P' : 0,
+            'I' : 0,
+            'D' : 0
+        }
         self.filament_settings = {
             'D' : 0
         }
@@ -278,6 +344,7 @@ class PConsole(octoprint.printer.PrinterCallback):
             'advanced variables' : self.advanced_variables,
             'home offset' : self.home_offset,
             'PID' : self.PID,
+            'BPID': self.BPID,
             'filament settings' : self.filament_settings,
             'z offset' : self.zoffset
         }
