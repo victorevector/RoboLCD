@@ -1,5 +1,11 @@
 # RoboLCD Changelog
 
+## 1.3.2 (2017-3-1)
+
+### Bug Fixes
+
+* Fixed issue where screen appears unresponsive when user pushes the update button: added a Popup that notifies user of background activity.  
+
 ##1.3.1 (2017-2-4)
 
 ###Bug Fixes

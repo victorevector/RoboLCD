@@ -8,7 +8,8 @@ import imp
 import requests
 from git import Repo
 from .. import roboprinter
-from connection_popup import Error_Popup
+from connection_popup import Error_Popup, Warning_Popup
+from functools import partial
 
 class UpdateScreen(FloatLayout):
     installed_version = StringProperty('Checking...')
@@ -93,8 +94,11 @@ class UpdateScreen(FloatLayout):
 
     def run_updater(self, *args):
         self.disable_me()
-        self.update_updater()
-        self._run_updater()
+        self.warning = Warning_Popup('Loading Update', 'This may take up to a minute.')
+        self.warning.show()
+        execute = lambda funcs, dt: map(lambda f: f(), funcs)
+        series = [self.update_updater, self._run_updater]
+        Clock.schedule_once(partial(execute, series))
 
     def _run_updater(self):
         from multiprocessing import Process, Pipe
@@ -125,7 +129,9 @@ class UpdateScreen(FloatLayout):
             subprocess.call("sudo service octoprint stop".split(' '))
         else:
             p.join()
-
+            self.populate_values()
+            self.warning.dismiss()
+            Error_Popup('Update Notification', 'No update needed.').show()
 
     def disable_me(self):
         self.ids.updatebtn.disabled = True
