@@ -65,6 +65,10 @@ def start():
     from EEPROM import EEPROM
     from Modal_Popup import Modal_Popup
     from Firmware_Wizard import Firmware_Wizard
+    from slicer_wizard import Slicer_Wizard
+    from session_saver import session_saver
+
+
 
     Logger.info('Start')
 
@@ -99,6 +103,9 @@ def start():
             Clock.schedule_interval(self.check_connection_status, .5)
             pconsole.initialize_eeprom()
             roboprinter.robo_screen = self.get_current_screen
+
+            roboprinter.back_screen = self._generate_backbutton_screen
+            roboprinter.robosm = self
 
         def get_current_screen(self):
             return self.current
@@ -267,34 +274,29 @@ def start():
             # Instantiates BackButtonScreen and passes values for dynamic properties:
             # backbutton label text, print information, and print button.
             file_name = kwargs['filename']
-            print_length = kwargs['print_length']
             file_path = kwargs['file_path']
             is_usb = kwargs['is_usb']
             title = file_name.replace('.gcode', '').replace('.gco', '')
-            if len(title) > 10:
-                title = title[:9] + '...'
 
             Logger.info('Function Call: generate_new_screen {}'.format(file_name))
 
             def delete_file(*args): #gets binded to CTA in header
-                roboprinter.printer_instance._file_manager.remove_file(file_path, file_name)
+                roboprinter.printer_instance._file_manager.remove_file('local', file_path)
                 self.go_back_to_main('files_tab')
 
             if is_usb:
                 c = PrintUSB(name='print_file',
                                    file_name=file_name,
-                                   print_length=print_length,
                                    file_path=file_path)
             else:
                 c = PrintFile(name='print_file',
                               file_name=file_name,
-                              print_length=print_length,
                               file_path=file_path)
 
             if not is_usb:
-                self._generate_backbutton_screen(name=c.name, title=title, back_destination='main', content=c, cta=delete_file, icon='Icons/trash.png')
+                self._generate_backbutton_screen(name=c.name, title=title, back_destination=self.current, content=c, cta=delete_file, icon='Icons/trash.png')
             else:
-                self._generate_backbutton_screen(name=c.name, title=title, back_destination='main', content=c)
+                self._generate_backbutton_screen(name=c.name, title=title, back_destination=self.current, content=c)
 
             return
 
@@ -379,6 +381,7 @@ def start():
                 if s is name:
                     d= self.get_screen(s)
                     self.remove_widget(d)
+                    Logger.info("Removed: " + s)
 
             s = BackButtonScreen(name=name, title=title, back_destination=back_destination, content=content, **kwargs)
             s.populate_layout()
@@ -393,11 +396,12 @@ def start():
             back_destination = kwargs['back_destination']
 
             z = Robo_Icons('Icons/Icon_Buttons/Z Offset.png', 'Z Offset Wizard', 'ZOFFSET')
-            fl = Robo_Icons('Icons/Icon_Buttons/Load Filament.png', 'Filament Loading Wizard', 'FIL_LOAD')
-            fc = Robo_Icons('Icons/Icon_Buttons/Change Filament.png', 'Filament Change Wizard', 'FIL_CHANGE')
-            firm = Robo_Icons('Icons/System_Icons/Firmware update wizard.png', 'Firmware Update Wizard', 'FIRMWARE')
+            fl = Robo_Icons('Icons/Icon_Buttons/Load Filament.png', 'Filament Loading', 'FIL_LOAD')
+            fc = Robo_Icons('Icons/Icon_Buttons/Change Filament.png', 'Filament Change', 'FIL_CHANGE')
+            firm = Robo_Icons('Icons/System_Icons/Firmware update wizard.png', 'Firmware Update', 'FIRMWARE')
+            slicer = Robo_Icons('Icons/Slicer wizard icons/Slicer wizard.png', 'Slicing Wizard', 'SLICER')
 
-            buttons = [fc, fl, z, firm]
+            buttons = [fc, fl, z, firm, slicer]
 
             c = Scroll_Box_Icons(buttons)
 
@@ -711,7 +715,7 @@ def start():
                                 'delay': 5
                                 },
 
-                'umount': {'command':'sudo umount /dev/sda1', 'popup': "ERROR",
+                'umount': {'command':'sudo umount /dev/sda1' if not 'usb_location' in session_saver.saved else 'sudo umount ' + session_saver.saved['usb_location'] , 'popup': "ERROR",
                            'error': 'USB UnMounted',
                            'body_text':'Please Remove USB Stick',
                            'delay': 0.1
@@ -730,7 +734,7 @@ def start():
                     ep = Error_Popup(acceptable_options[option]['error'], acceptable_options[option]['body_text'])
                     ep.show()
 
-
+                Logger.info("Executing: " + acceptable_options[option]['command'])
                 self.shell_command = acceptable_options[option]['command']
                 Clock.schedule_once(self.execute_function, acceptable_options[option]['delay'])
 
@@ -743,8 +747,10 @@ def start():
             subprocess.call(self.shell_command, shell=True)
 
         def update_firmware(self, **kwargs):
-
             Firmware_Wizard(self, kwargs['back_destination'])
+
+        def slicer_wizard(self, **kwargs):
+            Slicer_Wizard(self, kwargs['back_destination'])
 
 
         def generate_screens(self, screen):
@@ -774,6 +780,7 @@ def start():
                 'FIL_LOAD': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.generate_filament_wizard},
                 'FIL_CHANGE': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.genetate_filament_change_wizard},
                 'FIRMWARE' : {'name': 'firmware_updater','title':'Firmware', 'back_destination': 'wizards_screen', 'function': self.update_firmware},
+                'SLICER' : {'name': 'slicing_wizard', 'title': 'Slicer', 'back_destination': 'wizards_screen', 'function': self.slicer_wizard},
 
                 #Network sub screen
                 'CONFIGURE_WIFI': {'name':'', 'title':'', 'back_destination':'network_utilities_screen', 'function':self.generate_wificonfig},
@@ -830,32 +837,55 @@ def start():
                 roboprinter.printer_instance._settings.save()
 
                 if model == "Robo R2":
-                    #load R2
-                    Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=invert_x=1')
-                    sm = Builder.load_file('lcd_large.kv')
-                    Logger.info('Screen Type: {}'.format('R2'))
+                    sm = self.load_R2()
 
                 elif model == "Robo C2":
-                    #load C2
-                    Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=rotation=270,param=invert_y=1')
-                    sm = Builder.load_file('lcd_mini.kv')
-                    Logger.info('Screen Type: {}'.format('c2'))
-
+                    sm = self.load_C2()
 
             elif model == "Robo R2":
-                #load R2
-                Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=invert_x=1')
-                sm = Builder.load_file('lcd_large.kv')
-                Logger.info('Screen Type: {}'.format('R2'))
-
+                sm = self.load_R2()
+                
             elif model == "Robo C2":
-                #load C2
-                Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=rotation=270,param=invert_y=1')
-                sm = Builder.load_file('lcd_mini.kv')
-                Logger.info('Screen Type: {}'.format('c2'))
-
+                sm = self.load_C2()
 
             screen_manager.set_sm(sm)
             return sm
+
+        def concat_2_files(self, file1, file2):
+            temp_path = '/tmp/kv/combined.kv'
+            
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            file_list = [dir_path + '/'+ file1, dir_path + '/'+ file2]
+            #make a temporary file 
+
+            if not os.path.isdir('/tmp/kv'):
+                os.makedirs('/tmp/kv')
+
+            
+            with open(temp_path, 'w') as combined:
+                for path in file_list:
+                    with open(path, 'r') as file:
+                        for line in file:
+                            combined.write(line)
+
+            return temp_path
+
+        def load_C2(self):
+            #load C2
+            Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=rotation=270,param=invert_y=1')
+            path = self.concat_2_files('C2.kv', 'lcd_mini.kv')
+            sm = Builder.load_file(path)
+            Logger.info('Screen Type: {}'.format('c2'))
+            
+            return sm
+
+        def load_R2(self):
+            #load R2
+            Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=invert_x=1')
+            path = self.concat_2_files('R2.kv', 'lcd_mini.kv')
+            sm = Builder.load_file(path)
+            Logger.info('Screen Type: {}'.format('R2'))
+            return sm
+
 
     RoboLcdApp().run()

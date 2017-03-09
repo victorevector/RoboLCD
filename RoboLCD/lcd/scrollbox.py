@@ -9,6 +9,8 @@ from kivy.uix.button import Button
 from kivy.logger import Logger
 from kivy.properties import NumericProperty, ObjectProperty, StringProperty,  BooleanProperty
 from robo_controls import Temperature_Label
+from kivy.clock import Clock
+
 
 class ScrollBox(BoxLayout):
     """
@@ -67,13 +69,15 @@ class ScrollBox(BoxLayout):
         self.scroll.scroll_y -= scroll_distance
 
 
-class Scroll_Box_Even(GridLayout):
+class Scroll_Box_Even(BoxLayout):
     """docstring for Scroll_Box_Even"""
     position = 0
     max_pos = 0
     buttons = []
     def __init__(self, button_array):
         super(Scroll_Box_Even, self).__init__()
+        self.up_event = None
+        self.down_event = None
         self.grid = self.ids.content
         self.max_pos = len(button_array) - 4
         self.buttons = button_array
@@ -87,14 +91,47 @@ class Scroll_Box_Even(GridLayout):
         self.position -= 1
         if self.position < 0:
             self.position = 0
+            self.up_event.cancel()
         self.populate_buttons()
+
+    #every 0.2 seconds scroll up until the user releases the button
+    def on_up_press(self):
+        if self.up_event != None:
+            self.up_event.cancel()
+        if self.down_event != None:
+            self.down_event.cancel()
+        self.up_event = Clock.schedule_interval(self.on_up_clock, 0.2)
+
+
+    def on_up_release(self):
+        self.up_event.cancel()
+        self.up_button()
+
+    def on_up_clock(self,dt):
+        self.up_button()
         
 
     def down_button(self):
         self.position += 1
         if self.position > self.max_pos:
             self.position = self.max_pos
+            self.down_event.cancel()
         self.populate_buttons()
+
+    #every 0.2 seconds scroll down until the user releases the button
+    def on_down_press(self):
+        if self.up_event != None:
+            self.up_event.cancel()
+        if self.down_event != None:
+            self.down_event.cancel()
+        self.down_event = Clock.schedule_interval(self.on_down_clock, 0.2)
+
+    def on_down_release(self):
+        self.down_event.cancel()
+        self.down_button()
+
+    def on_down_clock(self, dt):
+        self.down_button()
         
 
     def populate_buttons(self):
@@ -172,11 +209,18 @@ class Robo_Icons(Button):
     generator= StringProperty("ROBO_CONTROLS")
     img_source = StringProperty("Icons/Icon_Buttons/Robo_Controls.png")
     icon_name = StringProperty("Robo Controls")
+    button_state = ObjectProperty(False)
     def __init__(self, _image_source, _icon_name, _generator_function):
         super(Robo_Icons, self).__init__()
         self. generator = _generator_function
         self.img_source = _image_source
         self.icon_name = _icon_name
+        self.button_state = False
+
+    
+
+
+
 
 class Scroll_Box_Icons_Anchor(FloatLayout):
     """We should try to not have more than six icons on the screen"""

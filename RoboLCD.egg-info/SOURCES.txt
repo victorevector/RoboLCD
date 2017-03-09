@@ -12,6 +12,7 @@ RoboLCD.egg-info/top_level.txt
 RoboLCD/lcd/EEPROM.py
 RoboLCD/lcd/Filament_Wizard.py
 RoboLCD/lcd/Firmware_Wizard.py
+RoboLCD/lcd/Language.py
 RoboLCD/lcd/Meta_Reader.py
 RoboLCD/lcd/Modal_Popup.py
 RoboLCD/lcd/Print_Tuning.py
@@ -21,6 +22,7 @@ RoboLCD/lcd/__init__.py
 RoboLCD/lcd/backbuttonscreen.py
 RoboLCD/lcd/connection_popup.py
 RoboLCD/lcd/factory_reset.py
+RoboLCD/lcd/file_explorer.py
 RoboLCD/lcd/files.py
 RoboLCD/lcd/kaa_command.py
 RoboLCD/lcd/kaapopup.py
@@ -36,6 +38,7 @@ RoboLCD/lcd/robo_screen_manager.py
 RoboLCD/lcd/robo_sm.py
 RoboLCD/lcd/scrollbox.py
 RoboLCD/lcd/session_saver.py
+RoboLCD/lcd/slicer_wizard.py
 RoboLCD/lcd/updater.py
 RoboLCD/lcd/utilities.py
 RoboLCD/lcd/wifi.py

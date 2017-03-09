@@ -20,7 +20,7 @@ import shutil
 import subprocess
 from scrollbox import ScrollBox, Scroll_Box_Even
 
-USB_DIR = '/media/usb0'
+USB_DIR = '/home/pi/.octoprint/uploads/USB'
 FILES_DIR = '/home/pi/.octoprint/uploads'
 
 class Firmware_Wizard(FloatLayout):

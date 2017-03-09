@@ -1,0 +1,63 @@
+Main_Screen:
+  Files: Files
+  Printer: Printer
+  Utilities: Utilities
+
+File_Screen:
+  Z_Offset: Z Offset
+  Infill: Infill
+  Layer: Layer
+  Height: Height
+  Layers: Layers
+  Estimated_Time: Estimated Time
+  Start: Start
+  Save: Save
+  Pause: Pause
+  Cancel: Cancel
+Error:
+  File_Error: File Error
+  File_Error_Body: There was an error with the selected file\nPlease try again
+
+Popup:
+  PYes: Yes
+  PNo: No
+  Import_Files: Importing USB Files
+  Cancel_Print: Are you sure you want to cancel this print?
+  MainBoard1: Main Board Not Detected
+  MainBoard2: Try to Reconnect
+  Connect: Connect
+  Firmware1: Firmware is Updating
+  Firmware2: Your printer will restart
+  Firmware3: after the update is finished
+  Zoffset1: Current Z Offset is
+  Zoffset2: This is the default setting for the Z Offset
+  Zoffset3: Press Continue to start print or
+  Zoffset4: Press Z Offset to start the wizard
+
+Utilities_Screen:
+  Robo_Controls: Robo Controls
+  Wizards: Wizards
+  Network: Network
+  Update: Update
+  Options: Options
+  System: System
+  Print_Tuning: Print Tuning
+
+Robo_Controls:
+  Temperature_Controls: Temperature Controls
+  Motor_Controls: Motor Controls
+
+Motor_Controls:
+  Home: Home
+  Retract: Retract
+  Extrude: Extrude
+
+Temperature_Controls:
+  Extruder_1: Extruder 1
+  Extruder_2: Extruder 2
+  Bed: Bed
+  Preheat: Preheat
+  Cooldown: Cooldown
+Preheat:
+  Material_Message: Preheat your print head to 
+

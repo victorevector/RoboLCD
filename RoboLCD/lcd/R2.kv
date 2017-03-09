@@ -1,0 +1,176 @@
+
+<PrinterStatusContent>:
+    rows: 2
+
+    #background_color: (0,0,0,1)
+    BoxLayout:
+        orientation: 'vertical'
+        background_color: (1,0,0,1)
+        Label:
+            text: root.filename
+            font_size: 45
+            markup: True
+            text_size: 600, None
+            shorten: True
+            halign: 'center'
+            valign: 'middle'
+            color: 0.4,0.7,0.91,1
+        BoxLayout:
+            id: print_status
+            orientation: 'horizontal'
+
+            FloatLayout:
+                id: left_of_progress
+            Label:
+                text: root.progress
+                markup: True
+            FloatLayout:
+                id: right_of_progress
+    BoxLayout:
+        id: tool_bar
+        background_color: (0,1,0,1)
+        orientation: 'horizontal'
+        size_hint_y: .5
+        spacing: 1
+
+        FloatLayout:
+            size_hint: .5,None
+            id: left_of_extruder_status
+        BoxLayout:
+            id: tools
+            background_color: (0,1,0,1)
+            orientation: 'horizontal'
+            spacing: 5
+
+        FloatLayout:
+            size_hint: .5,None
+            id: right_of_extruder_status
+
+<Tool_Status>:
+    id: tool_status
+    size: 300, 300
+    Label:
+        id:tool_label
+        #pos_hint: {'x': 0.15, 'y': 0.4}
+        center_x: tool_status.center_x
+        center_y: tool_status.center_y + 20
+        size_hint: None, None
+        text: root.name
+        font_size: 25
+        halign: 'center'
+        valign: 'center'
+        max_lines: 1
+        #color: 131,131,131,1
+    Label:
+        id: temp_label
+        center_x: tool_status.center_x
+        center_y: tool_status.center_y - 20
+        size_hint: None, None
+        text: str(root.current_temperature) + '°C'
+        font_size: 40
+        halign: 'center'
+        valign: 'center'
+        max_lines: 1
+        #color: 131,131,131,1
+    ProgressBar:
+        id: progbar
+        pos_hint: {'x': 0, 'y': -0.4}
+        max: root.max_temp
+        value: root.current_temperature
+    Button:
+        size: tool_status.size
+        x: progbar.x
+        y:0
+        background_color: 0,0,0,0
+        on_press: app.root.generate_temperature_controls(name=root.tool,title=root.name,back_destination='main')
+
+
+<QRCodeScreen>:
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: 0,0,0,1
+    canvas:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: 340, 22,237,22, 237, 125
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: 454,22,562,22,562,125
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: 340, 347,237,347, 237, 217
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: 454,347,562,347,562,217
+    Image:
+        source: root.img_source
+        width: 300
+        height: 300
+        allow_stretch: False
+        size_hint_x: None
+        #size_hint_y: None
+        pos_hint: {'center_x': 0.5, 'center_y': 0.75}
+
+<WifiLoadingList>:
+    id:screen
+    Image:
+        source: 'Icons/info_icon.png'
+        center_x: screen.center_x - 350
+        center_y: screen.center_y -50
+    Label:
+        text: 'Connecting...'
+        font_size: 40
+        center_x: screen.center_x - 340
+        center_y: screen.center_y - 150
+        color: (0.4,0.7,0.91,1)
+
+<Z_Offset_Temperature_Wait_Screen>:
+    id: screen
+    Image:
+        size_hint: None, None
+        source: 'Icons/Icon_Buttons/Preheat.png'
+        center_x: screen.center_x
+        center_y: screen.center_y + 70
+        allow_stretch: True
+        size: 125,125
+    Label:
+        markup: True
+        size_hint: None, None
+        text: '[size=30]' + root.body_text
+        valign: 'middle'
+        halign: 'center'
+        center_x: screen.center_x
+        center_y: screen.center_y - 40
+    Label:
+        markup: True
+        size_hint: None, None
+        text: '[size=30]{}°C/100°C'.format(root.temperature)
+        valign: 'middle'
+        halign: 'center'
+        center_x: screen.center_x
+        center_y: screen.center_y - 105
+
+    
+    Label:
+        markup: True
+        size_hint: None, None
+        text: '[size=30]{}°C/60°C'.format(root.bed_temp)
+        valign: 'middle'
+        halign: 'center'
+        center_x: screen.center_x
+        center_y: screen.center_y - 145

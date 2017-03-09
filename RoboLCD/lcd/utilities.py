@@ -47,12 +47,15 @@ class UtilitiesContent(BoxLayout):
             self.last_state = self.state
             self.clear_widgets()
 
+            wiz = Robo_Icons('Icons/White_Utilities/Wizards.png', 'Wizards', 'WIZARDS')
+
             if self.state == 'NOT_PRINTING':
                 rc = Robo_Icons('Icons/White_Utilities/Controls.png', 'Robo Controls', 'ROBO_CONTROLS')
+                wiz.button_state = False
             elif self.state == 'PRINTING' :
                 rc = Robo_Icons('Icons/White_Utilities/Print tuning_White.png', 'Print Tuning', 'PRINT_TUNING')
-
-            wiz = Robo_Icons('Icons/White_Utilities/Wizards.png', 'Wizards', 'WIZARDS')
+                wiz.button_state = True
+            
             net = Robo_Icons('Icons/White_Utilities/Networking.png', 'Network', 'NETWORK')
             upd = Robo_Icons('Icons/White_Utilities/Updates.png', 'Update', 'UPDATES')
             sys = Robo_Icons('Icons/System_Icons/Shutdown 2.png', 'System', 'SYSTEM')

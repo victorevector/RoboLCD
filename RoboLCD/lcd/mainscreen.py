@@ -22,6 +22,7 @@ class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         Clock.schedule_interval(self.update, .1)
+
         
 
 
@@ -33,7 +34,7 @@ class MainScreen(Screen):
 
     def update(self,dt):
         self.ids.printer_status_content.update(dt)
-        self.ids.files_content.update(dt)
+        
 
     
     def open_tab(self, tab_id):
@@ -44,6 +45,10 @@ class MainScreen(Screen):
 
     def update_tab(self,tab):
         roboprinter.open_tab = tab
+
+    def update_files(self):
+        pass
+        #self.ids.files_content.update_files()
         
 
     

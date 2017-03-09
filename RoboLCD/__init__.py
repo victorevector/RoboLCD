@@ -17,7 +17,8 @@ import os
 class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
                     octoprint.plugin.AssetPlugin,
                     octoprint.plugin.StartupPlugin,
-                    octoprint.plugin.EventHandlerPlugin):
+                    octoprint.plugin.EventHandlerPlugin,
+                    ):
 
     def get_settings_defaults(self):
         return dict(
@@ -95,6 +96,19 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
             self.start_analysis = self.updater_placeholder
             self.collect_data = self.updater_placeholder
 
+        #get helper from Filament runout sensor
+        filament_helpers = self._plugin_manager.get_helpers("filament", "check_auto_pause")
+        self.check_auto_pause = None
+        if filament_helpers:
+            self._logger.info("Filament Helpers Exist ###########################")
+            self._logger.info(str(filament_helpers))
+            if "check_auto_pause" in filament_helpers:
+                self.check_auto_pause = filament_helpers["check_auto_pause"]
+        else:
+            self._logger.info("Filament Helpers DO NOT Exist ###########################")
+            self._logger.info(str(filament_helpers))
+            
+
     def on_event(self,event, payload):
 
         def reset_data():
@@ -115,10 +129,15 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
             reset_data()
         elif event == "FileDeselected":
             reset_data()
+        elif event == "UpdatedFiles":
+            self._logger.info("Files")
+            if 'file_callback' in session_saver.saved:
+                session_saver.saved['file_callback']()
+                    
 
 
 
-    def updater_placeholder(self):
+    def updater_placeholder(self, **kwargs):
         return False
 
 

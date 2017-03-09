@@ -6,7 +6,7 @@ from pconsole import pconsole
 from kivy.uix.modalview import ModalView
 from kivy.properties import StringProperty, NumericProperty
 from wizard import ZoffsetWizard
-
+from kivy.logger import Logger
 
 class Connection_Popup(ModalView):
     warning = StringProperty('error')
@@ -99,7 +99,7 @@ class Status_Popup(ModalView):
 class USB_Progress_Popup(ModalView):
     max_progress = NumericProperty(100)
     value_progress = NumericProperty(0)
-
+    percent_progress = StringProperty("Waiting")
     error = StringProperty('Error')
     
     def __init__(self, error, max_progress):
@@ -114,5 +114,17 @@ class USB_Progress_Popup(ModalView):
 
     def update_progress(self, progress):
         self.value_progress = progress
+
+        pcent = (self.value_progress / self.max_progress) * 100
+        pcent = int(pcent)
+
+        self.percent_progress = str(pcent)+ "% Completed"
+
+        #map that to the progress bar
+
+        self.value_progress = (self.value_progress / self.max_progress) * 340 #340 is the width of the progress bar
+        
     def update_max(self, max_prog):
         self.max_progress = max_prog
+
+

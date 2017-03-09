@@ -7,14 +7,27 @@ from setuptools.command.develop import develop
 import sys
 
 class Install_Deps(object):
+
     def install_deps(self):
+        import subprocess
+        import os
         import pip
-        r = pip.main(['install', 'https://github.com/Robo3D/OctoPrint-FirmwareUpdater/tarball/master#egg=octoprint_firmwareupdater-0.1.4', "https://github.com/Robo3D/Meta-Reader/tarball/master#egg=Meta_Reader-1.0.4"])
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        r = pip.main(['install','--upgrade', 'https://github.com/Robo3D/OctoPrint-FirmwareUpdater/tarball/master#egg=octoprint_firmwareupdater-0.1.4', local_path + "/Meta-Reader-master.zip" , "https://github.com/foosel/OctoPrint/archive/1.3.0.zip"])
         if r is not 0:
             print("Could not install RoboLCD dependencies: Meta_Reader and/or OctoPrint_FirmwareUpdater")
             sys.exit(-1)
         else:
             pass
+        #make USB stuff happen
+
+        sh_path = local_path + '/USB_deps.sh'
+
+        print("\n\n" + sh_path + "\n\n")
+        subprocess.call(['sudo bash ' + sh_path], shell=True)
+
+
+
 
 class Install_Deps(install, Install_Deps):
     def run(self):
@@ -40,14 +53,14 @@ plugin_package = "RoboLCD"
 plugin_name = "RoboLCD"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "1.3.2"
+plugin_version = "1.4.0-RC"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
 plugin_description = """LCD screen for Printer"""
 
 # The plugin's author. Can be overwritten within OctoPrint's internal data via __plugin_author__ in the plugin module
-plugin_author = "Victor E Fimbres"
+plugin_author = "Victor E Fimbres & Matt Pedler"
 
 # The plugin's author's mail address.
 plugin_author_email = "victorevector@gmail.com"
@@ -56,7 +69,7 @@ plugin_author_email = "victorevector@gmail.com"
 plugin_url = "https://github.com/victorevector/RoboLCD"
 
 # The plugin's license. Can be overwritten within OctoPrint's internal data via __plugin_license__ in the plugin module
-plugin_license = "TBD"
+plugin_license = "GPLV3"
 
 # Any additional requirements besides OctoPrint should be listed here
 plugin_requires = ['qrcode>=5.3', 'sysv-ipc>=0.7.0', 'gitpython>=2.1.1']

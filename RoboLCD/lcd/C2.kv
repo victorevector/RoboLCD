@@ -1,0 +1,147 @@
+
+<PrinterStatusContent>:
+    rows: 2
+    background_color: (0,0,0,1)
+    BoxLayout:
+        orientation: 'vertical'
+        background_color: (0,0,0,1)
+        Label:
+            text: root.filename
+            font_size: 45
+            markup: True
+            text_size: 600, None
+            shorten: True
+            halign: 'center'
+            valign: 'middle'
+            color: 0.4,0.7,0.91,1
+        Label:
+            text: root.progress
+            markup: True
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: .5
+        FloatLayout:
+            id: left_of_extruder_status
+        FloatLayout:
+            id: extruder_one_status
+            size: 300, 300
+
+            Image:
+                #pos_hint: {'x': -0.35, 'y': 0.22}
+                id: extruder_img
+                source: 'Icons/print_head.png'
+                width: 70
+                height: 70
+                allow_stretch: True
+                size_hint: None, None
+                pos: self.parent.x - 5, self.parent.y + 35
+
+            Label:
+                #pos_hint: {'x': 0.15, 'y': 0.4}
+                pos: self.parent.x + 95, self.parent.y + 48
+                size_hint: None, None
+                text: 'E X T R U D E R'
+                font_size: 20
+                halign: 'left'
+                #color: 131,131,131,1
+            Label:
+                #pos_hint: {'x': 0.15, 'y': 0}
+                pos: self.parent.x + 81, self.parent.y + 27
+                text: str(root.extruder_one_temp) + '°C'
+                font_size: 40
+                halign: 'left'
+                text_size: self.size
+                #color: 131,131,131,1
+            ProgressBar:
+                id: progbar
+                pos_hint: {'x': 0, 'y': -0.4}
+                max: root.extruder_one_max_temp
+                value: root.extruder_one_temp
+            Button:
+                size: extruder_one_status.size
+                x: extruder_img.x
+                y: extruder_img.y
+                background_color: 0,0,0,0
+                on_press: app.root.generate_temperature_controls(name='temperature_button',title='Temperature Control',back_destination='main')
+        FloatLayout:
+            id: right_of_extruder_status
+
+<QRCodeScreen>:
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: 0,0,0,1
+    canvas:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: 300, 22,197,22, 197, 125
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: 414,22,522,22,522,125
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: 300, 347,197,347, 197, 217
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: 414,347,522,347,522,217
+    Image:
+        source: root.img_source
+        width: 300
+        height: 300
+        allow_stretch: False
+        size_hint_x: None
+        #size_hint_y: None
+        pos_hint: {'center_x': 0.5, 'center_y': 0.75}
+
+<WifiLoadingList>:
+    id:screen
+    Image:
+        source: 'Icons/info_icon.png'
+        center_x: screen.center_x - 300
+        center_y: screen.center_y -50
+    Label:
+        text: 'Connecting...'
+        font_size: 40
+        center_x: screen.center_x - 300
+        center_y: screen.center_y - 150
+        color: (0.4,0.7,0.91,1)
+
+<Z_Offset_Temperature_Wait_Screen>:
+    id: screen
+    Image:
+        size_hint: None, None
+        source: 'Icons/Icon_Buttons/Preheat.png'
+        center_x: screen.center_x
+        center_y: screen.center_y + 70
+        allow_stretch: True
+        size: 125,125
+    Label:
+        markup: True
+        size_hint: None, None
+        text: '[size=30]' + root.body_text
+        valign: 'middle'
+        halign: 'center'
+        center_x: screen.center_x
+        center_y: screen.center_y - 40
+    Label:
+        markup: True
+        size_hint: None, None
+        text: '[size=30]{}°C/100°C'.format(root.temperature)
+        valign: 'middle'
+        halign: 'center'
+        center_x: screen.center_x
+        center_y: screen.center_y - 120

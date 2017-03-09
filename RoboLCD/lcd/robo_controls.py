@@ -43,7 +43,7 @@ class PLA_Button(Button):
         if self.setup['bed']:
             roboprinter.printer_instance._printer.set_temperature('bed', 70.0)
 class ABS_Button(Button):
-    button_text = StringProperty('[size=40]   PLA[/size]\n[size=20][color=#AEAEAE]      Preheat your print head to 200°C[/color][/size]')
+    button_text = StringProperty('[size=40]   ABS[/size]\n[size=20][color=#AEAEAE]      Preheat your print head to 230°C[/color][/size]')
     def __init__(self, setup, **kwargs):
         super(ABS_Button, self).__init__()
         self.setup = setup

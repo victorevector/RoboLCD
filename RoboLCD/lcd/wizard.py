@@ -146,8 +146,9 @@ class FilamentWizard(Widget):
             _title = 'Filament Wizard 1/4'
 
         self.layout2 = Filament_Wizard_2_5()
+        back_destination = roboprinter.robo_screen()
         
-        this_screen = self.sm._generate_backbutton_screen(name=self.name+'[1]', title=_title, back_destination=self.name, content=self.layout2)
+        this_screen = self.sm._generate_backbutton_screen(name=self.name+'[1]', title=_title, back_destination=back_destination, content=self.layout2)
         #back_button will also stop the scheduled events: poll_temp and switch_to_third_screen
         this_screen.ids.back_button.bind(on_press=self.cancel_second_screen_events)
 
@@ -196,7 +197,8 @@ class FilamentWizard(Widget):
         # roboprinter.printer_instance._printer.jog('e', -130.00)
         c = Filament_Wizard_3_5()
         c.ids.next_button.fbind('on_press',self.fourth_screen)
-        this_screen = self.sm._generate_backbutton_screen(name=self.name+'[2]', title='Filament Wizard 2/5', back_destination=self.name, content=c)
+        back_destination = roboprinter.robo_screen()
+        this_screen = self.sm._generate_backbutton_screen(name=self.name+'[2]', title='Filament Wizard 2/5', back_destination=back_destination, content=c)
 
         #end the event before starting it again
         if self.extrude_event != None:
@@ -227,7 +229,8 @@ class FilamentWizard(Widget):
             self.end_extrude_event()
         c = Filament_Wizard_4_5()
         c.ids.next_button.fbind('on_press', self.fifth_screen)
-        self.sm._generate_backbutton_screen(name=self.name+'[3]', title=_title, back_destination=back_dest, content=c)
+        back_destination = roboprinter.robo_screen()
+        self.sm._generate_backbutton_screen(name=self.name+'[3]', title=_title, back_destination=back_destination, content=c)
 
     def fifth_screen(self, *args):
         """
@@ -245,7 +248,8 @@ class FilamentWizard(Widget):
 
         c = Filament_Wizard_5_5()
         c.ids.next_button.fbind('on_press', self.end_wizard)
-        self.sm._generate_backbutton_screen(name=self.name+'[4]', title=_title, back_destination=back_dest, content=c)
+        back_destination = roboprinter.robo_screen()
+        self.sm._generate_backbutton_screen(name=self.name+'[4]', title=_title, back_destination=back_destination, content=c)
 
         #end the event before starting it again
         if self.extrude_event != None:
@@ -282,10 +286,12 @@ class FilamentWizard(Widget):
             
         else:
             _title = 'Filament Wizard 4/4'
+        #cooldown
+        roboprinter.printer_instance._printer.commands('M104 S0')
+        roboprinter.printer_instance._printer.commands('M140 S0')
         
-        self.sm.cooldown_button()
-
-        self.sm._generate_backbutton_screen(name=self.name+'[5]', title=_title, back_destination=self.name+'[4]', content=c)
+        back_destination = roboprinter.robo_screen()
+        self.sm._generate_backbutton_screen(name=self.name+'[5]', title=_title, back_destination=back_destination, content=c)
 
 
     def _generate_layout(self, l_text, btn_text, f):
@@ -363,6 +369,9 @@ class ZoffsetWizard(Widget):
 
 
     def third_screen(self, *args):
+
+        #turn off fan
+        roboprinter.printer_instance._printer.commands('M106 S0')
         """
         Instructions screen
         """
@@ -403,8 +412,7 @@ class ZoffsetWizard(Widget):
         self.z_pos_end = float(self._capture_zpos()[2]) #schema: (x_pos, y_pos, z_pos)
         self.z_pos_end = float(self._capture_zpos()[2]) #runs twice because the first call returns the old position
         Logger.info("ZCapture: z_pos_end {}".format(self.z_pos_end))
-        self.counter = 0
-        Clock.schedule_interval(self.z_capture_callback, .5)
+        self.fifth_screen()
 
     def fifth_screen(self, *args):
         title = "Z Offset 4/4"
@@ -468,6 +476,8 @@ class ZoffsetWizard(Widget):
                     return False
             else:
                 Logger.info('User went to a different screen Unscheduling self.')
+                #turn off fan
+                roboprinter.printer_instance._printer.commands('M106 S0')
                 return False
 
         #if finding the position fails it will wait 30 seconds and continue
@@ -483,17 +493,14 @@ class ZoffsetWizard(Widget):
                     return False
             else:
                 Logger.info('User went to a different screen Unscheduling self.')
+                #turn off fan
+                roboprinter.printer_instance._printer.commands('M106 S0')
                 return False
 
         #position tracking
         self.old_xpos = xpos
         self.old_ypos = ypos
 
-    def z_capture_callback(self, dt):
-        self.counter += 1
-        if self.counter > 2:
-            self.fifth_screen()
-            return False
 
     def _capture_zpos(self):
         Logger.info("ZCapture: Init")
@@ -502,11 +509,15 @@ class ZoffsetWizard(Widget):
         return p
 
     def _save_zoffset(self, *args):
+        #turn off fan
+        roboprinter.printer_instance._printer.commands('M106 S0')
         write_zoffset = 'M851 Z{}'.format(self.zoffset)
         save_to_eeprom = 'M500'
         roboprinter.printer_instance._printer.commands([write_zoffset, save_to_eeprom])
         
     def _end_wizard(self, *args):
+        #turn off fan
+        roboprinter.printer_instance._printer.commands('M106 S0')
         roboprinter.printer_instance._printer.commands('G1 Z160 F1500')
         self.sm.go_back_to_main()
 

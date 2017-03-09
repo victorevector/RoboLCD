@@ -6,6 +6,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.logger import Logger
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, NumericProperty, ListProperty
+from .. import roboprinter
 
 
 class Filament_Wizard_1_5(FloatLayout):
@@ -16,7 +17,7 @@ class Filament_Wizard_2_5(FloatLayout):
     extruder_max_temp = NumericProperty(230)
     def update_temp(self, temp):
         self.extruder_temp = temp
-        Logger.info('temp sent: ' + str(self.extruder_temp))
+        #Logger.info('temp sent: ' + str(self.extruder_temp))
 
 class Filament_Wizard_3_5(FloatLayout):
     pass
@@ -28,4 +29,10 @@ class Filament_Wizard_5_5(FloatLayout):
     pass
 
 class Filament_Wizard_Finish(FloatLayout):
-    pass
+    def __init__(self):
+        super(Filament_Wizard_Finish, self).__init__()
+        pass
+    
+    def button_function(self):
+        Logger.info("Button was pushed")
+        roboprinter.robosm.go_back_to_main()

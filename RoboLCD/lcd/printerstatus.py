@@ -10,7 +10,7 @@ from kivy.logger import Logger
 from kivy.clock import Clock
 from kivy.uix.modalview import ModalView
 from .. import roboprinter
-from connection_popup import Zoffset_Warning_Popup
+from connection_popup import Zoffset_Warning_Popup, Error_Popup
 import math
 import subprocess
 from multiprocessing import Process
@@ -218,10 +218,20 @@ class StartPauseButton(Button):
             self.ids.stopgo_label.text =  '[size=30]Resume[/size]'
             self.ids.stopgo_icon.source = 'Icons/Manual_Control/start_button_icon.png'
             self.subtract_amount = 50
+            self.check_pause_status()
         elif not is_paused and self.ids.stopgo_label.text ==  '[size=30]Resume[/size]':
             self.ids.stopgo_label.text =  '[size=30]Pause[/size]'
             self.ids.stopgo_icon.source = 'Icons/Manual_Control/stop_button_icon.png'
             self.subtract_amount =  40
+
+    def check_pause_status(self):
+        if roboprinter.printer_instance.check_auto_pause != None:
+            auto_pause = roboprinter.printer_instance.check_auto_pause()
+            if auto_pause:
+                auto_pause_pop = Error_Popup("Filament Has Run out", "Please add more filament")
+                auto_pause_pop.open()
+        else:
+            Logger.info("RoboLCD Does not have a helper function for auto pause")
 
     def colors(self, dt):
         '''updates the color  of the button based on Start or Pause state. Green for Start'''
