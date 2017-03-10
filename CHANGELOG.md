@@ -1,5 +1,17 @@
 # RoboLCD Changelog
 
+## 1.4.0 (2017-3-9)
+
+### Improvements
+
+* Folder support  
+
+* All usb files get dropped into a USB folder
+
+* Scroll button can now be held down for faster scroll
+
+* Slicing Wizard
+
 ## 1.3.2 (2017-3-1)
 
 ### Bug Fixes

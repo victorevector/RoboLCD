@@ -10,6 +10,7 @@ from git import Repo
 from .. import roboprinter
 from connection_popup import Error_Popup, Warning_Popup
 from functools import partial
+from shutil import rmtree
 
 class UpdateScreen(FloatLayout):
     installed_version = StringProperty('Checking...')
@@ -74,7 +75,9 @@ class UpdateScreen(FloatLayout):
 
     def _get_avail_version(self, r):
         # parse json response for latest release version
-        versions = map(lambda info: info.get('name', 0), r)
+        model = 'r2' if self.printer_model == 'Robo R2' else 'c2'
+        versions = map(lambda info: info.get('tag_name', '0'), r)
+        m_versions = filter(lambda v: model in v, versions)
         versions.sort()
         return versions.pop()
 
@@ -85,12 +88,9 @@ class UpdateScreen(FloatLayout):
             branch = 'c2'
 
         if os.path.exists(self.repo_local_path):
-            repo = Repo(self.repo_local_path).git
-            repo.pull()
-            repo.checkout(branch)
-            repo.pull()
-        else:
-            Repo.clone_from(self.repo_remote_path, self.repo_local_path, branch=branch)
+            # start fresh every time to avoid potential corruptions or misconfigurations
+            rmtree(self.repo_local_path)
+        Repo.clone_from(self.repo_remote_path, self.repo_local_path, branch=branch)
 
     def run_updater(self, *args):
         self.disable_me()
