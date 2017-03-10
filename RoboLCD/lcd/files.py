@@ -76,8 +76,9 @@ class FileButton(Button):
         
 
     def file_clock_event(self, dt):
-        self.long_press = True
-        FileOptions(self.filename, self.path)
+        # self.long_press = True
+        # FileOptions(self.filename, self.path)
+        pass # re enable for file options
 
 
 class FilesTab(TabbedPanelHeader):

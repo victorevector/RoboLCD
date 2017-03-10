@@ -192,8 +192,9 @@ class FolderButton(Button):
             self.long_press = False
             
     def folder_clock_event(self, dt):
-        self.long_press = True
-        FileOptions(self.name, self.path, folder = True)
+        #self.long_press = True
+        #FileOptions(self.name, self.path, folder = True)
+        pass #re enable all this to enable file options
 
 #This Class is for creating/deleting files or folders. It will most commonly be used as a long press for Files and Folders
 class FileOptions(BoxLayout):
