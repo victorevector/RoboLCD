@@ -95,7 +95,7 @@ class PrinterStatusContent(GridLayout):
         self.bed_temp = bed['actual']
 
 
-        if is_printing and len(e_children) == 0:
+        if (is_printing or is_paused) and len(e_children) == 0:
             left_of_extruder.add_widget(StartPauseButton())
             right_of_extruder.add_widget(CancelButton())
         elif len(e_children) > 0 and not is_printing and not is_paused:
@@ -206,6 +206,7 @@ class StartPauseButton(Button):
         super(StartPauseButton, self).__init__(**kwargs)
         Clock.schedule_interval(self.sync_with_devices, .1)
         Clock.schedule_interval(self.colors, .1)
+        self.auto_pause_pop = None
 
     def toggle_pause_print(self):
         roboprinter.printer_instance._printer.toggle_pause_print()
@@ -223,13 +224,14 @@ class StartPauseButton(Button):
             self.ids.stopgo_label.text =  '[size=30]Pause[/size]'
             self.ids.stopgo_icon.source = 'Icons/Manual_Control/stop_button_icon.png'
             self.subtract_amount =  40
+            self.auto_pause_pop = None
 
     def check_pause_status(self):
         if roboprinter.printer_instance.check_auto_pause != None:
             auto_pause = roboprinter.printer_instance.check_auto_pause()
-            if auto_pause:
-                auto_pause_pop = Error_Popup("Filament Has Run out", "Please add more filament")
-                auto_pause_pop.open()
+            if auto_pause and self.auto_pause_pop == None:
+                self.auto_pause_pop = Error_Popup("Filament Has Run out", "Please add more filament")
+                self.auto_pause_pop.open()
         else:
             Logger.info("RoboLCD Does not have a helper function for auto pause")
 

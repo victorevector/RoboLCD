@@ -12,6 +12,10 @@
 
 * Slicing Wizard
 
+### Bug Fixes
+
+* Filament sensor no longer halts rendering of printer dashboard 
+
 ## 1.3.2 (2017-3-1)
 
 ### Bug Fixes
