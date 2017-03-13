@@ -14,7 +14,9 @@
 
 ### Bug Fixes
 
-* Filament sensor no longer halts rendering of printer dashboard 
+* Filament sensor no longer halts rendering of printer dashboard
+
+* Fixed print error when printing from z offset warning popup 
 
 ## 1.3.2 (2017-3-1)
 
