@@ -73,7 +73,7 @@ class FileButton(Button):
             roboprinter.robosm.generate_file_screen(filename=self.filename, file_path=self.path, is_usb=self.is_usb)
         else:
             self.long_press = False
-        
+
 
     def file_clock_event(self, dt):
         # self.long_press = True
@@ -87,7 +87,7 @@ class FilesTab(TabbedPanelHeader):
     """
     pass
 
-        
+
 
 class FilesContent(BoxLayout):
     """
@@ -104,7 +104,7 @@ class FilesContent(BoxLayout):
         #if octoprint has changed files then update them
         session_saver.save_variable('file_callback', self.call_to_update)
         session_saver.save_variable('usb_mounted', False)
-        
+
         #schedule directory observer http://pythonhosted.org/watchdog/api.html#watchdog.events.FileSystemEventHandler
         self.dir_observe = Observer()
         self.callback = FileSystemEventHandler()
@@ -115,7 +115,7 @@ class FilesContent(BoxLayout):
 
         self.update_files()
 
-    
+
     #This seems like a roundabout way to call 'update_files' However if it is not called in this way Graphical issues become present.
     #It is called in this way to make the request come from the thread kivy is on
     def call_to_update(self):
@@ -124,7 +124,7 @@ class FilesContent(BoxLayout):
         self.update_files()
 
     def call_to_analyze(self,dt):
-        
+
         roboprinter.printer_instance.start_analysis(files=session_saver.saved['current_files'])
 
     def update_files(self):
@@ -146,7 +146,7 @@ class FilesContent(BoxLayout):
                 session_saver.saved['usb_mounted'] = False
                 self.has_usb_attached = False
                 self.call_to_update()
-                
+
 
             elif event.event_type == 'created':
                 Logger.info("USB Plugged in " + event.src_path)
@@ -154,7 +154,7 @@ class FilesContent(BoxLayout):
                 session_saver.saved['usb_location'] = event.src_path
                 self.has_usb_attached = True
                 self.call_to_update()
-            
+
     #This function uses a shared funtion in the Meta Reader Plugin to collect information from a pipe
     #without disturbing the main thread
     def collect_meta_data(self, dt):
@@ -269,9 +269,7 @@ class PrintFile(GridLayout):
                 else:
                     """Starts print but cannot start a print when the printer is busy"""
                     Logger.info(self.file_path)
-                    path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk(octoprint.filemanager.FileDestinations.LOCAL, self.file_path)
-                    roboprinter.printer_instance._printer.select_file(path=path_on_disk, sd=False, printAfterSelect=True)
-                    Logger.info('Funtion Call: start_print')
+                    self.force_start_print()
         except Exception as e:
             #raise error
             error = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
@@ -281,16 +279,13 @@ class PrintFile(GridLayout):
     def force_start_print(self, *args):
         """Starts print but cannot start a print when the printer is busy"""
         try:
-            path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk(self.file_path, self.file_name)
+            path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk(octoprint.filemanager.FileDestinations.LOCAL, self.file_path)
             roboprinter.printer_instance._printer.select_file(path=path_on_disk, sd=False, printAfterSelect=True)
             Logger.info('Funtion Call: start_print')
         except Exception as e:
             #raise error
             error = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
             error.open()
-
-
-
 
 
     def is_ready_to_print(self):
@@ -317,7 +312,7 @@ class PrintUSB(PrintFile):
 
         Clock.schedule_once(self.attempt_to_save, 0.01)
 
-        
+
 
     def attempt_to_save(self, dt):
         try:
@@ -331,7 +326,7 @@ class PrintUSB(PrintFile):
                 self.progress_pop.hide()
                 ep = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
                 ep.show()
-            
+
 
         except Exception as e:
             #raise error
@@ -343,7 +338,7 @@ class PrintUSB(PrintFile):
 
 
     def copy_file(self, fsrc, fdst, progress_callback=None, complete_callback = None, length=16*1024, **kwargs):
-        
+
         self.copied = 0
         self.file_size = 0
         self.length = length
@@ -360,8 +355,8 @@ class PrintUSB(PrintFile):
         self.dst_obj = open(fdst, 'wb')
         #Do the copy as fast as possible without blocking the UI thread
         Clock.schedule_interval(self.copy_object, 0)
-        
-                    
+
+
 
         return True
 
@@ -380,7 +375,7 @@ class PrintUSB(PrintFile):
         self.dst_obj.write(buf)
         #update how much of the file has been copied
         self.copied += len(buf)
-        
+
         #report progress
         if self.p_callback != None:
             progress = float(self.copied/self.file_size)
@@ -396,5 +391,3 @@ class PrintUSB(PrintFile):
             ep.show()
             if 'file_callback' in session_saver.saved:
                 session_saver.saved['file_callback']()
-
-
