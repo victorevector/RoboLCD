@@ -18,7 +18,7 @@ class EEPROM():
         self.buttons = []
         self.eeprom_dictionary = {
             'Home Offsets' : 'HOME_OFFSETS',
-            'Z Offset' : 'Z_OFFSET_EEPROM',
+            'Probe Offset' : 'Z_OFFSET_EEPROM',
             'Filament Settings' : 'FILAMENT_SETTINGS',
             'Feed Rates': 'FEED_RATES',
             'PID Settings' : 'PID',
@@ -33,10 +33,10 @@ class EEPROM():
 
         if model == "Robo R2":
             #add bed PID for the R2
-            self.button_order = ['Z Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations','Home Offsets',  
+            self.button_order = ['Home Offsets','Probe Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations',  
                                 'Filament Settings', 'Feed Rates', 'PID Settings','Bed PID Settings', 'Advanced Variables']
         else:
-            self.button_order = ['Z Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations','Home Offsets',  
+            self.button_order = ['Home Offsets','Probe Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations',  
                                 'Filament Settings', 'Feed Rates', 'PID Settings', 'Advanced Variables']
         self.load_eeprom()
 

@@ -246,10 +246,14 @@ class StartPauseButton(Button):
 
 class CancelButton(Button):
     def cancel_print(self, *args):
+        Clock.schedule_once(self.cancel_callback, 0.5)
+
+    def cancel_callback(self, dt):
         if self.is_printing() or roboprinter.printer_instance._printer.is_paused() == True:
             roboprinter.printer_instance._printer.cancel_print()
             Logger.info('Cancellation: Successful')
-            Clock.schedule_once(self.unselect_callback, 10)
+            Clock.schedule_once(self.unselect_callback, 30)
+            self.mv.dismiss()
             
 
     def unselect_callback(self, dt):
@@ -258,10 +262,10 @@ class CancelButton(Button):
     def no_button(self, instance):
         pass
     def modal_view(self):
-        mv = ModalPopup()
-        mv.ids.yes_button.bind(on_press = self.cancel_print)
-        mv.ids.no_button.bind(on_press = self.no_button)
-        mv.open()
+        self.mv = ModalPopup()
+        self.mv.ids.yes_button.bind(on_press = self.cancel_print)
+        self.mv.ids.no_button.bind(on_press = self.no_button)
+        self.mv.open()
 
     def is_printing(self):
         """ whether the printer is currently operational and ready for a new print job"""
@@ -277,7 +281,6 @@ class ModalPopup(ModalView):
 
     def dismiss_popup(self, *args):
         self.cancellation_feedback()
-        self.dismiss()
 
 class Tool_Status(FloatLayout):
     name = StringProperty("Error")

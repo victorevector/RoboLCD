@@ -109,7 +109,7 @@ class FilesContent(BoxLayout):
         self.dir_observe = Observer()
         self.callback = FileSystemEventHandler()
         self.callback.on_any_event = self.on_any_event
-        self.dir_observe.schedule(self.callback, "/dev/", recursive=True)
+        self.dir_observe.schedule(self.callback, "/dev", recursive=True)
         self.dir_observe.start()
 
 
@@ -154,6 +154,8 @@ class FilesContent(BoxLayout):
                 session_saver.saved['usb_location'] = event.src_path
                 self.has_usb_attached = True
                 self.call_to_update()
+        elif extern != None:
+            Logger.info(event.src_path)
 
     #This function uses a shared funtion in the Meta Reader Plugin to collect information from a pipe
     #without disturbing the main thread
@@ -187,7 +189,7 @@ class PrintFile(GridLayout):
         self.status = self.is_ready_to_print()
         Clock.schedule_interval(self.update, .1)
 
-        self.current_z_offset = str(pconsole.zoffset['Z'])
+        self.current_z_offset = str(pconsole.home_offset['Z'])
 
         cura_meta = self.check_saved_data()
         self.print_layer_height = '--'
@@ -261,9 +263,9 @@ class PrintFile(GridLayout):
         #Throw a popup to display the ZOffset if the ZOffset is -10 or more
         try:
             if self.status == "READY TO PRINT":
-                _offset = pconsole.zoffset['Z']
+                _offset = float(pconsole.home_offset['Z'])
 
-                if _offset <= -20 or _offset >= 0:
+                if _offset <= -20.0 or _offset >= 0.0:
                     zoff = Zoffset_Warning_Popup(self)
                     zoff.open()
                 else:

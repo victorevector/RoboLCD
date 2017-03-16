@@ -35,11 +35,11 @@ class Zoffset_Warning_Popup(ModalView):
         super(Zoffset_Warning_Popup, self).__init__()
         self.file_printer = _file_printer
 
-        self.current_z_offset = str(pconsole.zoffset['Z'])
+        self.current_z_offset = str(pconsole.home_offset['Z'])
         roboprinter.printer_instance._logger.info("Starting up the Zoffset Warning!")
 
     def update_z_offset(self):
-        self.current_z_offset = str(pconsole.zoffset['Z'])
+        self.current_z_offset = str(pconsole.home_offset['Z'])
         
     def dismiss_popup(self):
         self.dismiss()

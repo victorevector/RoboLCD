@@ -12,11 +12,13 @@
 
 * Slicing Wizard
 
+* ZOffset is now a z-home offset instead of a z-probe offset. This generates more consistent and reliable z offsets.
+
 ### Bug Fixes
 
 * Filament sensor no longer halts rendering of printer dashboard
 
-* Fixed print error when printing from z offset warning popup 
+* Fixed print error when printing from z offset warning popup
 
 ## 1.3.2 (2017-3-1)
 

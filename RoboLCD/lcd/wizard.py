@@ -147,7 +147,7 @@ class FilamentWizard(Widget):
 
         self.layout2 = Filament_Wizard_2_5()
         back_destination = roboprinter.robo_screen()
-        
+
         this_screen = self.sm._generate_backbutton_screen(name=self.name+'[1]', title=_title, back_destination=back_destination, content=self.layout2)
         #back_button will also stop the scheduled events: poll_temp and switch_to_third_screen
         this_screen.ids.back_button.bind(on_press=self.cancel_second_screen_events)
@@ -157,7 +157,7 @@ class FilamentWizard(Widget):
         self.tmp_event = Clock.schedule_interval(self.poll_temp, .5) #stored so we can stop them later
         self.s_event = Clock.schedule_interval(self.switch_to_third_screen, .75) #stored so we can stop them later
 
-        
+
 
     ###Second screen helper functions ###
     def cancel_second_screen_events(self, *args):
@@ -204,7 +204,7 @@ class FilamentWizard(Widget):
         if self.extrude_event != None:
             self.end_extrude_event()
         self.extrude_event = Clock.schedule_interval(self.retract, 1)
-        
+
 
         # back_button deletes Second Screen, as back destination is first screen
         second_screen = self.sm.get_screen(self.name+'[1]')
@@ -283,13 +283,13 @@ class FilamentWizard(Widget):
 
         if self.load_or_change == 'CHANGE':
             _title = 'Filament Wizard 5/5'
-            
+
         else:
             _title = 'Filament Wizard 4/4'
         #cooldown
         roboprinter.printer_instance._printer.commands('M104 S0')
         roboprinter.printer_instance._printer.commands('M140 S0')
-        
+
         back_destination = roboprinter.robo_screen()
         self.sm._generate_backbutton_screen(name=self.name+'[5]', title=_title, back_destination=back_destination, content=c)
 
@@ -321,9 +321,10 @@ class ZoffsetWizard(Widget):
         #position callback variables
         self.old_xpos = 0
         self.old_ypos = 0
+        self.old_zpos = 0
 
     def first_screen(self, **kwargs):
-        
+
         model = roboprinter.printer_instance._settings.get(['Model'])
         if model == "Robo R2":
             bed_temp = float(pconsole.temperature['bed'])
@@ -399,7 +400,7 @@ class ZoffsetWizard(Widget):
         name = self.name + "[3]"
         back_destination = roboprinter.robo_screen()
 
-       
+
         layout = Z_Offset_Wizard_4_4()
 
         self.sm._generate_backbutton_screen(
@@ -409,8 +410,8 @@ class ZoffsetWizard(Widget):
             content=layout
         )
 
-        self.z_pos_end = float(self._capture_zpos()[2]) #schema: (x_pos, y_pos, z_pos)
-        self.z_pos_end = float(self._capture_zpos()[2]) #runs twice because the first call returns the old position
+        self.z_pos_end = float(self._capture_zpos()) #schema: (x_pos, y_pos, z_pos)
+        self.z_pos_end = float(self._capture_zpos()) #runs twice because the first call returns the old position
         Logger.info("ZCapture: z_pos_end {}".format(self.z_pos_end))
         self.fifth_screen()
 
@@ -420,7 +421,7 @@ class ZoffsetWizard(Widget):
         back_destination = roboprinter.robo_screen()
 
         layout = Z_Offset_Wizard_Finish()
-        self.zoffset = self.z_pos_end - self.z_pos_init
+        self.zoffset = (self.z_pos_end + 0.1) * -1
         layout.z_value = self.zoffset
         layout.ids.save.fbind('on_press', self._save_zoffset )
         layout.ids.save.fbind('on_press', self._end_wizard )
@@ -437,18 +438,17 @@ class ZoffsetWizard(Widget):
     def _prepare_printer(self):
         # Prepare printer for zoffset configuration
         #jog the Z Axis Down to prevent any bed interference
-        jogger = {'z': 10}
+        jogger = {'z': 160}
         printer_jog.jog(desired=jogger, speed=1500, relative=True)
         #kill the extruder
         roboprinter.printer_instance._printer.commands('M104 S0')
         roboprinter.printer_instance._printer.commands('M140 S0')
         roboprinter.printer_instance._printer.commands('M106 S255')
-
-        roboprinter.printer_instance._printer.commands(['M851 Z-'+ str(self.z_pos_init), 'M500', 'G90'])
-        roboprinter.printer_instance._printer.commands(['G28', 'G91', 'G1 X5 Y30 F800', 'G90' ])
-
-
-        
+        roboprinter.printer_instance._printer.commands('M502')
+        roboprinter.printer_instance._printer.commands('M500')
+        roboprinter.printer_instance._printer.commands('G28')
+        roboprinter.printer_instance._printer.commands('G1 X61 Y62 F10000')
+        roboprinter.printer_instance._printer.commands('G1 Z20 F1500')
 
     def position_callback(self, dt):
         temps = roboprinter.printer_instance._printer.get_current_temperatures()
@@ -458,14 +458,14 @@ class ZoffsetWizard(Widget):
         zpos = int(float(pos[2]))
 
         extruder_one_temp = 105
-       
+
         #find the temperature
         if 'tool0' in temps.keys():
             extruder_one_temp = temps['tool0']['actual']
 
-
+        Logger.info("Counter is at: " + str(self.counter))
         #check the extruder physical position
-        if self.counter > 2 and  xpos == self.old_xpos and ypos == self.old_ypos :
+        if self.counter > 25 and  xpos == self.old_xpos and ypos == self.old_ypos and zpos == self.old_zpos:
             if self.sm.current == 'zoffset[1]':
                 if extruder_one_temp < 100:
                     Logger.info('Succesfully found position')
@@ -482,7 +482,7 @@ class ZoffsetWizard(Widget):
 
         #if finding the position fails it will wait 30 seconds and continue
         self.counter += 1
-        if self.counter > 30:
+        if self.counter > 60:
             if self.sm.current == 'zoffset[1]':
                 Logger.info('could not find position, but continuing anyway')
                 if extruder_one_temp < 100:
@@ -500,25 +500,39 @@ class ZoffsetWizard(Widget):
         #position tracking
         self.old_xpos = xpos
         self.old_ypos = ypos
+        self.old_zpos = zpos
 
 
     def _capture_zpos(self):
+        """gets position from pconsole. :returns: integer"""
         Logger.info("ZCapture: Init")
         p = pconsole.get_position()
         Logger.info("ZCapture: {}".format(p))
-        return p
+        return p[2]
 
     def _save_zoffset(self, *args):
         #turn off fan
         roboprinter.printer_instance._printer.commands('M106 S0')
-        write_zoffset = 'M851 Z{}'.format(self.zoffset)
+
+        # #get position
+        # pos = pconsole.get_position()
+        # zpos = int(float(pos[2]))
+        #
+        # #turn Zpos negative and add 0.1mm
+        # zpos += 0.1
+        # zpos *= -1
+
+        #write new home offset to printer
+        write_zoffset = 'M206 Z' + str(self.zoffset)
         save_to_eeprom = 'M500'
         roboprinter.printer_instance._printer.commands([write_zoffset, save_to_eeprom])
-        
+        pconsole.home_offset['Z'] = self.zoffset
+
+
     def _end_wizard(self, *args):
         #turn off fan
         roboprinter.printer_instance._printer.commands('M106 S0')
-        roboprinter.printer_instance._printer.commands('G1 Z160 F1500')
+        roboprinter.printer_instance._printer.commands('G28')
         self.sm.go_back_to_main()
 
 

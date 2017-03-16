@@ -44,6 +44,7 @@ class PConsole(octoprint.printer.PrinterCallback):
         M200 = data.find('M200')
         M851 = data.find('M851')
         _Zoffset_update = data.find('Z Offset')
+        
 
         #Disconnect and reconnect if Marlin stops because of bed heater issues
         printer_bed_error = 'Error:MINTEMP triggered, system stopped! Heater_ID: bed'
@@ -89,7 +90,7 @@ class PConsole(octoprint.printer.PrinterCallback):
         #Steps Per Unit
         if M92 != -1:
             #roboprinter.printer_instance._logger.info("M92 "+ str(self.counter))
-            p = "X([0-9.]+) Y([0-9.]+) Z([0-9.]+) E([0-9.]+)"
+            p = "X([-0-9.00]+) Y([-0-9.00]+) Z([-0-9.00]+) E([-0-9.00]+)"
             spu = re.findall(p, data)
             if spu != []:
                 self.steps_per_unit = {
@@ -102,7 +103,7 @@ class PConsole(octoprint.printer.PrinterCallback):
         #Maximum Feed Rate
         elif M203 != -1:
             #roboprinter.printer_instance._logger.info("M203 "+ str(self.counter))
-            p = "X([0-9.]+) Y([0-9.]+) Z([0-9.]+) E([0-9.]+)"
+            p = "X([-0-9.00]+) Y([-0-9.00]+) Z([-0-9.00]+) E([-0-9.00]+)"
             mfr = re.findall(p, data)
 
             if mfr != []:
@@ -116,7 +117,7 @@ class PConsole(octoprint.printer.PrinterCallback):
         #Maximun Acceleration
         elif M201 != -1:
 
-            p = "X([0-9.]+) Y([0-9.]+) Z([0-9.]+) E([0-9.]+)"
+            p = "X([-0-9.00]+) Y([-0-9.00]+) Z([-0-9.00]+) E([-0-9.00]+)"
             ma = re.findall(p, data)
             if ma != []:
                 #roboprinter.printer_instance._logger.info("M201 "+ str(self.counter))
@@ -130,7 +131,7 @@ class PConsole(octoprint.printer.PrinterCallback):
         #Accelerations
         elif M204 != -1:
             #roboprinter.printer_instance._logger.info("M204 "+ str(self.counter))
-            p = "P([0-9.]+) R([0-9.]+) T([0-9.]+)"
+            p = "P([-0-9.00]+) R([-0-9.00]+) T([-0-9.00]+)"
             accel = re.findall(p, data)
 
             if accel != []:
@@ -144,7 +145,7 @@ class PConsole(octoprint.printer.PrinterCallback):
         #advanced variables
         elif M205 != -1:
             #roboprinter.printer_instance._logger.info("M205 "+ str(self.counter))
-            p = "S([0-9.]+) T([0-9.]+) B([0-9.]+) X([0-9.]+) Z([0-9.]+) E([0-9.]+)"
+            p = "S([-0-9.00]+) T([-0-9.00]+) B([-0-9.00]+) X([-0-9.00]+) Z([-0-9.00]+) E([-0-9.00]+)"
             av = re.findall(p, data)
             if av != []:
                 self.advanced_variables = {
@@ -158,9 +159,9 @@ class PConsole(octoprint.printer.PrinterCallback):
 
         #home offset
         elif M206 != -1:
-            #roboprinter.printer_instance._logger.info("M206 "+ str(self.counter))
-            p = "X([0-9.]+) Y([0-9.]+) Z([0-9.]+)"
+            p = "X([-0-9.00]+) Y([-0-9.00]+) Z([-0-9.00]+)"
             ho = re.findall(p, data)
+            #roboprinter.printer_instance._logger.info("M206 getting it " + str(ho) + " " + str(data))
 
             if ho != []:
                 self.home_offset = {
@@ -172,7 +173,7 @@ class PConsole(octoprint.printer.PrinterCallback):
         #PID settings
         elif M301 != -1:
             #roboprinter.printer_instance._logger.info("M301 "+ str(self.counter))
-            p = "P([0-9.]+) I([0-9.]+) D([0-9.]+)"
+            p = "P([-0-9.00]+) I([-0-9.00]+) D([-0-9.00]+)"
             pid = re.findall(p, data)
 
             if pid != []:
@@ -184,7 +185,7 @@ class PConsole(octoprint.printer.PrinterCallback):
 
         elif M304 != -1:
             #roboprinter.printer_instance._logger.info("M301 "+ str(self.counter))
-            p = "P([0-9.]+) I([0-9.]+) D([0-9.]+)"
+            p = "P([-0-9.00]+) I([-0-9.00]+) D([-0-9.00]+)"
             pid = re.findall(p, data)
 
             if pid != []:
@@ -199,7 +200,7 @@ class PConsole(octoprint.printer.PrinterCallback):
 
         elif M200 != -1:
             #roboprinter.printer_instance._logger.info("M200 "+ str(self.counter))
-            p = "D([0-9.]+)"
+            p = "D([-0-9.00]+)"
             fs = re.findall(p, data)
 
             if fs != []:
@@ -234,7 +235,7 @@ class PConsole(octoprint.printer.PrinterCallback):
 
         else:
             #get the position
-            p = "X:([0-9.]+) Y:([0-9.]+) Z:([0-9.]+)"
+            p = "X:([-0-9.00]+) Y:([-0-9.00]+) Z:([-0-9.00]+)"
             temp_pos = re.findall(p, data)
             if temp_pos != []:
                 self.position = temp_pos[0]

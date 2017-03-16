@@ -1,68 +1,32 @@
-# setup
+#setup
+If you want to install the new HomeOffset Wizard follow these instructions:
+
+if you do not already have RoboLCD on the machine go ahead and clone it
 ```
- sudo nano /etc/usbmount/usbmount.conf
-
+git clone https://github.com/Robo3D/RoboLCD.git
 ```
-then make it look like this 
+if you do have RoboLCD  on the machine pull the updates
 ```
-# Configuration file for the usbmount package, which mounts removable
-# storage devices when they are plugged in and unmounts them when they
-# are removed.
-
-# Change to zero to disable usbmount
-ENABLED=1
-
-# Mountpoints: These directories are eligible as mointpoints for
-# removable storage devices.  A newly plugged in device is mounted on
-# the first directory in this list that exists and on which nothing is
-# mounted yet.
-MOUNTPOINTS="/home/pi/.octoprint/uploads/USB /media/usb0 /media/usb1 /media/usb2 /media/usb3
-             /media/usb4 /media/usb5 /media/usb6 /media/usb7"
-
-# Filesystem types: removable storage devices are only mounted if they
-# contain a filesystem type which is in this list.
-FILESYSTEMS="vfat ext2 ext3 ext4 hfsplus"
-
-#############################################################################
-# WARNING!                                                                  #
-#                                                                           #
-# The "sync" option may not be a good choice to use with flash drives, as   #
-# it forces a greater amount of writing operating on the drive. This makes  #
-# the writing speed considerably lower and also leads to a faster wear out  #
-# of the disk.                                                              #
-#                                                                           #
-# If you omit it, don't forget to use the command "sync" to synchronize the #
-# data on your disk before removing the drive or you may experience data    #
-# loss.                                                                     #
-#                                                                           #
-# It is highly recommended that you use the pumount command (as a regular   #
-# user) before unplugging the device. It makes calling the "sync" command   #
-# and mounting with the sync option unnecessary---this is similar to other  #
-# operating system's "safely disconnect the device" option.                 #
-#############################################################################
-# Mount options: Options passed to the mount command with the -o flag.
-# See the warning above regarding removing "sync" from the options.
-MOUNTOPTIONS="sync,noexec,nodev,noatime,nodiratime,users,rw,gid=pi,uid=pi"
-
-# Filesystem type specific mount options: This variable contains a space
-# separated list of strings, each which the form "-fstype=TYPE,OPTIONS".
-#
-# If a filesystem with a type listed here is mounted, the corresponding
-# options are appended to those specificed in the MOUNTOPTIONS variable.
-#
-# For example, "-fstype=vfat,gid=floppy,dmask=0007,fmask=0117" would add
-# the options "gid=floppy,dmask=0007,fmask=0117" when a vfat filesystem
-# is mounted.
-FS_MOUNTOPTIONS=""
-
-# If set to "yes", more information will be logged via the syslog
-# facility.
-VERBOSE=no
+#make sure you are in the RoboLCD Folder
+cd RoboLCD
+git pull
 ```
 
-finally Make a USB dir in the uploads folder
+Switch to the zoffset_update branch
 ```
-mkdir .octoprint/uploads/USB
+#make sure you are in the RoboLCD Folder
+cd RoboLCD
+git checkout zoffset_update
 ```
 
-
+install RoboLCD in develop mode
+```
+source ~/oprint/bin/activate
+#make sure you are in the RoboLCD Folder
+cd ~/RoboLCD
+python setup.py develop
+```
+restart octoprint and pull up the log 
+```
+sudo service octoprint restart & tail -f ~/.octoprint/logs/octoprint.log
+```
