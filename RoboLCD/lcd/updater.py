@@ -78,8 +78,12 @@ class UpdateScreen(FloatLayout):
         model = 'r2' if self.printer_model == 'Robo R2' else 'c2'
         versions = map(lambda info: info.get('tag_name', '0'), r)
         m_versions = filter(lambda v: model in v, versions)
-        versions.sort()
-        return versions.pop()
+        if len(m_versions) > 1:
+            m_versions.sort()
+            avail = m_versions.pop()
+        else:
+            avail = self.installed_version
+        return avail
 
     def update_updater(self, *args):
         if self.printer_model == 'Robo R2':
