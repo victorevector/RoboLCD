@@ -1,6 +1,12 @@
 # RoboLCD Changelog
 
-## 1.4.0 (2017-3-9)
+## 1.4.1 (2017-3-16)
+
+### Bug Fixes
+
+* R2 update screen no longer displays available C2 updates 
+
+## 1.4.0 (2017-3-15)
 
 ### Improvements
 
