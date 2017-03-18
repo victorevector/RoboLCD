@@ -447,7 +447,16 @@ class ZoffsetWizard(Widget):
         roboprinter.printer_instance._printer.commands('M502')
         roboprinter.printer_instance._printer.commands('M500')
         roboprinter.printer_instance._printer.commands('G28')
-        roboprinter.printer_instance._printer.commands('G1 X61 Y62 F10000')
+
+        #get bed dimensions
+        bed_x = roboprinter.printer_instance._settings.global_get(['printerProfiles','defaultProfile', 'volume','width'])
+        bed_y = roboprinter.printer_instance._settings.global_get(['printerProfiles','defaultProfile', 'volume','depth'])
+
+        #calculate final positions
+        bed_x = float(bed_x) / 2.0
+        bed_y = float(bed_y) / 2.0
+
+        roboprinter.printer_instance._printer.commands('G1 X' + str(bed_x) + ' Y' + str(bed_y) +' F10000')
         roboprinter.printer_instance._printer.commands('G1 Z20 F1500')
 
     def position_callback(self, dt):
