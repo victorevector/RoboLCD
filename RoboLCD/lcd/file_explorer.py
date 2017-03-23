@@ -168,6 +168,8 @@ class FolderButton(Button):
     name = StringProperty("error")
     path = ObjectProperty(None)
     file_function = ObjectProperty(None)
+    edit_function = ObjectProperty(None)
+    edit_icon = StringProperty('Icons/rounded_black.png')
     def __init__(self, name, path, callback_function, enable_editing = False, **kwargs):
         super(FolderButton, self).__init__()
         self.name = name
@@ -175,6 +177,16 @@ class FolderButton(Button):
         self.file_function = callback_function
         self.long_press = False
         self.enable_editing = enable_editing
+
+        if self.enable_editing:
+            self.edit_function = self.open_file_options
+            self.edit_icon = "Icons/settings.png"
+        else:
+            self.edit_function = self.placeholder
+
+    #this exist so we don't break the screen accidently
+    def placeholder(self):
+        pass
 
     def folder_on_press(self):
         if self.enable_editing:
@@ -195,6 +207,11 @@ class FolderButton(Button):
         #self.long_press = True
         #FileOptions(self.name, self.path, folder = True)
         pass #re enable all this to enable file options
+
+    def open_file_options(self):
+        if self.enable_editing:
+            FileOptions(self.name, self.path, folder = True)
+        
 
 #This Class is for creating/deleting files or folders. It will most commonly be used as a long press for Files and Folders
 class FileOptions(BoxLayout):

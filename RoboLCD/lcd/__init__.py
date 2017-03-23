@@ -67,6 +67,7 @@ def start():
     from Firmware_Wizard import Firmware_Wizard
     from slicer_wizard import Slicer_Wizard
     from session_saver import session_saver
+    from file_explorer import FileOptions
 
 
 
@@ -106,6 +107,59 @@ def start():
 
             roboprinter.back_screen = self._generate_backbutton_screen
             roboprinter.robosm = self
+
+            # dictionary of screens
+            self.acceptable_screens = {
+                #Utilities Screen
+                'PRINT_TUNING': {'name':'print_tuning','title':'Print Tuning','back_destination':'main', 'function': self.generate_tuning_screen },
+                'ROBO_CONTROLS': {'name':'robo_controls','title':'Robo Controls','back_destination':'main', 'function': self.generate_robo_controls },
+                'WIZARDS' : {'name':'wizards_screen', 'title':'Wizards', 'back_destination':'main', 'function': self.generate_wizards_screen},
+                'NETWORK' : {'name':'network_utilities_screen', 'title':'Network Utilities', 'back_destination':'main', 'function': self.generate_network_utilities_screen},
+
+                'UPDATES' : {'name':'UpdateScreen', 'title':'Update', 'back_destination':'main', 'function': self.generate_update_screen},
+                'SYSTEM'   : {'name': 'system', 'title': 'System', 'back_destination':'main', 'function': self.generate_system},
+                'OPTIONS': {'name':'options', 'title': 'Options', 'back_destination':'main', 'function': self.generate_options},
+
+                #Robo Controls sub screen
+                'EXTRUDER_CONTROLS': {'name':'extruder_control_screen', 'title':'Temperature Control', 'back_destination':'robo_controls', 'function':self.generate_toolhead_select_screen},
+                'MOTOR_CONTROLS':{'name':'motor_control_screen','title':'Motor Control','back_destination':'robo_controls', 'function': self.generate_motor_controls},
+
+                #Extruder controls sub screen
+                'TEMPERATURE_CONTROLS': {'name':'temperature_button','title':'Temperature Control','back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls},
+                'PREHEAT':{'name':'preheat_wizard','title':'Preheat','back_destination':'extruder_control_screen', 'function': self.generate_preheat_list},
+                'COOLDOWN' : {'name':'cooldown_button','title':'Cooldown','back_destination':'extruder_control_screen', 'function':self.cooldown_button},
+
+                #Wizards sub screen
+                'ZOFFSET': {'name':'zoffset', 'title':'Z Offset Wizard', 'back_destination':'wizards_screen', 'function': self.generate_zaxis_wizard},
+                'FIL_LOAD': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.generate_filament_wizard},
+                'FIL_CHANGE': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.genetate_filament_change_wizard},
+                'FIRMWARE' : {'name': 'firmware_updater','title':'Firmware', 'back_destination': 'wizards_screen', 'function': self.update_firmware},
+                'SLICER' : {'name': 'slicing_wizard', 'title': 'Slicer', 'back_destination': 'wizards_screen', 'function': self.slicer_wizard},
+
+                #Network sub screen
+                'CONFIGURE_WIFI': {'name':'', 'title':'', 'back_destination':'network_utilities_screen', 'function':self.generate_wificonfig},
+                'START_HOTSPOT': {'name':'start_apmode_screen', 'title':'Start Wifi Hotspot', 'back_destination':'network_utilities_screen', 'function':self.generate_start_apmode_screen},
+                'NETWORK_STATUS': {'name':'ip_screen', 'title':'Network Status', 'back_destination':'network_utilities_screen', 'function':self.generate_ip_screen},
+                'QR_CODE': {'name':'qrcode_screen', 'title':'QR Code', 'back_destination':'network_utilities_screen', 'function':self.generate_qr_screen},
+
+                #Options sub screen
+                'EEPROM': {'name': 'eeprom_viewer', 'title': 'EEPROM', 'back_destination': 'options', 'function': self.generate_eeprom},
+                'FACTORY_RESET': {'name': 'factory_reset', 'title':'Factory Reset', 'back_destination': 'main', 'function': self.coming_soon},
+                'UNMOUNT_USB': {'name': 'umount', 'title':'', 'back_destination': '', 'function':self.system_handler},
+
+                #System Sub Screen
+                'SHUTDOWN': {'name': 'Shutdown', 'title':'', 'back_destination': '', 'function':self.system_handler},
+                'REBOOT': {'name': 'Reboot', 'title':'', 'back_destination': '', 'function':self.system_handler},
+                'OCTO_REBOOT': {'name': 'octo_reboot', 'title':'', 'back_destination': '', 'function':self.system_handler},
+
+                #extruder Control sub screens
+
+                'TOOL1' :{'name': 'TOOL1', 'title': 'Extruder 1', 'back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls },
+                'TOOL2' :{'name': 'TOOL2', 'title': 'Extruder 2', 'back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls },
+                'BED' :{'name': 'BED', 'title': 'Bed', 'back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls },
+
+
+            }
 
         def get_current_screen(self):
             return self.current
@@ -292,11 +346,13 @@ def start():
                 c = PrintFile(name='print_file',
                               file_name=file_name,
                               file_path=file_path)
+            def file_options():
+                FileOptions(file_name, file_path)
 
             if not is_usb:
-                self._generate_backbutton_screen(name=c.name, title=title, back_destination=self.current, content=c, cta=delete_file, icon='Icons/trash.png')
+                self._generate_backbutton_screen(name=c.name, title=title, back_destination=self.current, content=c, cta=file_options, icon='Icons/settings.png')
             else:
-                self._generate_backbutton_screen(name=c.name, title=title, back_destination=self.current, content=c)
+                self._generate_backbutton_screen(name=c.name, title=title, back_destination=self.current, content=c, cta=file_options, icon='Icons/settings.png')
 
             return
 
@@ -479,7 +535,11 @@ def start():
 
             c = MotorControl()
 
-            self._generate_backbutton_screen(name=name, title=title, back_destination=back_destination, content=c)
+            self._generate_backbutton_screen(name=name, 
+                                             title=title, 
+                                             back_destination=back_destination, 
+                                             content=c, cta=c.raise_buildplate, 
+                                             icon='Icons/Manual_Control/Z+_icon.png' )
 
         def generate_temperature_controls(self, **kwargs):
             name = kwargs['name']
@@ -755,63 +815,11 @@ def start():
 
         def generate_screens(self, screen):
 
-            acceptable_screens = {
-                #Utilities Screen
-                'PRINT_TUNING': {'name':'print_tuning','title':'Print Tuning','back_destination':'main', 'function': self.generate_tuning_screen },
-                'ROBO_CONTROLS': {'name':'robo_controls','title':'Robo Controls','back_destination':'main', 'function': self.generate_robo_controls },
-                'WIZARDS' : {'name':'wizards_screen', 'title':'Wizards', 'back_destination':'main', 'function': self.generate_wizards_screen},
-                'NETWORK' : {'name':'network_utilities_screen', 'title':'Network Utilities', 'back_destination':'main', 'function': self.generate_network_utilities_screen},
-
-                'UPDATES' : {'name':'UpdateScreen', 'title':'Update', 'back_destination':'main', 'function': self.generate_update_screen},
-                'SYSTEM'   : {'name': 'system', 'title': 'System', 'back_destination':'main', 'function': self.generate_system},
-                'OPTIONS': {'name':'options', 'title': 'Options', 'back_destination':'main', 'function': self.generate_options},
-
-                #Robo Controls sub screen
-                'EXTRUDER_CONTROLS': {'name':'extruder_control_screen', 'title':'Temperature Control', 'back_destination':'robo_controls', 'function':self.generate_toolhead_select_screen},
-                'MOTOR_CONTROLS':{'name':'motor_control_screen','title':'Motor Control','back_destination':'robo_controls', 'function': self.generate_motor_controls},
-
-                #Extruder controls sub screen
-                'TEMPERATURE_CONTROLS': {'name':'temperature_button','title':'Temperature Control','back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls},
-                'PREHEAT':{'name':'preheat_wizard','title':'Preheat','back_destination':'extruder_control_screen', 'function': self.generate_preheat_list},
-                'COOLDOWN' : {'name':'cooldown_button','title':'Cooldown','back_destination':'extruder_control_screen', 'function':self.cooldown_button},
-
-                #Wizards sub screen
-                'ZOFFSET': {'name':'zoffset', 'title':'Z Offset Wizard', 'back_destination':'wizards_screen', 'function': self.generate_zaxis_wizard},
-                'FIL_LOAD': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.generate_filament_wizard},
-                'FIL_CHANGE': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.genetate_filament_change_wizard},
-                'FIRMWARE' : {'name': 'firmware_updater','title':'Firmware', 'back_destination': 'wizards_screen', 'function': self.update_firmware},
-                'SLICER' : {'name': 'slicing_wizard', 'title': 'Slicer', 'back_destination': 'wizards_screen', 'function': self.slicer_wizard},
-
-                #Network sub screen
-                'CONFIGURE_WIFI': {'name':'', 'title':'', 'back_destination':'network_utilities_screen', 'function':self.generate_wificonfig},
-                'START_HOTSPOT': {'name':'start_apmode_screen', 'title':'Start Wifi Hotspot', 'back_destination':'network_utilities_screen', 'function':self.generate_start_apmode_screen},
-                'NETWORK_STATUS': {'name':'ip_screen', 'title':'Network Status', 'back_destination':'network_utilities_screen', 'function':self.generate_ip_screen},
-                'QR_CODE': {'name':'qrcode_screen', 'title':'QR Code', 'back_destination':'network_utilities_screen', 'function':self.generate_qr_screen},
-
-                #Options sub screen
-                'EEPROM': {'name': 'eeprom_viewer', 'title': 'EEPROM', 'back_destination': 'options', 'function': self.generate_eeprom},
-                'FACTORY_RESET': {'name': 'factory_reset', 'title':'Factory Reset', 'back_destination': 'main', 'function': self.coming_soon},
-                'UNMOUNT_USB': {'name': 'umount', 'title':'', 'back_destination': '', 'function':self.system_handler},
-
-                #System Sub Screen
-                'SHUTDOWN': {'name': 'Shutdown', 'title':'', 'back_destination': '', 'function':self.system_handler},
-                'REBOOT': {'name': 'Reboot', 'title':'', 'back_destination': '', 'function':self.system_handler},
-                'OCTO_REBOOT': {'name': 'octo_reboot', 'title':'', 'back_destination': '', 'function':self.system_handler},
-
-                #extruder Control sub screens
-
-                'TOOL1' :{'name': 'TOOL1', 'title': 'Extruder 1', 'back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls },
-                'TOOL2' :{'name': 'TOOL2', 'title': 'Extruder 2', 'back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls },
-                'BED' :{'name': 'BED', 'title': 'Bed', 'back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls },
-
-
-            }
-
-            if screen in acceptable_screens:
+            if screen in self.acceptable_screens:
                 Logger.info("Changing screen to " + screen)
-                acceptable_screens[screen]['function'](name=acceptable_screens[screen]['name'],
-                                                     title = acceptable_screens[screen]['title'],
-                                                     back_destination = acceptable_screens[screen]['back_destination'])
+                self.acceptable_screens[screen]['function'](name=self.acceptable_screens[screen]['name'],
+                                                     title = self.acceptable_screens[screen]['title'],
+                                                     back_destination = self.acceptable_screens[screen]['back_destination'])
             else:
                 Logger.info(screen + " Is Not an acceptable screen")
                 return False

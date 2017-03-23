@@ -287,6 +287,8 @@
             halign: 'right'
             valign: 'center'
 
+        
+
 <FolderButton>:
     id: folder_b
     markup: True
@@ -316,16 +318,30 @@
             shorten: True
             halign: 'left'
             valign: 'center'
+        # Label:
+        #     size_hint_x: 0.2
+        #     id:date
+        #     text: ''
+        #     markup: True
+        #     font_size: 20
+        #     text_size: self.size
+        #     halign: 'right'
+        #     valign: 'center'
 
-        Label:
+        Button:
+            background_color: (0,0,0,1)
             size_hint_x: 0.2
-            id:date
-            text: ''
-            markup: True
-            font_size: 20
-            text_size: self.size
-            halign: 'right'
-            valign: 'center'
+            id: file_options
+            on_press: root.edit_function()
+            Image:
+                x:file_options.x
+                center_y: file_options.center_y
+                source: root.edit_icon
+                size_hint: None, None
+                halign: 'right'
+                valign: 'center'
+
+        
         
 
 

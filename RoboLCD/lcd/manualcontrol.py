@@ -18,15 +18,6 @@ from printer_jog import printer_jog
 from kivy.logger import Logger
 from pconsole import pconsole
 
-# class Control(Widget):
-#     manualcontrol = ObjectProperty(ManualControl() )
-#     tempcontrol = ObjectProperty(TemperatureControl() )
-#     active = StringProperty('manual')
-#
-#     def toggle_control(self, *args, **kwargs):
-#         if self.active == 'manual':
-#             self.
-
 class MotorControl(GridLayout):
     mms = ListProperty([0.1,1,10,100])
     inx = NumericProperty(2)
@@ -71,6 +62,11 @@ class MotorControl(GridLayout):
         current_temperature = int(temps['tool0']['actual'])
         
         return current_temperature
+
+    def raise_buildplate(self):
+        roboprinter.printer_instance._printer.commands('G28')
+        roboprinter.printer_instance._printer.commands('G90')
+        roboprinter.printer_instance._printer.commands('G1 Z20')
 
 class TemperatureControl(GridLayout):
     current_temp = StringProperty('--')

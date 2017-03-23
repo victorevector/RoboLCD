@@ -1,10 +1,23 @@
 # RoboLCD Changelog
 
+## 1.5.0 (2017-3-22)
+
+### Improvements
+
+* New file options available: add, move, traverse and delete folders; move and delete files.
+
+* USB storage directory is mounted in the File's list. All new file options are available within the USB folder.
+
+* Shortcut button added to Motor Control (top right): it will home all axes and move the bed up to the nozzle.
+
+* Support for filament sensor
+
+
 ## 1.4.2 (2017-3-18)
 
 ### Bug Fixes
 
-* R2 z offset wizard centers xy correctly 
+* R2 z offset wizard centers xy correctly
 
 ## 1.4.1 (2017-3-16)
 

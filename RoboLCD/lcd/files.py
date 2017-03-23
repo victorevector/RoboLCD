@@ -80,6 +80,9 @@ class FileButton(Button):
         # FileOptions(self.filename, self.path)
         pass # re enable for file options
 
+    def open_file_options(self):
+        FileOptions(self.filename, self.path)
+
 
 class FilesTab(TabbedPanelHeader):
     """
