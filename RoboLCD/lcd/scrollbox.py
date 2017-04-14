@@ -146,7 +146,7 @@ class Scroll_Box_Even(BoxLayout):
                 content.add_widget(Button(text='', background_color = [0,0,0,1]))
 
 class Scroll_Box_Even_Button(Button):
-    button_text = StringProperty("[size=30]Error")
+    button_text = StringProperty("Error")
     generator= ObjectProperty("0")
     arg = ObjectProperty("ERROR")
     def __init__(self, text_button, generator_fuction, arg):

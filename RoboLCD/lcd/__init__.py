@@ -7,7 +7,6 @@ def start():
     sys.dont_write_bytecode = True
     import logging
     import re
-    import sysv_ipc
     import json
     import threading
     import kivy
@@ -19,7 +18,7 @@ def start():
     Config.set('kivy', 'keyboard_mode', 'dock')
     Config.set('graphics', 'height', '320')
     Config.set('graphics', 'width', '480')
-    Config.set('graphics', 'borderless', '1')
+    Config.set('graphics', 'borderless', 1)
     # Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=invert_x=1') #This now gets set in the builder
 
     from kivy.app import App
@@ -33,7 +32,6 @@ def start():
     from kivy.uix.gridlayout import GridLayout
     from kivy.uix.label import Label
     from functools import partial
-    from kaapopup import KaaPopup,CompletePopup, ErrorPopup, get_update_lists, UPDATE_LOG, NoupdatePopup
     from mainscreen import MainScreen, MainScreenTabbedPanel
     from files import FilesTab, FilesContent, PrintFile, PrintUSB
     from utilities import UtilitiesTab, UtilitiesContent, QRCodeScreen
@@ -69,23 +67,12 @@ def start():
     from session_saver import session_saver
     from file_explorer import FileOptions
 
+    #Clock needs more iterations...
+    Clock.max_iteration = 50
+
 
 
     Logger.info('Start')
-
-    # ========== Starting Message queue thread.===================
-	# queue key
-    QUEUE_KEY = 2016
-    SEND_QUEUE_KEY = 6102
-    mq = None
-    try:
-        mq = sysv_ipc.MessageQueue(QUEUE_KEY, sysv_ipc.IPC_CREAT)
-
-        Logger.info("Found mq")
-    except Exception as e:
-        Logger.info("no Found mq: {}".format(e))
-        pass
-
     class RoboScreenManager(ScreenManager):
         """
         Root widget
@@ -98,9 +85,6 @@ def start():
 
         def __init__(self, **kwargs):
             super(RoboScreenManager, self).__init__(transition=NoTransition())
-            kaa_thread = threading.Thread(target=self.receive_message)
-            kaa_thread.start()
-            Logger.info("Starting kaa_thread...")
             Clock.schedule_interval(self.check_connection_status, .5)
             pconsole.initialize_eeprom()
             roboprinter.robo_screen = self.get_current_screen
@@ -201,11 +185,11 @@ def start():
 
                 #Wait until temperature reappears if it is an R2
                 model = roboprinter.printer_instance._settings.get(['Model'])
-                if model == "Robo R2": 
+                if model == "Robo R2":
                     self.wait_temp = Warning_Popup("Initializing Printer", 'Please Wait')
                     self.wait_temp.show()
                     Clock.schedule_interval(self.check_temp, 0.1)
-                
+
 
         def check_temp(self, dt):
             if 'tool1' in pconsole.temperature and 'bed' in pconsole.temperature:
@@ -245,64 +229,6 @@ def start():
 
                 return False
 
-
-        def receive_message(*args):
-            """
-            Receive Message from C SDK on Raspberry pi.
-            :return:
-            """
-            Logger.info("Received message started:")
-
-            while True:
-
-                (message, priority) = mq.receive()
-
-                Logger.info('Received message: {}'.format(message))
-                try:
-                    match = re.match('^\#R\#(.*)\#E\#$', message)
-                    if match.group(1) is not None:
-                      command = match.group(1)
-
-                    msg = json.loads(command.decode("utf-8"))
-                    Logger.info('Received message as json: {}'.format(msg))
-                except Exception as e:
-                    Logger.info('json error:  {}'.format(e))
-
-                try:
-                    if msg["type"] == "NEW":
-                        id = int(msg["id"])
-                        Logger.info('id: {}'.format(id))
-                        p = KaaPopup(message=id)
-                        p.open()
-                    # response = {"type": "NEW_REQ" "id": id, "res", res}
-
-                    # when receive update response.
-                    elif msg["type"] == "UPDATE_RES":
-                        result = msg["result"]
-                        if result == "success":
-                            complete = CompletePopup()
-                            complete.open()
-                        elif result == "error":
-                            error = ErrorPopup()
-                            error.open()
-                        elif result == "NoUpdates":
-                            noupdate = NoupdatePopup()
-                            noupdate.open()
-                        else:
-                            error = ErrorPopup()
-                            error.open()
-
-                    elif msg["type"] == "NEW_RES":
-                        result = msg["result"]
-                        if result == "success":
-                            complete = CompletePopup()
-                            complete.open()
-                        else:
-                            error = ErrorPopup()
-                            error.open()
-                except Exception as e:
-                    Logger.info("receive message error: {}".format(e))
-
         def generate_update_screen(self, **kwargs):
 
             Logger.info('starting update screen')
@@ -311,17 +237,6 @@ def start():
             self._generate_backbutton_screen(name=kwargs['name'], title=kwargs['title'], back_destination=kwargs['back_destination'], content=update_screen)
 
             return
-
-        def run_kaapopup(self, **kwargs):
-            Logger.info('starting run_kaapopup')
-            update_lists = get_update_lists()
-            Logger.info('update_lists: {}'.format(update_lists))
-            if len(update_lists) != 0:
-                p = KaaPopup(update="True")
-                p.open()
-            else:
-                n = NoupdatePopup()
-                n.open()
 
         def generate_file_screen(self, **kwargs):
             # Accesible to FilesButton
@@ -535,10 +450,10 @@ def start():
 
             c = MotorControl()
 
-            self._generate_backbutton_screen(name=name, 
-                                             title=title, 
-                                             back_destination=back_destination, 
-                                             content=c, cta=c.raise_buildplate, 
+            self._generate_backbutton_screen(name=name,
+                                             title=title,
+                                             back_destination=back_destination,
+                                             content=c, cta=c.raise_buildplate,
                                              icon='Icons/Manual_Control/Z+_icon.png' )
 
         def generate_temperature_controls(self, **kwargs):
@@ -650,7 +565,7 @@ def start():
             pla = PLA_Button(setup, name=_name)
             ab = ABS_Button(setup, name=_name)
             placeholder = Empty_Button()
-            layout = GridLayout(cols=1, padding=0, spacing=[0,0], size_hint=(1, None),)
+            layout = BoxLayout(orientation="vertical")
             layout.add_widget(pla)
             layout.add_widget(ab)
             layout.add_widget(placeholder)
@@ -805,6 +720,10 @@ def start():
 
         def execute_function(self, dt):
             subprocess.call(self.shell_command, shell=True)
+            #update files
+            if 'file_callback' in session_saver.saved:
+                session_saver.saved['file_callback']()
+
 
         def update_firmware(self, **kwargs):
             Firmware_Wizard(self, kwargs['back_destination'])
@@ -852,7 +771,7 @@ def start():
 
             elif model == "Robo R2":
                 sm = self.load_R2()
-                
+
             elif model == "Robo C2":
                 sm = self.load_C2()
 
@@ -861,15 +780,15 @@ def start():
 
         def concat_2_files(self, file1, file2):
             temp_path = '/tmp/kv/combined.kv'
-            
+
             dir_path = os.path.dirname(os.path.realpath(__file__))
             file_list = [dir_path + '/'+ file1, dir_path + '/'+ file2]
-            #make a temporary file 
+            #make a temporary file
 
             if not os.path.isdir('/tmp/kv'):
                 os.makedirs('/tmp/kv')
 
-            
+
             with open(temp_path, 'w') as combined:
                 for path in file_list:
                     with open(path, 'r') as file:
@@ -884,7 +803,7 @@ def start():
             path = self.concat_2_files('C2.kv', 'lcd_mini.kv')
             sm = Builder.load_file(path)
             Logger.info('Screen Type: {}'.format('c2'))
-            
+
             return sm
 
         def load_R2(self):

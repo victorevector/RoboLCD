@@ -11,10 +11,10 @@ from kivy.logger import Logger
 from kivy.clock import Clock
 from session_saver import session_saver
 
-class Print_Tuning(FloatLayout):
+class Print_Tuning(BoxLayout):
 
     tuning_number = StringProperty('[size=30]999')
-    title_label_text = StringProperty('[size=40][color=#69B3E7]Flow Rate')
+    title_label_text = StringProperty('[size=40][color=#69B3E7]Flow Rate[/color][/size]')
     up_icon = StringProperty("Icons/Tuning/Up +1.png")
     down_icon = StringProperty("Icons/Tuning/Down +1.png")
 
@@ -98,7 +98,7 @@ class Print_Tuning(FloatLayout):
         session_saver.save_variable('FLOW', self.tune_rates['FLOW'])
         session_saver.save_variable('FEED', self.tune_rates['FEED'])
         session_saver.save_variable('FAN', self.tune_rates['FAN'])
-        Logger.info(str(session_saver.saved))
+        #Logger.info(str(session_saver.saved))
 
     def load_tuning_info(self):
         tuning_exists = False
@@ -142,7 +142,7 @@ class Print_Tuning(FloatLayout):
         if self.change_value > 1:
             self.change_value = 0
 
-        self.ids.change_text.text = "[size=60]{}".format(self.change_amount_value[self.change_value]) 
+        self.ids.change_text.text = "[size=60]{}[/size]".format(self.change_amount_value[self.change_value]) 
         self.ids.up_image.source = self.change_icon_up[self.change_value]
         self.ids.down_image.source = self.change_icon_down[self.change_value] 
 

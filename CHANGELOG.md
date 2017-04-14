@@ -1,5 +1,15 @@
 # RoboLCD Changelog
 
+## 1.6.0 (2017-4-13)
+
+### Improvements
+
+* Update notification notifies users when OS updates are available
+
+### Bug Fixes
+
+* Screen styling is now compatible with R2 model
+
 ## 1.5.0 (2017-3-22)
 
 ### Improvements

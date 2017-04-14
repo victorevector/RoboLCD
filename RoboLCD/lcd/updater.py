@@ -16,7 +16,7 @@ class UpdateScreen(FloatLayout):
     installed_version = StringProperty('Checking...')
     avail_version = StringProperty('Checking...')
 
-    def __init__(self):
+    def __init__(self, populate=True, **kwargs):
         super(UpdateScreen, self).__init__()
 
         self.data_path = roboprinter.printer_instance.get_plugin_data_folder()
@@ -30,7 +30,9 @@ class UpdateScreen(FloatLayout):
         self.printer_model = roboprinter.printer_instance._settings.get(['Model'])
 
         #populate version numbers when screen gets initiated
-        Clock.schedule_once(self.populate_values)
+        self.populate = populate
+        if self.populate:
+            Clock.schedule_once(self.populate_values)
 
     def populate_values(self, *args):
         self.refresh_versions()
@@ -46,7 +48,7 @@ class UpdateScreen(FloatLayout):
         """populates self.installed_version && self.avail_version: values are rendered on the UpdateScreen."""
         self.installed_version = self.get_installed_version()
         self.avail_version = self.get_avail_version()
-        if self.avail_version == 'Connection Error!':
+        if self.avail_version == 'Connection Error!' and self.populate:
             Error_Popup('Connection Error', 'Check internet connection.').show()
 
     def get_installed_version(self):

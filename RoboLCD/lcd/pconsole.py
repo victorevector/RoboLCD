@@ -159,15 +159,15 @@ class PConsole(octoprint.printer.PrinterCallback):
 
         #home offset
         elif M206 != -1:
-            p = "X([-0-9.00]+) Y([-0-9.00]+) Z([-0-9.00]+)"
+            p = "Z([-0-9.00]+)"
             ho = re.findall(p, data)
             #roboprinter.printer_instance._logger.info("M206 getting it " + str(ho) + " " + str(data))
 
             if ho != []:
                 self.home_offset = {
-                    'X' : float(ho[0][0]),
-                    'Y' : float(ho[0][1]),
-                    'Z' : float(ho[0][2])
+                    #'X' : float(ho[0][0]),
+                    #'Y' : float(ho[0][1]),
+                    'Z' : float(ho[0])
                 }
 
         #PID settings
@@ -317,8 +317,8 @@ class PConsole(octoprint.printer.PrinterCallback):
             'E' : 0
         }
         self.home_offset = {
-            'X' : 0,
-            'Y' : 0,
+            #'X' : 0,
+            #'Y' : 0,
             'Z' : 0
         }
         self.PID = {

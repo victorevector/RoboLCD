@@ -47,6 +47,29 @@ class Zoffset_Warning_Popup(ModalView):
         self.dismiss()
         self.file_printer.force_start_print()
 
+class Update_Warning_Popup(ModalView):
+    """docstring for Zoffset_Warning_Popup(ModalView)"""
+    current_z_offset = StringProperty('--')
+    body_text = StringProperty('[size=40][color=#69B3E7]Update Available[/size][/color][size=30]\n\nWould you like to install the update?\nChangelog: [color=#69B3E7]Robo3D.com/changelogs')
+    
+    def __init__(self, update_callback, unlock):
+        super(Update_Warning_Popup, self).__init__()
+        self.update_callback = update_callback
+        self.unlock = unlock
+        roboprinter.printer_instance._logger.info("Starting up the update Warning!")
+
+    def update_z_offset(self):
+        self.current_z_offset = str(pconsole.home_offset['Z'])
+        
+    def dismiss_popup(self):
+        self.unlock()
+        self.dismiss()
+    def start_update_button(self):
+        self.unlock()
+        self.update_callback()
+        self.dismiss()
+       
+
 class Mintemp_Warning_Popup(ModalView):
     current_temp = StringProperty('--')
     def __init__(self, temp):

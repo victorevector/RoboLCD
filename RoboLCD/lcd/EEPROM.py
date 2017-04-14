@@ -5,6 +5,7 @@ from kivy.logger import Logger
 from kivy.uix.button import Button
 from kivy.properties import StringProperty, NumericProperty
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from .. import roboprinter
 from kivy.clock import Clock
@@ -128,7 +129,7 @@ class EEPROM():
     #         return False
 
 
-class Change_Value(FloatLayout):
+class Change_Value(BoxLayout):
     name = StringProperty("ERROR")
     number = StringProperty("999")
     value = NumericProperty(999)

@@ -791,6 +791,81 @@
                     center_x: start_print.center_x + 30
                     center_y: start_print.center_y
 
+<Update_Warning_Popup>:
+    background_color: 0,0,0,1
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 600, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
+    GridLayout:
+        cols:1
+        rows:1
+        background_color: 0,0,0,1
+        FloatLayout:
+
+            Label:
+                id: modal_question
+                markup: True
+                size_hint: None, None
+                text: root.body_text
+                valign: 'middle'
+                halign: 'center'
+                center_x: popup.center_x
+                center_y: popup.center_y + 65
+
+
+            Button:
+                size_hint: None, None
+                id: cancel
+                background_normal: 'Icons/red_button_style.png'
+                width: 225
+                height: 85
+                on_press: root.dismiss_popup()
+                center_x: popup.center_x + 125
+                center_y: popup.center_y - 125
+                Image:
+                    source: "Icons/Manual_Control/cancel_button_icon.png"
+                    allow_stretch: False
+                    center_x: cancel.center_x - 55
+                    center_y: cancel.center_y
+                Label:
+                    background_color: 0,0,0,0
+                    text: 'Later'
+                    font_size: 30
+                    center_x: cancel.center_x + 30
+                    center_y: cancel.center_y
+
+            Button:
+                size_hint: None, None
+                id: start_print
+                background_normal: 'Icons/blue_button_style.png'
+                width: 225
+                height: 85
+                on_press: root.start_update_button()
+                center_x: popup.center_x - 125
+                center_y: popup.center_y - 125
+                Image:
+                    source: 'Icons/Manual_Control/start_button_icon.png'
+                    allow_stretch: False
+                    center_x: start_print.center_x - 55
+                    center_y: start_print.center_y
+                Label:
+                    background_color: 0,0,0,0
+                    text: 'Update'
+                    font_size: 30
+                    center_x: start_print.center_x + 30
+                    center_y: start_print.center_y
+
 <Mintemp_Warning_Popup>:
     background_color: 0,0,0,1
     id: popup
@@ -1170,62 +1245,10 @@
     font_size: 30
 
 <UtilitiesContent>
-
-
-<BackButtonScreen>:
     background_color: 0,0,0,1
-    GridLayout:
-        rows: 2
-        BoxLayout:
-            id: title_bar
-            canvas.before:
-                Color:
-                    rgba: 0,0,0,1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            orientation: 'horizontal'
-            size_hint_y: .3
-            Button:
-                background_color: 0,0,0,1
-                id: back_button
-                on_press: app.root.go_back_to_screen(root.name, root.back_destination)
-                size_hint_x: .2
-                Image:
-                    source: 'Icons/back.png'
-                    center_x: self.parent.center_x
-                    center_y: self.parent.center_y
 
-            Label:
-                id: title
-                canvas.before:
-                    Color:
-                        rgba: 0,0,0,1
-                    Rectangle:
-                        pos: title.pos
-                        size: title.size
-                text: root.title
-                font_size: 40
-                shorten: True
-                shorten_from: 'right'
-                text_size: title.size
-                halign: 'center'
-                valign: 'center'
-            Button:
-                id: cta
-                size_hint_x: .2
-                background_color: 0,0,0,1
-                on_press: root.cta()
-                Image:
-                    id: cta_image
-                    source: root.icon
-                    center_x: self.parent.center_x
-                    center_y: self.parent.center_y
 
-        ScrollView:
-            id: content_layout #self.content gets added to ScrollView via WifiScreen_instance.populate_layout()
-            do_scroll_x: False
-            scroll_distance: 45
+
 
 <AP_Mode_1_4>:
     id: screen
@@ -1368,40 +1391,37 @@
 <WifiButton>:
     background_color: (0,0,0,1)
     id: but_img
-    GridLayout:
+    BoxLayout:
         background_color: (0,0,0,1)
-        width: 1
+        x: but_img.x
+        y: but_img.y
+        size: but_img.size
         pos: self.parent.pos
         orientation: 'horizontal'
-        cols:3
-        rows:1
         Label:
+            size_hint_x: 0.05
+            text: ''
+        Label:
+            #size_hint_x: 2.0
             id:ssid_label
+            text: "[size=30]" + but_img.ssid
+            markup: True
+            valign: 'center'
             halign: 'left'
-            size_hint_x: None
-            size_hint_y: None
-            width: 450
-            text: but_img.ssid
-            font_size: 30
-            text_size: 450,None
-            shorten: True
+            text_size: self.size
 
         Image:
+            size_hint_x: 0.2
             id: wifi_encrypted
             source: 'Icons/wifi_locked.png'
-            size_hint_x: None
-            size_hint_y: None
-            width: 50
             height: self.parent.height
             allow_stretch: False
             pos: self.parent.pos
 
         Image:
+            size_hint_x: 0.2
             id: wifi_signal
             source: 'Icons/wifi_1.png'
-            size_hint_x: None
-            size_hint_y: None
-            width:50
             height: self.parent.height
             allow_stretch: False
             pos: self.parent.pos
@@ -1872,9 +1892,6 @@
 
 <PLA_Button>:
     markup: True
-    size_hint_y: None
-    height: 150
-    markup: True
     background_color: (0,0,0,1)
     text: root.button_text
     valign: 'middle'
@@ -1884,8 +1901,6 @@
     on_press: root._preheat_pla()
 
 <ABS_Button>:
-    markup: True
-    size_hint_y: None
     height: 150
     markup: True
     background_color: (0,0,0,1)
@@ -2437,7 +2452,8 @@
     
     BoxLayout:
         size: box_even.size
-        pos: box_even.pos
+        x: box_even.x
+        y: box_even.y
         id: content
         orientation: 'vertical'
     #scroll Buttons
@@ -2448,12 +2464,16 @@
         spacing: 20
         padding: 10,10,10,10
         Button:
+            # width:150
+            # height:200
             id:button_up
             background_normal:"Icons/Up-arrow-grey.png"
             background_down:"Icons/Up-arrow-blue.png"
             on_press: root.on_up_press()
             on_release: root.on_up_release()
         Button:
+            # width:150
+            # height:200
             id: button_down
             background_normal:"Icons/Down-arrow-grey.png"
             background_down:"Icons/Down-arrow-blue.png"
@@ -2461,14 +2481,23 @@
             on_release: root.on_down_release()
 
 <Scroll_Box_Even_Button>:
-    markup: True
-    markup: True
+    id: sbe_button
     background_color: (0,0,0,1)
-    text: "[size=30]" + root.button_text
-    valign: 'center'
-    halign: 'left'
-    text_size: self.size
     on_press: root.generator(root.arg)
+    BoxLayout:
+        orientation: 'horizontal'
+        x: sbe_button.x
+        y: sbe_button.y
+        size: sbe_button.size
+        Label:
+            size_hint_x: 0.05
+            text: ''
+        Label:
+            markup: True
+            text: "[size=30]" + root.button_text
+            valign: 'middle'
+            halign: 'left'
+            text_size: self.width, None
 
 
 <Scroll_Box_Icons>:
@@ -2572,251 +2601,217 @@
 
 <Print_Tuning>:
     id: tuning_screen
+    orientation: 'vertical'
+    spacing: 5
 
-    #background_color: (0,0,0,0)
-    #tuning buttons
-    GridLayout:
-        cols: 2
-        rows: 1
-        spacing: 5,5
+    BoxLayout:
+        orientation: "horizontal"
+        spacing: 5
+        #fans
+        Button:
+            id: fans
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.fan_button()
+            size: root.button_size
+            Image:
+                source: "Icons/Tuning/Fan speed.png"
+                center_x: fans.center_x
+                center_y: fans.center_y     
 
-        GridLayout:
-            cols:2
-            rows:2
-            spacing: 5,5
-            padding: 0,20,0,0
+        Label:
+            size_hint_x: 2.0
+            id: title_label
+            background_color: (0,0,0,0)
+            text: root.title_label_text + "\n\n" + "[size=50]" + root.tuning_number + "[/size]"
+            font_size: 30
+            markup: True
+            max_lines: 4
+            text_size: self.size
+            halign: 'center'
+            valign: 'center'
 
-            #fans
-            Button:
-                id: fans
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.fan_button()
-                size: root.button_size
-                Image:
-                    source: "Icons/Tuning/Fan speed.png"
-                    center_x: fans.center_x
-                    center_y: fans.center_y
-            #empty
+        Button:
+            id: up
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.add_button(root.change_amount_value[root.change_value])
+
+
+            size: root.button_size
+            Image:
+                id: up_image
+                source: "Icons/Tuning/Up +1.png"
+                center_x: up.center_x
+                center_y: up.center_y
+
+        #tuning up donw
+    BoxLayout:
+        orientation: 'horizontal'
+        spacing: 5
+
+        #Flow rate
+        Button:
+            id: flow
+            on_press: root.flow_button()
+            size: root.button_size
+            background_normal: 'Icons/button_pause_blank.png'
+            Image:
+                source: "Icons/Tuning/Flow rate.png"
+                center_x: flow.center_x
+                center_y: flow.center_y
+
+
+        #Number
+        #feed Rate
+        Button:
+            id: feed_rate
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.feed_button()
+
+            size: root.button_size
+            Image:
+                source: "Icons/Tuning/Print speed.png"
+                center_x: feed_rate.center_x
+                center_y: feed_rate.center_y
+
+        #change speed Button
+        Button:
+            id: change_increment
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.change_amount()
+
+            size: root.button_size
             Label:
-                background_color: (0,0,0,0)
+                id: change_text
+                markup: True
+                text : "[size=60]{}".format(root.change_amount_value[root.change_value])
 
-            #Flow rate
-            Button:
-                id: flow
-                on_press: root.flow_button()
-                size: root.button_size
-                background_normal: 'Icons/button_pause_blank.png'
-                Image:
-                    source: "Icons/Tuning/Flow rate.png"
-                    center_x: flow.center_x
-                    center_y: flow.center_y
+                center_x: change_increment.center_x
+                center_y: change_increment.center_y
 
+                
+        #down
 
-            #Number
-            #feed Rate
-            Button:
-                id: feed_rate
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.feed_button()
-
-                size: root.button_size
-                Image:
-                    source: "Icons/Tuning/Print speed.png"
-                    center_x: feed_rate.center_x
-                    center_y: feed_rate.center_y
-
-            #tuning up donw
-        GridLayout:
-            cols:2
-            rows:2
-            spacing: 5,5
-            padding: 0,20,0,0
-
-             #empty
-            Button:
-                background_color: (0,0,0,0)
-
-                size: root.button_size
-
-            Button:
-                id: up
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.add_button(root.change_amount_value[root.change_value])
+        Button:
+            id: down
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.add_button(-root.change_amount_value[root.change_value])
 
 
-                size: root.button_size
-                Image:
-                    id: up_image
-                    source: "Icons/Tuning/Up +1.png"
-                    center_x: up.center_x
-                    center_y: up.center_y
+            size: root.button_size
+            Image:
+                id: down_image
+                source: "Icons/Tuning/Down +1.png"
+                center_x: down.center_x
+                center_y: down.center_y
 
 
-
-
-            #change speed Button
-            Button:
-                id: change_increment
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.change_amount()
-
-                size: root.button_size
-                Label:
-                    id: change_text
-                    markup: True
-                    text : "[size=60]{}".format(root.change_amount_value[root.change_value])
-
-                    center_x: change_increment.center_x
-                    center_y: change_increment.center_y
-            #down
-
-            Button:
-                id: down
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.add_button(-root.change_amount_value[root.change_value])
-
-
-                size: root.button_size
-                Image:
-                    id: down_image
-                    source: "Icons/Tuning/Down +1.png"
-                    center_x: down.center_x
-                    center_y: down.center_y
-
-    Label:
-        id: title_label
-        background_color: (0,0,0,0)
-        text: root.title_label_text
-        font_size: 30
-        size_hint: None, None
-        size: 200, 50
-        markup: True
-        max_lines: 1
-        halign: 'center'
-        valign: 'center'
-        center_x: tuning_screen.center_x
-        center_y: tuning_screen.center_y + 150
-
-    Label:
-        id: tuning_number
-        background_color: (0,0,0,0)
-        text: root.tuning_number
-        size: 200, 50
-        font_size: 50
-        size_hint: None, None
-        markup: True
-        max_lines: 1
-        halign: 'center'
-        valign: 'center'
-        center_x: tuning_screen.center_x
-        center_y: tuning_screen.center_y + 50
 
 <Change_Value>:
     id: tuning_screen
     #background_color: (0,0,0,0)
     #tuning buttons
+    orientation: "horizontal"
+    
+    spacing: 5,5
+
     GridLayout:
-        cols: 2
-        rows: 1
+        size_hint_x: 0.5
+        cols:1
+        rows:2
         spacing: 5,5
+        padding: 0,0,0,0
 
-        GridLayout:
-            cols:2
-            rows:2
-            spacing: 5,5
-            padding: 0,0,0,0
+        #Apply
+        Button:
+            id: apply_change
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.go_back()
 
-            #Apply
-            Button:
-                id: apply_change
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.go_back()
-
-                size: root.button_size
-                Label:
-                    id: change_text
-                    markup: True
-                    text : "[size=40]Apply"
-
-                    center_x: apply_change.center_x
-                    center_y: apply_change.center_y
-            #empty
+            size: root.button_size
             Label:
-                background_color: (0,0,0,0)
+                id: change_text
+                markup: True
+                text : "[size=40]Apply"
 
-           #change speed Button
-            Button:
-                id: change_increment
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.change_amount()
+                center_x: apply_change.center_x
+                center_y: apply_change.center_y
+        #empty
+        # Label:
+        #     background_color: (0,0,0,0)
 
-                size: root.button_size
-                Label:
-                    id: change_text
-                    markup: True
-                    text : "[size=60]{}".format(root.change_amount_value[root.change_value])
+       #change speed Button
+        Button:
+            id: change_increment
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.change_amount()
 
-                    center_x: change_increment.center_x
-                    center_y: change_increment.center_y
-           #empty
+            size: root.button_size
             Label:
-                background_color: (0,0,0,0)
+                id: change_text
+                markup: True
+                text : "[size=60]{}".format(root.change_amount_value[root.change_value])
 
-            #tuning up donw
-        GridLayout:
-            cols:2
-            rows:2
-            spacing: 5,5
-            padding: 0,0,0,0
-
-             #empty
-            Button:
-                background_color: (0,0,0,0)
-
-                size: root.button_size
-
-            Button:
-                id: up
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.add_button(root.change_amount_value[root.change_value])
-
-                size: root.button_size
-                Image:
-                    source: "Icons/Tuning/Up.png"
-                    center_x: up.center_x
-                    center_y: up.center_y
-
-
-
-            #empty
-            Label:
-                background_color: (0,0,0,0)
-            #down
-
-            Button:
-                id: down
-                background_normal: 'Icons/button_pause_blank.png'
-                on_press: root.add_button(-root.change_amount_value[root.change_value])
-
-                size: root.button_size
-                Image:
-                    source: "Icons/Tuning/Down.png"
-                    center_x: down.center_x
-                    center_y: down.center_y
-
+                center_x: change_increment.center_x
+                center_y: change_increment.center_y
+       #empty
+        # Label:
+        #     background_color: (0,0,0,0)
     Label:
+        
         id: tuning_number
         background_color: (0,0,0,0)
         text: root.number
-        size: 200, 50
         font_size: 50
-        size_hint: None, None
         markup: True
         max_lines: 1
         halign: 'center'
         valign: 'center'
-        center_x: tuning_screen.center_x
-        center_y: tuning_screen.center_y
+        text_size: self.size
+
+        #tuning up donw
+    GridLayout:
+        size_hint_x: 0.5
+        cols:1
+        rows:2
+        spacing: 5,5
+        padding: 0,0,0,0
+
+         #empty
+        # Button:
+        #     background_color: (0,0,0,0)
+
+        #     size: root.button_size
+
+        Button:
+            id: up
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.add_button(root.change_amount_value[root.change_value])
+
+            size: root.button_size
+            Image:
+                source: "Icons/Tuning/Up.png"
+                center_x: up.center_x
+                center_y: up.center_y
+
+
+
+        #empty
+        # Label:
+        #     background_color: (0,0,0,0)
+        #down
+
+        Button:
+            id: down
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root.add_button(-root.change_amount_value[root.change_value])
+
+            size: root.button_size
+            Image:
+                source: "Icons/Tuning/Down.png"
+                center_x: down.center_x
+                center_y: down.center_y
+
+    
 
 
 

@@ -10,11 +10,12 @@ from kivy.logger import Logger
 from kivy.clock import Clock
 from kivy.uix.modalview import ModalView
 from .. import roboprinter
-from connection_popup import Zoffset_Warning_Popup, Error_Popup
+from connection_popup import Zoffset_Warning_Popup, Error_Popup, Update_Warning_Popup
 import math
 import subprocess
 from multiprocessing import Process
 from pconsole import pconsole
+from updater import UpdateScreen
 
 
 class PrinterStatusTab(TabbedPanelHeader):
@@ -46,7 +47,7 @@ class PrinterStatusContent(GridLayout):
         
         
         self.splash_event = Clock.schedule_interval(self.turn_off_splash, .1)
-        
+        self.update_lock = False
         Clock.schedule_interval(self.safety, 1)
 
 
@@ -178,11 +179,46 @@ class PrinterStatusContent(GridLayout):
         if self.extruder_one_temp != 0 and self.startup == False:
             #Logger.info("Turning Off the Splash Screen!")
             self.detirmine_layout()
+
+            #check for updates
+            self.check_updates()
+            #check for updates every hour
+            Clock.schedule_interval(self.update_clock, 3600)
             subprocess.call(['sudo pkill omxplayer'], shell=True)
             self.startup = True
              
             
             return False
+
+    def update_clock(self, dt):
+        current_data = roboprinter.printer_instance._printer.get_current_data()
+        is_printing = current_data['state']['flags']['printing']
+        is_paused = current_data['state']['flags']['paused']
+
+        if not is_printing and not is_paused:
+            self.check_updates()
+
+    def check_updates(self):
+        self.updates = UpdateScreen(populate=False)
+        self.updates.refresh_versions()
+        installed = self.updates.get_installed_version()
+        available = self.updates.get_avail_version()
+
+        Logger.info("Available: " + str(available) + " Installed: " + str(installed) )
+
+        if installed < available and available != "Connection Error!" and not self.update_lock:
+            self.update_lock = True
+            #updater popup
+            update = Update_Warning_Popup(self.run_update, self.unlock_updater)
+            update.open()
+
+    def run_update(self):
+        self.updates.run_updater()
+
+    def unlock_updater(self):
+        self.update_lock = False
+
+
 
     def safety(self,dt):
         self.safety_counter += 1
@@ -191,6 +227,11 @@ class PrinterStatusContent(GridLayout):
         if self.safety_counter == safety_time and self.startup == False:
             #Logger.info("Safety Counter went off!")
             self.detirmine_layout()
+            #check for updates
+            self.check_updates()
+            #check for updates every hour
+            Clock.schedule_interval(self.update_clock, 3600)
+
             subprocess.call(['sudo pkill omxplayer'], shell=True)
             Clock.unschedule(self.splash_event)
             return False
