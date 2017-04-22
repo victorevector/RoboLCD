@@ -207,9 +207,9 @@ class FilamentWizard(Widget):
 
 
         # back_button deletes Second Screen, as back destination is first screen
-        second_screen = self.sm.get_screen(self.name+'[1]')
-        delete_second = partial(self.sm.remove_widget, second_screen)
-        this_screen.ids.back_button.bind(on_press=delete_second)
+        # second_screen = self.sm.get_screen(self.name+'[1]')
+        # delete_second = partial(self.sm.remove_widget, second_screen)
+        # this_screen.ids.back_button.bind(on_press=delete_second)
 
     def fourth_screen(self, *args):
         """
