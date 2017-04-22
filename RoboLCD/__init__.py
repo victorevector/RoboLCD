@@ -6,6 +6,7 @@ import octoprint.plugin
 # import subprocess
 import thread
 import qrcode
+import serial
 from . import lcd
 from . import roboprinter
 from .lcd.pconsole import pconsole
@@ -159,6 +160,45 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
             )
         )
 
+    def serial_hook(self, comm_instance, port, baudrate, connection_timeout, *args, **kwargs):
+
+        if port is None or port == 'AUTO':
+            # no known port, try auto detection
+            comm_instance._changeState(comm_instance.STATE_DETECT_SERIAL)
+            serial_obj = comm_instance._detectPort(False)
+            if serial_obj is None:
+                comm_instance._log("Failed to autodetect serial port")
+                comm_instance._errorValue = 'Failed to autodetect serial port.'
+                comm_instance._changeState(comm_instance.STATE_ERROR)
+                eventManager().fire(Events.ERROR, {"error": comm_instance.getErrorString()})
+                return None
+    
+        else:
+            # connect to regular serial port
+            comm_instance._log("Connecting to: %s" % port)
+            if baudrate == 0:
+                serial_obj = serial.Serial(str(port), 115200, timeout=connection_timeout, writeTimeout=10000, parity=serial.PARITY_ODD)
+            else:
+                serial_obj = serial.Serial(str(port), baudrate, timeout=connection_timeout, writeTimeout=10000, parity=serial.PARITY_ODD)
+            serial_obj.close()
+            serial_obj.parity = serial.PARITY_NONE
+            serial_obj.open()
+            
+            self._logger.info("Flushing Input and Output!")
+            serial_obj.flushOutput()
+            serial_obj.flushInput()
+            self._logger.info("Finished Flushing")
+
+
+            self._logger.info("Writing M105")
+            first_write = "M105\n"
+            serial_obj.write(first_write)
+
+
+        
+
+        return serial_obj
+
 
 __plugin_name__ = "RoboLCD"
 
@@ -169,5 +209,6 @@ def __plugin_load__():
 
     global __plugin_hooks__
     __plugin_hooks__ = {
-        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+        "octoprint.comm.transport.serial.factory": __plugin_implementation__.serial_hook
     }

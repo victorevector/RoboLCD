@@ -192,7 +192,7 @@ class PrintFile(GridLayout):
         self.status = self.is_ready_to_print()
         Clock.schedule_interval(self.update, .1)
 
-        self.current_z_offset = str(pconsole.home_offset['Z'])
+        self.current_z_offset = str("{0:.1f}".format(float(pconsole.home_offset['Z'])))
 
         cura_meta = self.check_saved_data()
         self.print_layer_height = '--'

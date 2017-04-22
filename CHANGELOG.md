@@ -1,5 +1,22 @@
 # RoboLCD Changelog
 
+## 1.6.1 (2017-4-21)
+
+### Bug Fixes
+
+* Restarting octoprint no longer hangs when webcam is on.
+
+* Hotspot mode retry button does not freeze screen.
+
+* Removed connection delays between Octoprint and Mainboard.
+
+* Adjust Z offset decimal styling error in wizard.
+
+* Backing out of filament wizards does not freeze screen.
+
+* QR code is bounded within blue boxes.
+
+
 ## 1.6.0 (2017-4-13)
 
 ### Improvements

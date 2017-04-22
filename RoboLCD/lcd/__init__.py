@@ -684,7 +684,7 @@ def start():
                             'delay': 5
                             },
 
-                'octo_reboot': {'command': 'sudo service octoprint restart', 'popup': "WARNING",
+                'octo_reboot': {'command': '/home/pi/scripts/webcam stop & sudo service octoprint restart', 'popup': "WARNING",
                                 'error':"Restarting OctoPrint",
                                 'body_text':"Restarting OctoPrint\nPlease wait",
                                 'delay': 5
