@@ -74,6 +74,10 @@ class Scroll_Box_Even(BoxLayout):
     position = 0
     max_pos = 0
     buttons = []
+    up_icons = ["Icons/Up-arrow-grey.png", "Icons/Up-arrow-blue.png"]
+    down_icons = ["Icons/Down-arrow-grey.png", "Icons/Down-arrow-blue.png"]
+    up_icon = ObjectProperty("Icons/Up-arrow-grey.png")
+    down_icon = ObjectProperty("Icons/Down-arrow-grey.png")
     def __init__(self, button_array):
         super(Scroll_Box_Even, self).__init__()
         self.up_event = None
@@ -96,6 +100,10 @@ class Scroll_Box_Even(BoxLayout):
 
     #every 0.2 seconds scroll up until the user releases the button
     def on_up_press(self):
+
+        #change Color
+        self.up_icon = self.up_icons[1]
+
         if self.up_event != None:
             self.up_event.cancel()
         if self.down_event != None:
@@ -104,6 +112,8 @@ class Scroll_Box_Even(BoxLayout):
 
 
     def on_up_release(self):
+        #change Color
+        self.up_icon = self.up_icons[0]
         self.up_event.cancel()
         self.up_button()
 
@@ -112,6 +122,7 @@ class Scroll_Box_Even(BoxLayout):
         
 
     def down_button(self):
+        
         self.position += 1
         if self.position > self.max_pos:
             self.position = self.max_pos
@@ -120,6 +131,8 @@ class Scroll_Box_Even(BoxLayout):
 
     #every 0.2 seconds scroll down until the user releases the button
     def on_down_press(self):
+        #change Color
+        self.down_icon = self.down_icons[1]
         if self.up_event != None:
             self.up_event.cancel()
         if self.down_event != None:
@@ -127,6 +140,8 @@ class Scroll_Box_Even(BoxLayout):
         self.down_event = Clock.schedule_interval(self.on_down_clock, 0.2)
 
     def on_down_release(self):
+        #change Color
+        self.down_icon = self.down_icons[0]
         self.down_event.cancel()
         self.down_button()
 

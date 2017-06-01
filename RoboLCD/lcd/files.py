@@ -119,8 +119,9 @@ class FilesContent(BoxLayout):
         self.update_files()
 
 
-    #This seems like a roundabout way to call 'update_files' However if it is not called in this way Graphical issues become present.
-    #It is called in this way to make the request come from the thread kivy is on
+    # This seems like a roundabout way to call 'update_files' However if it is not called in this way 
+    # Graphical issues become present.It is called in this way to make the request come from the 
+    # thread kivy is on
     def call_to_update(self):
         Clock.schedule_once(self.call_to_update2, 0.01)
     def call_to_update2(self ,dt):

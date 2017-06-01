@@ -55,7 +55,7 @@ def start():
     from robo_sm import screen_manager
     from connection_popup import Connection_Popup, Updating_Popup, Error_Popup, Warning_Popup
     import subprocess
-    from Print_Tuning import Print_Tuning
+    from Print_Tuning import Tuning_Overseer
     from Versioning import Versioning
 
     from updater import UpdateScreen
@@ -66,10 +66,10 @@ def start():
     from slicer_wizard import Slicer_Wizard
     from session_saver import session_saver
     from file_explorer import FileOptions
+    from fine_tune_zoffset import Fine_Tune_ZOffset
 
-    #Clock needs more iterations...
-    Clock.max_iteration = 50
-
+    from bed_calibration_wizard import Bed_Calibration
+    from errors_and_warnings import Refresh_Screen
 
 
     Logger.info('Start')
@@ -85,8 +85,8 @@ def start():
 
         def __init__(self, **kwargs):
             super(RoboScreenManager, self).__init__(transition=NoTransition())
-            Clock.schedule_interval(self.check_connection_status, .5)
             pconsole.initialize_eeprom()
+            pconsole.query_eeprom()
             roboprinter.robo_screen = self.get_current_screen
 
             roboprinter.back_screen = self._generate_backbutton_screen
@@ -96,6 +96,7 @@ def start():
             self.acceptable_screens = {
                 #Utilities Screen
                 'PRINT_TUNING': {'name':'print_tuning','title':'Print Tuning','back_destination':'main', 'function': self.generate_tuning_screen },
+                'FAN_CONTROL': {'name':'print_tuning','title':'Fan Control','back_destination':'main', 'function': self.generate_tuning_screen },
                 'ROBO_CONTROLS': {'name':'robo_controls','title':'Robo Controls','back_destination':'main', 'function': self.generate_robo_controls },
                 'WIZARDS' : {'name':'wizards_screen', 'title':'Wizards', 'back_destination':'main', 'function': self.generate_wizards_screen},
                 'NETWORK' : {'name':'network_utilities_screen', 'title':'Network Utilities', 'back_destination':'main', 'function': self.generate_network_utilities_screen},
@@ -105,8 +106,8 @@ def start():
                 'OPTIONS': {'name':'options', 'title': 'Options', 'back_destination':'main', 'function': self.generate_options},
 
                 #Robo Controls sub screen
-                'EXTRUDER_CONTROLS': {'name':'extruder_control_screen', 'title':'Temperature Control', 'back_destination':'robo_controls', 'function':self.generate_toolhead_select_screen},
-                'MOTOR_CONTROLS':{'name':'motor_control_screen','title':'Motor Control','back_destination':'robo_controls', 'function': self.generate_motor_controls},
+                'EXTRUDER_CONTROLS': {'name':'extruder_control_screen', 'title':'Temperature Control', 'back_destination':'main', 'function':self.generate_toolhead_select_screen},
+                'MOTOR_CONTROLS':{'name':'motor_control_screen','title':'Motor Control','back_destination':'main', 'function': self.generate_motor_controls},
 
                 #Extruder controls sub screen
                 'TEMPERATURE_CONTROLS': {'name':'temperature_button','title':'Temperature Control','back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls},
@@ -117,8 +118,9 @@ def start():
                 'ZOFFSET': {'name':'zoffset', 'title':'Z Offset Wizard', 'back_destination':'wizards_screen', 'function': self.generate_zaxis_wizard},
                 'FIL_LOAD': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.generate_filament_wizard},
                 'FIL_CHANGE': {'name':'filamentwizard','title':"Filament",'back_destination':'wizards_screen', 'function': self.genetate_filament_change_wizard},
-                'FIRMWARE' : {'name': 'firmware_updater','title':'Firmware', 'back_destination': 'wizards_screen', 'function': self.update_firmware},
                 'SLICER' : {'name': 'slicing_wizard', 'title': 'Slicer', 'back_destination': 'wizards_screen', 'function': self.slicer_wizard},
+                'FINE_TUNE':{'name': 'fine_tune_wizard', 'title': 'Fine Tune Wizard', 'back_destination': 'wizards_screen', 'function': self.fine_tune_wizard},
+                'BED_CALIBRATION':{'name': 'bed_calibration', 'title': 'Bed Calibration', 'back_destination': 'wizards_screen', 'function': self.bed_calibration},
 
                 #Network sub screen
                 'CONFIGURE_WIFI': {'name':'', 'title':'', 'back_destination':'network_utilities_screen', 'function':self.generate_wificonfig},
@@ -128,14 +130,17 @@ def start():
 
                 #Options sub screen
                 'EEPROM': {'name': 'eeprom_viewer', 'title': 'EEPROM', 'back_destination': 'options', 'function': self.generate_eeprom},
-                'FACTORY_RESET': {'name': 'factory_reset', 'title':'Factory Reset', 'back_destination': 'main', 'function': self.coming_soon},
                 'UNMOUNT_USB': {'name': 'umount', 'title':'', 'back_destination': '', 'function':self.system_handler},
+                'FIRMWARE' : {'name': 'firmware_updater','title':'Firmware', 'back_destination': 'main', 'function': self.update_firmware},
+                'MOTORS_OFF':{'name': 'Motors_Off', 'title':'', 'back_destination':'options', 'function':self.motors_off},
+                'MAINBOARD': {'name': 'mainboard_status', 'title': 'Connection Status', 'back_destination': 'options', 'function': self.mainboard_status },
 
                 #System Sub Screen
                 'SHUTDOWN': {'name': 'Shutdown', 'title':'', 'back_destination': '', 'function':self.system_handler},
                 'REBOOT': {'name': 'Reboot', 'title':'', 'back_destination': '', 'function':self.system_handler},
-                'OCTO_REBOOT': {'name': 'octo_reboot', 'title':'', 'back_destination': '', 'function':self.system_handler},
-
+                
+                
+                
                 #extruder Control sub screens
 
                 'TOOL1' :{'name': 'TOOL1', 'title': 'Extruder 1', 'back_destination':'extruder_control_screen', 'function': self.generate_temperature_controls },
@@ -148,87 +153,7 @@ def start():
         def get_current_screen(self):
             return self.current
 
-        def check_connection_status(self, dt):
-            """Is aware of printer-sbc connection """
-            is_closed_or_error = roboprinter.printer_instance._printer.is_closed_or_error()
-
-            if roboprinter.printer_instance._printer.get_current_connection()[0] == 'Closed':
-                is_closed = True
-            else:
-                is_closed = False
-
-            is_error = roboprinter.printer_instance._printer.is_error()
-
-            if is_closed and self.connection_popup is None:
-                Logger.info('Popup: Init')
-                if 'bed' in pconsole.temperature:
-                    if float(pconsole.temperature['bed']) <= 0:
-                        self.connection_popup = self.generate_connection_popup(warning = 'bed')
-                    else:
-                        self.connection_popup = self.generate_connection_popup(warning = 'main')
-                else:
-                    self.connection_popup = self.generate_connection_popup(warning = 'main')
-
-            if is_error and self.connection_popup is None:
-                if 'bed' in pconsole.temperature:
-                    if float(pconsole.temperature['bed']) <= 0:
-                        self.connection_popup = self.generate_connection_popup(warning = 'bed')
-                    else:
-                        self.connection_popup = self.generate_connection_popup(warning = 'main')
-                else:
-                    self.connection_popup = self.generate_connection_popup(warning = 'main')
-
-            if not is_closed_or_error and self.connection_popup is not None:
-                Logger.info('Popup: Dismissed')
-                self.connection_popup.dismiss()
-                self.connection_popup = None
-
-                #Wait until temperature reappears if it is an R2
-                model = roboprinter.printer_instance._settings.get(['Model'])
-                if model == "Robo R2":
-                    self.wait_temp = Warning_Popup("Initializing Printer", 'Please Wait')
-                    self.wait_temp.show()
-                    Clock.schedule_interval(self.check_temp, 0.1)
-
-
-        def check_temp(self, dt):
-            if 'tool1' in pconsole.temperature and 'bed' in pconsole.temperature:
-                if float(pconsole.temperature['tool1']) > 0 and float(pconsole.temperature['bed']) > 0:
-                    self.wait_temp.dismiss()
-                    return False
-
-        def generate_connection_popup(self, warning='main', *args, **kwargs):
-            if roboprinter.printer_instance.firmware_updating() == False:
-                #set a default so it opens something
-                p = Connection_Popup('Main Board Not Detected','Try to Reconnect')
-                if warning == 'main':
-                    p = Connection_Popup('Main Board Not Detected','Try to Reconnect')
-                elif warning == 'bed':
-                    p = Connection_Popup('Bed Disconnected','Reconnect the bed')
-
-                #check to see if another popup is open
-                if self.wait_temp != None:
-                    self.wait_temp.dismiss()
-                    self.wait_temp = None
-
-                p.open()
-                self.go_back_to_main('printer_status_tab')
-                return p
-            elif roboprinter.printer_instance.firmware_updating() == True:
-                p = Updating_Popup()
-
-                p.open()
-
-                Clock.schedule_interval(self.check_flashing, 1)
-
-                return p
-        def check_flashing(self, dt):
-            if roboprinter.printer_instance.firmware_updating() == False:
-                #restart the server
-                subprocess.call("sudo service octoprint restart", shell=True)
-
-                return False
-
+        
         def generate_update_screen(self, **kwargs):
 
             Logger.info('starting update screen')
@@ -366,13 +291,22 @@ def start():
             title = kwargs['title']
             back_destination = kwargs['back_destination']
 
-            z = Robo_Icons('Icons/Icon_Buttons/Z Offset.png', 'Z Offset Wizard', 'ZOFFSET')
+            model = roboprinter.printer_instance._settings.get(['Model'])
+
+            z = Robo_Icons('Icons/Zoffset illustration/Z-offset.png', 'Z Offset Wizard', 'ZOFFSET')
             fl = Robo_Icons('Icons/Icon_Buttons/Load Filament.png', 'Filament Loading', 'FIL_LOAD')
             fc = Robo_Icons('Icons/Icon_Buttons/Change Filament.png', 'Filament Change', 'FIL_CHANGE')
-            firm = Robo_Icons('Icons/System_Icons/Firmware update wizard.png', 'Firmware Update', 'FIRMWARE')
-            slicer = Robo_Icons('Icons/Slicer wizard icons/Slicer wizard.png', 'Slicing Wizard', 'SLICER')
 
-            buttons = [fc, fl, z, firm, slicer]
+            slicer = Robo_Icons('Icons/Slicer wizard icons/slicer-wizard.png', 'Slicing Wizard', 'SLICER')
+            fine_tune = Robo_Icons('Icons/Zoffset illustration/Fine tune.png', 'Fine Tune Offset', 'FINE_TUNE')
+
+            #If it's not an R2 we dont need the bed calibration wizard
+            if model == "Robo R2":
+                bed_calib = Robo_Icons('Icons/Bed_Calibration/Bed placement.png', 'Bed Calibration', 'BED_CALIBRATION')
+                buttons = [fc, fl, z, slicer, bed_calib, fine_tune]
+            else:
+                buttons = [fc, fl, z, slicer, fine_tune]
+
 
             c = Scroll_Box_Icons(buttons)
 
@@ -411,19 +345,24 @@ def start():
         def go_back_to_screen(self, current, destination):
             # Goes back to destination and deletes current screen
             #ps = self.get_screen(current)
-            for s in self.screen_names:
-                if s is current:
-                    d= self.get_screen(s)
-                    self.remove_widget(d)
-            self.current = destination
-            #self.remove_widget(ps)
-            Logger.info('go_back_to_screen: current {}, dest {}'.format(current, destination))
-
-            if current == 'wifi_config[1]':
-                Window.release_all_keyboards()
-            #used to delete keyboards after user hits backbutton from Wifi Config Screen. This is a brute force implementation.... TODO figure out a more elegant and efficient way to perform this call.
-
-            return
+            try:
+                for s in self.screen_names:
+                    if s is current:
+                        d= self.get_screen(s)
+                        self.remove_widget(d)
+                self.current = destination
+                #self.remove_widget(ps)
+                Logger.info('go_back_to_screen: current {}, dest {}'.format(current, destination))
+    
+                if current == 'wifi_config[1]':
+                    Window.release_all_keyboards()
+                #used to delete keyboards after user hits backbutton from Wifi Config Screen. This is a brute force implementation.... TODO figure out a more elegant and efficient way to perform this call.
+                return
+            except Exception as e:
+                self.go_back_to_main()
+                return
+                
+            
 
         def generate_zaxis_wizard(self, **kwargs):
             """
@@ -471,8 +410,8 @@ def start():
             _name = kwargs['name']
 
             #new Icon Way
-            extruder = Robo_Icons('Icons/Icon_Buttons/Temperature.png', 'Temperature Controls', 'EXTRUDER_CONTROLS')
-            manual = Robo_Icons('Icons/Icon_Buttons/Motor_Controls.png', 'Motor Controls', 'MOTOR_CONTROLS')
+            extruder = Robo_Icons('Icons/Icon_Buttons/Temperature.png', 'Temperature\nControls', 'EXTRUDER_CONTROLS')
+            manual = Robo_Icons('Icons/Icon_Buttons/Motor_Controls.png', 'Motor\nControls', 'MOTOR_CONTROLS')
 
             buttons = [extruder, manual]
 
@@ -626,7 +565,7 @@ def start():
         def generate_tuning_screen(self, **kwargs):
             _name = kwargs['name']
 
-            layout = Print_Tuning()
+            layout = Tuning_Overseer().tuning_object()
 
             self._generate_backbutton_screen(name=_name, title=kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
 
@@ -646,10 +585,12 @@ def start():
             _name = kwargs['name']
 
             opt = Robo_Icons('Icons/System_Icons/EEPROM Reader.png', 'EEPROM', 'EEPROM')
-            fac = Robo_Icons('Icons/Icon_Buttons/Factory Reset.png', 'Factory Reset', 'FACTORY_RESET')
             usb = Robo_Icons('Icons/System_Icons/USB.png', 'Unmount USB', 'UNMOUNT_USB')
+            firm = Robo_Icons('Icons/System_Icons/Firmware update wizard.png', 'Firmware Update', 'FIRMWARE')
+            motors = Robo_Icons('Icons/Tuning/New Tuning/motors off.png', 'Motors Off', 'MOTORS_OFF')
+            main_status = Robo_Icons('Icons/Printer Status/Connection.png', 'Connection', 'MAINBOARD')
 
-            buttons = [opt, fac,usb]
+            buttons = [opt,usb, firm, motors, main_status]
             layout = Scroll_Box_Icons(buttons)
 
             self._generate_backbutton_screen(name = _name, title = kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
@@ -659,9 +600,10 @@ def start():
 
             power = Robo_Icons('Icons/System_Icons/Shutdown.png', 'Shutdown', 'SHUTDOWN')
             reboot = Robo_Icons('Icons/System_Icons/Reboot.png', 'Reboot', 'REBOOT')
-            octo_reboot = Robo_Icons('Icons/System_Icons/Reboot 2.png', 'Restart Octoprint', 'OCTO_REBOOT')
+            
+            
 
-            buttons = [power, reboot, octo_reboot]
+            buttons = [power, reboot]
 
             layout = Scroll_Box_Icons(buttons)
 
@@ -683,12 +625,6 @@ def start():
                             'body_text':"Currently Rebooting\nPlease wait",
                             'delay': 5
                             },
-
-                'octo_reboot': {'command': '/home/pi/scripts/webcam stop & sudo service octoprint restart', 'popup': "WARNING",
-                                'error':"Restarting OctoPrint",
-                                'body_text':"Restarting OctoPrint\nPlease wait",
-                                'delay': 5
-                                },
 
                 'umount': {'command':'sudo umount /dev/sda1' if not 'usb_location' in session_saver.saved else 'sudo umount ' + session_saver.saved['usb_location'] , 'popup': "ERROR",
                            'error': 'USB UnMounted',
@@ -724,12 +660,36 @@ def start():
             if 'file_callback' in session_saver.saved:
                 session_saver.saved['file_callback']()
 
+        def motors_off(self, **kwargs):
+            
+            roboprinter.printer_instance._printer.commands('M18')
+            ep = Error_Popup('Motors Disengaged', 'To re-engage motors, home the printer')
+            ep.show()
+
+        def mainboard_status(self, **kwargs):
+            title = 'Reset Connection'
+            body_text = 'Reset the connection to the printer controls'
+            button_text = 'Reset'
+            layout = Refresh_Screen(title, body_text, button_text)
+            self._generate_backbutton_screen(name = kwargs['name'], title = kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
+
+           
+
 
         def update_firmware(self, **kwargs):
             Firmware_Wizard(self, kwargs['back_destination'])
 
         def slicer_wizard(self, **kwargs):
             Slicer_Wizard(self, kwargs['back_destination'])
+
+        def fine_tune_wizard(self, **kwargs):
+            Fine_Tune_ZOffset()
+
+
+        def bed_calibration(self, **kwargs):
+            Bed_Calibration()
+
+
 
 
         def generate_screens(self, screen):
@@ -759,9 +719,19 @@ def start():
             if model == None:
                 #detirmine model
                 printer_type = roboprinter.printer_instance._settings.global_get(['printerProfiles', 'defaultProfile'])
-                model = printer_type['model']
+
+                if 'model' in printer_type:
+                    if printer_type['model'] != 'Robo C2' and printer_type['model'] != 'Robo R2':
+                        model = 'Robo C2'
+                    else:
+                        model = printer_type['model']
+                    
+                else:
+                    model = "Robo C2"
+
                 roboprinter.printer_instance._settings.set(['Model'], model)
                 roboprinter.printer_instance._settings.save()
+
 
                 if model == "Robo R2":
                     sm = self.load_R2()

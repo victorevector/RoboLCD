@@ -8,6 +8,7 @@ from .. import roboprinter
 from netconnectd import NetconnectdClient
 from kivy.logger import Logger
 from kivy.clock import Clock
+from session_saver import session_saver
 
 #Buttons
 
@@ -33,6 +34,18 @@ class UtilitiesContent(BoxLayout):
     def __init__(self, **kwargs):
         super(UtilitiesContent, self).__init__()
 
+        #add Icons
+        self.wiz = Robo_Icons('Icons/White_Utilities/Wizards.png', 'Wizards', 'WIZARDS')
+        self.rc = Robo_Icons('Icons/White_Utilities/Print tuning_White.png', 'Print Tuning', 'PRINT_TUNING')
+        self.net = Robo_Icons('Icons/White_Utilities/Networking.png', 'Network', 'NETWORK')
+        self.upd = Robo_Icons('Icons/White_Utilities/Updates.png', 'Update', 'UPDATES')
+        self.sys = Robo_Icons('Icons/System_Icons/Shutdown 2.png', 'System', 'SYSTEM')
+        self.opt = Robo_Icons('Icons/White_Utilities/Options.png', 'Options', 'OPTIONS')
+        icons = [self.rc, self.wiz, self.net, self.upd, self.opt, self.sys]
+        layout = Scroll_Box_Icons(icons)
+        self.clear_widgets()
+        self.add_widget(layout)
+
         self.state = 'NOT_PRINTING'
         self.last_state = None
         Clock.schedule_interval(self.monitor_layout, 1)
@@ -40,32 +53,41 @@ class UtilitiesContent(BoxLayout):
     def monitor_layout(self, dt):
         if roboprinter.printer_instance._printer.is_printing() != True:
             self.state = 'NOT_PRINTING'
-        elif roboprinter.printer_instance._printer.is_printing() == True:
+            self.rc.icon_name = 'Fan Control'
+            self.rc.img_source = 'Icons/White_Utilities/Fans.png'
+            self.rc.generator = "FAN_CONTROL"
+        elif roboprinter.printer_instance._printer.is_printing():
             self.state = 'PRINTING'
+            self.rc.icon_name = 'Print Tuning'
+            self.rc.img_source = 'Icons/White_Utilities/Print tuning_White.png'
+            self.rc.generator = 'PRINT_TUNING'
 
-        if self.last_state != self.state:
-            self.last_state = self.state
-            self.clear_widgets()
 
-            wiz = Robo_Icons('Icons/White_Utilities/Wizards.png', 'Wizards', 'WIZARDS')
+        #monitor for errors
+        if 'current_error' in session_saver.saved:
+            error = session_saver.saved['current_error']
 
-            if self.state == 'NOT_PRINTING':
-                rc = Robo_Icons('Icons/White_Utilities/Controls.png', 'Robo Controls', 'ROBO_CONTROLS')
-                wiz.button_state = False
-            elif self.state == 'PRINTING' :
-                rc = Robo_Icons('Icons/White_Utilities/Print tuning_White.png', 'Print Tuning', 'PRINT_TUNING')
-                wiz.button_state = True
-            
-            net = Robo_Icons('Icons/White_Utilities/Networking.png', 'Network', 'NETWORK')
-            upd = Robo_Icons('Icons/White_Utilities/Updates.png', 'Update', 'UPDATES')
-            sys = Robo_Icons('Icons/System_Icons/Shutdown 2.png', 'System', 'SYSTEM')
-            opt = Robo_Icons('Icons/White_Utilities/Options.png', 'Options', 'OPTIONS')
+            if error == 'MAINBOARD' or error == 'BED_DISCONNECT':
+                self.wiz.button_state = True
+                self.rc.button_state = True
+                self.opt.button_state = True
+            #if the firmware is being updated dont allow the user to update the printer, since it also includes a firmware update(Sometimes)
+            elif error == 'FIRMWARE':
+                self.wiz.button_state = True
+                self.rc.button_state = True
+                self.upd.button_state = True
+                self.opt.button_state = True
+                self.sys.button_state = True
+            elif self.state == 'NOT_PRINTING':
+                self.wiz.button_state = False
+                self.rc.button_state = False
+                self.upd.button_state = False
+                self.opt.button_state = False
+                self.sys.button_state = False
+            else:
+                self.wiz.button_state = True
 
-            icons = [rc, wiz, net, upd, opt, sys]
 
-            layout = Scroll_Box_Icons(icons)
-
-            self.add_widget(layout)
 
 
 

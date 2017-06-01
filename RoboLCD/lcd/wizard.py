@@ -23,18 +23,29 @@ class PreheatWizard(BoxLayout):
     """
      #WARNING: ONLY HANDLES SINGLE EXTRUDER
 
-    PreheatWizard orchestrates all that is necessary to guide the user to preheat the extruder for his or her filament type, PLA or ABS.
+    PreheatWizard orchestrates all that is necessary to guide the user to preheat the extruder for his or her 
+    filament type, PLA or ABS.
 
-    Trying a new implementation 9/20/16. This Wizard is implemented differently than the ZOffset Wizard. This object will have access to the screen manager object.
+    Trying a new implementation 9/20/16. This Wizard is implemented differently than the ZOffset Wizard. 
+    This object will have access to the screen manager object.
 
-    Why: Testing whether this implementation is easier to understand and more maintainable than Zoffset Wizard implementation.
+    Why: Testing whether this implementation is easier to understand and more maintainable than Zoffset 
+    Wizard implementation.
 
     What:
-        The root object, RoboScreenManager, manages the ZOffset Wizard. This has led to a method, .generate_zaxis_wizard(), that encapsulates all functionality necessary to render the wizard. I find it hard to read and edit because it's a clump of functions defined within functions. It is written in this way to accomodate the mult-screen nature of the wizard.
+        The root object, RoboScreenManager, manages the ZOffset Wizard. This has led to a method, 
+        .generate_zaxis_wizard(), that encapsulates all functionality necessary to render the wizard. 
+        I find it hard to read and edit because it's a clump of functions defined within functions. 
+        It is written in this way to accomodate the mult-screen nature of the wizard.
 
-        I decided to implement it in this manner to keep in line with the idea that RoboScreenManager is the screen manager. This means that RoboScreenManager holds all functionality as it pertains to rendering new screens. The wizards need to access this functionality to render screens for each step. I thought it might be more maintainable to keep that functionality defined within RoboScreenManager.
+        I decided to implement it in this manner to keep in line with the idea that RoboScreenManager is 
+        the screen manager. This means that RoboScreenManager holds all functionality as it pertains to 
+        rendering new screens. The wizards need to access this functionality to render screens for each 
+        step. I thought it might be more maintainable to keep that functionality defined within 
+        RoboScreenManager.
 
-        This is an experiment to see what happens when we pass RoboScreenManager into other objects. As opposed to passing other objects into RoboScreenManager
+        This is an experiment to see what happens when we pass RoboScreenManager into other objects. 
+        As opposed to passing other objects into RoboScreenManager
 
     RoboScreenManager instantiates preheatwizard and then passes control over to it.
     """
@@ -115,6 +126,22 @@ class FilamentWizard(Widget):
         self.first_screen(**kwargs)
         self.poll_temp() #populates self.temp
         self.load_or_change = loader_changer
+        #check if the printer is printing
+        current_data = roboprinter.printer_instance._printer.get_current_data()
+        self.is_printing = current_data['state']['flags']['printing']
+        self.is_paused = current_data['state']['flags']['paused']
+        self.tmp_event = None
+        self.s_event = None
+        self.E_Position = None
+
+        if self.is_printing or self.is_paused:
+
+            #get the E Position
+            pos = pconsole.get_position()
+            while not pos:
+                pos = pconsole.get_position()
+
+            self.E_Position = pos[3]
 
     def first_screen(self, **kwargs):
         """
@@ -153,16 +180,23 @@ class FilamentWizard(Widget):
         this_screen.ids.back_button.bind(on_press=self.cancel_second_screen_events)
 
         # Heat up extruder
-        roboprinter.printer_instance._printer.set_temperature('tool0', 230.0)
-        self.tmp_event = Clock.schedule_interval(self.poll_temp, .5) #stored so we can stop them later
-        self.s_event = Clock.schedule_interval(self.switch_to_third_screen, .75) #stored so we can stop them later
+        if not self.is_printing and not self.is_paused:
 
-
-
+            roboprinter.printer_instance._printer.set_temperature('tool0', 230.0)
+            self.tmp_event = Clock.schedule_interval(self.poll_temp, .5) #stored so we can stop them later
+            self.s_event = Clock.schedule_interval(self.switch_to_third_screen, .75) #stored so we can stop them later
+        else:
+            if self.load_or_change == 'CHANGE':
+                self.third_screen()
+            
+            elif self.load_or_change == 'LOAD':
+                self.fourth_screen()
+                
     ###Second screen helper functions ###
     def cancel_second_screen_events(self, *args):
-        self.tmp_event.cancel()
-        self.s_event.cancel()
+        if self.tmp_event != None and self.s_event != None:
+            self.tmp_event.cancel()
+            self.s_event.cancel()
 
     def update_temp_label(self, obj, *args):
         # updates the temperature for the user's view
@@ -277,7 +311,10 @@ class FilamentWizard(Widget):
         self.extrude_event.cancel()
 
     def end_wizard(self, *args):
-        self.retract_after_session()
+
+        
+
+        
         self.extrude_event.cancel()
         c = Filament_Wizard_Finish()
 
@@ -286,9 +323,19 @@ class FilamentWizard(Widget):
 
         else:
             _title = 'Filament Wizard 4/4'
-        #cooldown
-        roboprinter.printer_instance._printer.commands('M104 S0')
-        roboprinter.printer_instance._printer.commands('M140 S0')
+
+        #set the E position back to it's original position
+        if self.E_Position != None:
+            roboprinter.printer_instance._printer.commands("G92 E" + str(self.E_Position))        
+
+        #if it is printing or paused don't cool down
+        if not self.is_printing and not self.is_paused:
+            #retract 10mm
+            self.retract_after_session()
+
+            #cooldown
+            roboprinter.printer_instance._printer.commands('M104 S0')
+            roboprinter.printer_instance._printer.commands('M140 S0')
 
         back_destination = roboprinter.robo_screen()
         self.sm._generate_backbutton_screen(name=self.name+'[5]', title=_title, back_destination=back_destination, content=c)
@@ -322,6 +369,7 @@ class ZoffsetWizard(Widget):
         self.old_xpos = 0
         self.old_ypos = 0
         self.old_zpos = 0
+        
 
     def first_screen(self, **kwargs):
 
@@ -415,6 +463,9 @@ class ZoffsetWizard(Widget):
         Logger.info("ZCapture: z_pos_end {}".format(self.z_pos_end))
         self.fifth_screen()
 
+
+    #This is where the ZOffset Wizard finishes
+    #this is also where we should make the mod for testing the new Zoffset
     def fifth_screen(self, *args):
         title = "Z Offset 4/4"
         name = self.name + "[4]"
@@ -433,6 +484,13 @@ class ZoffsetWizard(Widget):
             content=layout
         )
 
+    
+    def wait_for_update(self, dt):
+        pconsole.query_eeprom()
+        if pconsole.home_offset['Z'] != 0:
+            roboprinter.printer_instance._printer.commands('G28')
+            self.sm.go_back_to_main()
+            return False
 
     #####Helper Functions#######
     def _prepare_printer(self):
@@ -462,60 +520,64 @@ class ZoffsetWizard(Widget):
     def position_callback(self, dt):
         temps = roboprinter.printer_instance._printer.get_current_temperatures()
         pos = pconsole.get_position()
-        xpos = int(float(pos[0]))
-        ypos = int(float(pos[1]))
-        zpos = int(float(pos[2]))
-
-        extruder_one_temp = 105
-
-        #find the temperature
-        if 'tool0' in temps.keys():
-            extruder_one_temp = temps['tool0']['actual']
-
-        Logger.info("Counter is at: " + str(self.counter))
-        #check the extruder physical position
-        if self.counter > 25 and  xpos == self.old_xpos and ypos == self.old_ypos and zpos == self.old_zpos:
-            if self.sm.current == 'zoffset[1]':
-                if extruder_one_temp < 100:
-                    Logger.info('Succesfully found position')
-                    self.third_screen()
-                    return False
+        if pos != False:
+            xpos = int(float(pos[0]))
+            ypos = int(float(pos[1]))
+            zpos = int(float(pos[2]))
+    
+            extruder_one_temp = 105
+    
+            #find the temperature
+            if 'tool0' in temps.keys():
+                extruder_one_temp = temps['tool0']['actual']
+    
+            Logger.info("Counter is at: " + str(self.counter))
+            #check the extruder physical position
+            if self.counter > 25 and  xpos == self.old_xpos and ypos == self.old_ypos and zpos == self.old_zpos:
+                if self.sm.current == 'zoffset[1]':
+                    if extruder_one_temp < 100:
+                        Logger.info('Succesfully found position')
+                        self.third_screen()
+                        return False
+                    else:
+                        self.temperature_wait_screen()
+                        return False
                 else:
-                    self.temperature_wait_screen()
+                    Logger.info('User went to a different screen Unscheduling self.')
+                    #turn off fan
+                    roboprinter.printer_instance._printer.commands('M106 S0')
                     return False
-            else:
-                Logger.info('User went to a different screen Unscheduling self.')
-                #turn off fan
-                roboprinter.printer_instance._printer.commands('M106 S0')
-                return False
-
-        #if finding the position fails it will wait 30 seconds and continue
-        self.counter += 1
-        if self.counter > 60:
-            if self.sm.current == 'zoffset[1]':
-                Logger.info('could not find position, but continuing anyway')
-                if extruder_one_temp < 100:
-                    self.third_screen()
-                    return False
+    
+            #if finding the position fails it will wait 30 seconds and continue
+            self.counter += 1
+            if self.counter > 60:
+                if self.sm.current == 'zoffset[1]':
+                    Logger.info('could not find position, but continuing anyway')
+                    if extruder_one_temp < 100:
+                        self.third_screen()
+                        return False
+                    else:
+                        self.temperature_wait_screen()
+                        return False
                 else:
-                    self.temperature_wait_screen()
+                    Logger.info('User went to a different screen Unscheduling self.')
+                    #turn off fan
+                    roboprinter.printer_instance._printer.commands('M106 S0')
                     return False
-            else:
-                Logger.info('User went to a different screen Unscheduling self.')
-                #turn off fan
-                roboprinter.printer_instance._printer.commands('M106 S0')
-                return False
-
-        #position tracking
-        self.old_xpos = xpos
-        self.old_ypos = ypos
-        self.old_zpos = zpos
+    
+            #position tracking
+            self.old_xpos = xpos
+            self.old_ypos = ypos
+            self.old_zpos = zpos
 
 
     def _capture_zpos(self):
         """gets position from pconsole. :returns: integer"""
         Logger.info("ZCapture: Init")
         p = pconsole.get_position()
+        while p == False:
+            p = pconsole.get_position()
+        
         Logger.info("ZCapture: {}".format(p))
         return p[2]
 
@@ -535,14 +597,15 @@ class ZoffsetWizard(Widget):
         write_zoffset = 'M206 Z' + str(self.zoffset)
         save_to_eeprom = 'M500'
         roboprinter.printer_instance._printer.commands([write_zoffset, save_to_eeprom])
-        pconsole.home_offset['Z'] = self.zoffset
+        #pconsole.home_offset['Z'] = self.zoffset
 
 
     def _end_wizard(self, *args):
         #turn off fan
         roboprinter.printer_instance._printer.commands('M106 S0')
-        roboprinter.printer_instance._printer.commands('G28')
-        self.sm.go_back_to_main()
+        
+        Clock.schedule_interval(self.wait_for_update, 0.5)
+
 
 
 

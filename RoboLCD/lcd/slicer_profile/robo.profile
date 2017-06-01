@@ -120,12 +120,10 @@ print_temperature:
 - false
 - false
 - false
-raft_airgap: false
-raft_airgap_all: 0.175
-raft_base_linewidth: 1.0
-raft_base_thickness: 0.3
-raft_interface_linewidth: 0.6
-raft_interface_thickness: 0.2
+raft_airgap: 0.25
+raft_airgap_all: 0.0
+raft_interface_thickness: 0.27
+raft_interface_linewidth: 0.4
 raft_line_spacing: 3.0
 raft_margin: 5.0
 raft_surface_layers: 2

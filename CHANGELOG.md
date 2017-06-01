@@ -1,5 +1,39 @@
 # RoboLCD Changelog
 
+## 1.7.0 (2017-6-1)
+
+### Improvements
+
+* Print Tuning responsive redesign.
+
+* Motors can be disengaged under Utilities>>Options>>Motors Offset.
+
+* Reset connection to printer controls at any time through Utilities>>Options>>Connection.
+
+* Firmware Update has been moved to Utilities>>Options.
+
+* Printer Status screen responsive redesign.
+
+* Support for Error Messages .
+
+* Quick access to temperature controls and motor controls through printer status screen .
+
+* Printing progress bar with elapsed time and remaining added to printer status screen.
+
+* New Fine Tune Z offset wizard: calibrate your z offset to the hundredth of a mm. Can also be used to level your bed.
+
+* New Bed Level Calibration wizard: guides you on how to level your R2's bed.(R2 only)
+
+### Bug Fixes
+
+* Various language edits.
+
+* Filament Load/Change will not mess with temperature while printing, and will set the E-Steps back to normal.
+
+* Onboard sliced files do not have missing meta data.
+
+
+
 ## 1.6.1 (2017-4-21)
 
 ### Bug Fixes

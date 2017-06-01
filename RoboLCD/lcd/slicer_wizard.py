@@ -111,6 +111,7 @@ class Slicer_Wizard(FloatLayout):
             #start slice
             self.temp_path = TEMP_DIR + "/" + self.stl_name
             Logger.info("Starting Slice")
+            Logger.info(self.overrides)
             roboprinter.printer_instance._slicing_manager.slice('cura', 
                                                                 self.stl_path, 
                                                                 self.temp_path, 
@@ -152,22 +153,15 @@ class Slicer_Wizard(FloatLayout):
         elif '_analysis' in kwargs:
             #initialize meta data
             ept = 0
-            hms_ept = {'hours': str(0), 
-                      'minutes': str(0),
-                      'seconds': str(0)
-                      }
             lh = str(self.overrides['layer_height'])
             infill = str(self.overrides['fill_density'])
-            layers = '--' #The slicer has access to the layer amount, but doesn't share it
             if 'estimatedPrintTime' in kwargs['_analysis']:
                 ept = kwargs['_analysis']['estimatedPrintTime']
-                hms_ept = self.parse_time(int(ept))
             #save meta data
             self.meta = {
                 'layer height' : lh,
-                'layers' : layers,
                 'infill' : infill,
-                'time' : hms_ept
+                'time' : ept
             }
 
             Logger.info("finished Slice")
@@ -240,6 +234,7 @@ class Override_Page(object):
         self._material = 'PLA'
         self._layer_height = 0.15
         self._infill = 20
+        self._fans = True
 
         #variable for calling once the user is done setting overrides
         self.slice_callback = slice_callback
@@ -287,6 +282,10 @@ class Override_Page(object):
         acceptable_material = {'ABS':'ABS', 'PLA': 'PLA'}
         if value in acceptable_material:
             self._material = value
+            if self._material == 'ABS':
+                self._fans = False
+            else:
+                self._fans = True
         Logger.info("setting material to: " + str(self._material))
     @property
     def layer_height(self):
@@ -436,15 +435,15 @@ class Override_Page(object):
 
     def continue_slicing(self):
         acceptable_material = {
-                                'ABS': [225,0,0,0],
+                                'ABS': [230,0,0,0],
                                 'PLA': [190,0,0,0]
         }
         model = roboprinter.printer_instance._settings.get(['Model'])
 
         if model == "Robo R2":
             bed = {
-                    'ABS': 100,
-                    'PLA': 70
+                    'ABS': 80,
+                    'PLA': 60
             }
         elif model == "Robo C2":
             bed = {
@@ -483,7 +482,13 @@ class Override_Page(object):
                     'fill_density': self.infill,
                     'support': self.support,
                     'platform_adhesion': self.platform_adhesion,
-                    'first_layer_width_factor': self._first_layer_width}
+                    'first_layer_width_factor': self._first_layer_width,
+                    'fan_enabled': self._fans,
+                    'fan_speed': 100 if self._fans else 0,
+                    'fan_speed_max': 100 if self._fans else 0,
+                    'fan_full_height': 0.1 if self._fans else -1
+                    
+                    }
 
         Logger.info(str(overrides))
 
@@ -514,6 +519,10 @@ class Override_Layout(BoxLayout):
             #make a 4 grid
             for button in self.button_list:
                 grid.add_widget(button)
+        elif button_count == 3:
+            #make a 3 grid
+            for button in self.button_list:
+                grid.add_widget(button)
         else:
             #Throw an error because there's only supposed to be 2 and 4
             pass
@@ -532,15 +541,17 @@ class OL_Button(Button):
         self.pic_source = image_source
         self.button_function = button_function
 
-        #show blue or grey for enabled or disables
-        self.change_state(enabled)
-
         #add self to observer group
         self.observer_group = observer_group
         if self.observer_group != None:
             self.observer_group.register_callback(self.button_text, self.toggle_bg)
             if enabled:
                 self.observer_group.change_button(self.button_text)
+        else:
+            if enabled:
+                #show blue or grey for enabled or disables
+                self.change_state(enabled)
+                
 
     def change_bg(self):
         if self.observer_group != None:
@@ -553,7 +564,7 @@ class OL_Button(Button):
                 if self.bg_count == 1:
                     self.observer_group.change_button(self.button_text)
 
-                self.change_state(self.bg_count)
+                #self.change_state(self.bg_count)
         else:
             if self.bg_count == 1:
                 self.bg_count = 0

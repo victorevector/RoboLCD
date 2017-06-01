@@ -9,6 +9,7 @@ from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, Num
 from .. import roboprinter
 from printer_jog import printer_jog
 from kivy.clock import Clock
+from pconsole import pconsole
 
 
 class Z_Offset_Wizard_1_4(FloatLayout):
@@ -102,9 +103,4 @@ class Z_Offset_Temperature_Wait_Screen(FloatLayout):
                 #go to the next screen
                 self.callback()
                 return False
-
-        
-
-
-
 

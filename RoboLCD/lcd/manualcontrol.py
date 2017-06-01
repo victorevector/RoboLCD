@@ -68,9 +68,12 @@ class MotorControl(GridLayout):
         roboprinter.printer_instance._printer.commands('G90')
         roboprinter.printer_instance._printer.commands('G1 Z20')
 
-class TemperatureControl(GridLayout):
+class TemperatureControl(BoxLayout):
     current_temp = StringProperty('--')
+    target_temp = StringProperty('--')
     input_temp = StringProperty('')
+
+    desired_temp = 0
 
     def __init__(self, selected_tool= "TOOL1" ,**kwargs):
         super(TemperatureControl, self).__init__(**kwargs)
@@ -91,30 +94,36 @@ class TemperatureControl(GridLayout):
 
 
     def update(self, dt):
-        if self.input_temp == '':
+        if self.desired_temp == 0:
             self.ids.set_cool.text = 'Cooldown'
             self.ids.set_cool.background_normal = 'Icons/blue_button_style.png'
         else:
             self.ids.set_cool.text = 'Set'
             self.ids.set_cool.background_normal = 'Icons/green_button_style.png'
-        if len(self.input_temp) > 3:
-            self.input_temp = self.input_temp[:3]
-        self.current_temp = self.temperature()
-        if self.current_temp == self.input_temp:
+        if self.current_temp == self.target_temp and self.current_temp != '--':
             self.ids.c_temp.color = 0,1,0,1
+            self.ids.c_temp2.color = 0,1,0,1
+
+        self.temperature()
+
+
+        
 
     def temperature(self):
         temps  = roboprinter.printer_instance._printer.get_current_temperatures()
         current_temperature = ''
         
         try:
-            current_temperature = str(int(temps[self.selected_tool]['actual']))
+            current_temperature = [str(int(temps[self.selected_tool]['actual'])), str(int(temps[self.selected_tool]['target']))]
         except Exception as e:
-            current_temperature = '--'
-        return current_temperature
+            current_temperature = ['--','--']
+
+        self.current_temp = current_temperature[0]
+        self.target_temp = current_temperature[1]
 
     def set_temperature(self, ext):
         self.ids.c_temp.color = 1,0,0,0.8
+        self.ids.c_temp2.color = 1,0,0,0.8
         if self.input_temp == '':
             temp = 0
             self.input_temp = "0"
@@ -123,14 +132,30 @@ class TemperatureControl(GridLayout):
             if temp > 290 and (self.selected_tool == 'tool0' or self.selected_tool == 'tool1'):
                 temp = 290
                 self.input_temp = "290"
+                self.desired_temp = 290
 
-            elif temp > 165 and self.selected_tool == 'bed' and float(pconsole.temperature['bed']) > 0:
-                temp = 165
-                self.input_temp = "165"
+            elif temp > 110 and self.selected_tool == 'bed' and float(pconsole.temperature['bed']) > 0:
+                temp = 110
+                self.input_temp = "110"
+                self.desired_temp = 110
 
         
         Logger.info("Setting " + str(ext) + " to " + str(temp))
         roboprinter.printer_instance._printer.set_temperature(ext, temp )
+
+    def add_number(self, number):
+
+        text = str(self.desired_temp)
+
+        if len(text) < 3:
+        
+            self.desired_temp = self.desired_temp * 10 + number
+            self.input_temp = str(self.desired_temp)
+
+    def delete_number(self):
+        self.desired_temp = self.desired_temp / 10
+        self.input_temp = str(self.desired_temp)
+        
 
 class Motor_Control(Button):
     pass

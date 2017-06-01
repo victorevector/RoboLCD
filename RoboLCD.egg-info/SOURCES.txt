@@ -20,12 +20,13 @@ RoboLCD/lcd/RoboPrinter.py
 RoboLCD/lcd/Versioning.py
 RoboLCD/lcd/__init__.py
 RoboLCD/lcd/backbuttonscreen.py
+RoboLCD/lcd/bed_calibration_wizard.py
 RoboLCD/lcd/connection_popup.py
+RoboLCD/lcd/errors_and_warnings.py
 RoboLCD/lcd/factory_reset.py
 RoboLCD/lcd/file_explorer.py
 RoboLCD/lcd/files.py
-RoboLCD/lcd/kaa_command.py
-RoboLCD/lcd/kaapopup.py
+RoboLCD/lcd/fine_tune_zoffset.py
 RoboLCD/lcd/mainscreen.py
 RoboLCD/lcd/manualcontrol.py
 RoboLCD/lcd/netconnectd.py
@@ -34,7 +35,6 @@ RoboLCD/lcd/pconsole.py
 RoboLCD/lcd/printer_jog.py
 RoboLCD/lcd/printerstatus.py
 RoboLCD/lcd/robo_controls.py
-RoboLCD/lcd/robo_screen_manager.py
 RoboLCD/lcd/robo_sm.py
 RoboLCD/lcd/scrollbox.py
 RoboLCD/lcd/session_saver.py

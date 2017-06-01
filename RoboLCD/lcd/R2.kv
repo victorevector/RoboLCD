@@ -1,91 +1,279 @@
 
 <PrinterStatusContent>:
-    rows: 2
-
-    #background_color: (0,0,0,1)
+    canvas.before:
+        Color:
+            rgba: 0,0,0,1
+        Rectangle:
+            pos:self.pos
+            size: self.size
+        
+    background_color: (0,0,0,1)
+    orientation: 'vertical'
+    spacing: 5
     BoxLayout:
-        orientation: 'vertical'
-        background_color: (1,0,0,1)
-        Label:
-            text: root.filename
-            font_size: 45
-            markup: True
-            text_size: 600, None
-            shorten: True
-            halign: 'center'
-            valign: 'middle'
-            color: 0.4,0.7,0.91,1
-        BoxLayout:
-            id: print_status
-            orientation: 'horizontal'
+        id: printer_content
+        padding: 30, 0, 30, 0
+        size_hint_y:1.0
 
-            FloatLayout:
-                id: left_of_progress
-            Label:
-                text: root.progress
-                markup: True
-            FloatLayout:
-                id: right_of_progress
     BoxLayout:
-        id: tool_bar
-        background_color: (0,1,0,1)
+        id: temp_and_errors
+        size_hint_y: 0.6
         orientation: 'horizontal'
-        size_hint_y: .5
-        spacing: 1
-        padding: 0,0,0,7
+        spacing: 35
+        padding: 35, 0, 0, 0
+        canvas.after:
+            Color:
+                # hex #817f7f
+                rgba: root.grey_color
+            Line:
+                cap: 'round'
+                joint: 'round'
+                close: False
+                width: 2
+                points: temp_and_errors.x, temp_and_errors.y - 5, temp_and_errors.x + temp_and_errors.width, temp_and_errors.y - 5
 
-        FloatLayout:
-            size_hint: .5,None
-            id: left_of_extruder_status
+        Button:
+            id: temp
+            size_hint_y: .7
+            size_hint_x: 0.15
+            pos_hint: {'y': 0.1}
+            on_press: root.move_tools_to("TEMP")
+            background_normal: "Icons/white_outline.png"
+            background_down: "Icons/white_outline.png"
+            canvas.after:
+                Color:
+                    # hex #817f7f
+                    rgba: root.temp_color
+                Triangle:
+                    points: temp.center_x , temp.y - 5,      temp.center_x - 15, temp_and_errors.y -5,     temp.center_x + 15, temp_and_errors.y -5
+
+            Image:
+                size: 50, 50
+                center_x: temp.center_x
+                center_y: temp.center_y
+                source: root.temp_icon
+
+        Button:
+            id: error
+            size_hint_y: .7
+            size_hint_x: 0.15
+            pos_hint: {'y': 0.1}
+            background_normal: "Icons/white_outline.png"
+            background_down: "Icons/white_outline.png"
+            on_press: root.move_tools_to("ERROR")
+
+            canvas.after:
+                Color:
+                    # hex #817f7f
+                    rgba: root.error_color
+                Triangle:
+                    points: error.center_x, error.y -5,      error.center_x - 15, temp_and_errors.y -5,     error.center_x + 15, temp_and_errors.y -5
+            Image:
+                size: 50,50
+                center_x: error.center_x
+                center_y: error.center_y
+                source: root.error_icon
+
         BoxLayout:
-            id: tools
-            background_color: (0,1,0,1)
             orientation: 'horizontal'
-            spacing: 5
+            spacing: 35
+            padding: 0, 0, 35, 0
+            id: status_buttons
+    
+    FloatLayout:
+        id: tools_and_Errors
+        pos: root.tae_x, root.tae_y
+        size_hint_y: 0.5
+        size_hint_x: 1
+        canvas.before:
+            Color:
+                #grey 202021
+                rgba: 0.125,0.125,0.12890625,1
+            Rectangle:
+                pos: tools_and_Errors.pos
+                size: 1600, tools_and_Errors.height
+        BoxLayout:
+            background_color: 0,0,0,0
+            id: tools
+            pos: root.tae_x, root.tae_y
+            size: tools_and_Errors.width, tools_and_Errors.height
+            orientation: 'horizontal'
+            spacing: 1
+            padding: 30, 0, 30, 0
+        BoxLayout:
+            background_color: 0,0,0,0            
+            pos: (tools.x + tools.width) , tools.y
+            size: tools_and_Errors.size
+            id: error_box 
 
 
-        FloatLayout:
-            size_hint: .5,None
-            id: right_of_extruder_status
+<Error_Detection>:
+    background_color: 0,0,0,0
+    on_press: root.error_function()
+    id: error_box
+    BoxLayout:
+        background_color: 0,0,0,0
+        pos: error_box.pos
+        size: error_box.size 
+        orientation: 'horizontal'
+        padding: 30, 5, 30, 20
+        spacing: 20
+        Image:
+            size_hint_x: 0.1
+            source: root.error_icon
+        BoxLayout:
+            background_color: 0,0,0,0
+            orientation: 'vertical'
+            Label:   
+                background_color: 0,0,0,0
+                size_hint_y: 0.5               
+                text: "[size=30]" + root.error_title
+                markup: True
+                valign: 'top'
+                halign: 'left'
+                max_lines: 1
+                line_height: 1.5
+                text_size: self.width +5 , self.height +10
+            Label:  
+                background_color: 0,0,0,0  
+                size_hint_y: 0.5           
+                text: "[color=FF0000][size=25]" + root.error_body + "[/color]"
+                markup: True
+                valign: 'center'
+                halign: 'left'
+                text_size: self.size 
+                max_lines: 1
+                text_size: self.width +5 , self.height +10
+        Image:
+            size_hint_x: root.caret_size
+            source: 'Icons/Printer Status/carrot.png'
+
+
+<Idle_Screen>:
+    orientation: 'vertical'
+    Image:
+        source: "Icons/R2_Logo.png"
+
+
+<Print_Screen>:
+    orientation: 'vertical'
+    BoxLayout:
+        orientation: 'horizontal'
+        id: title_bar
+        size_hint_y: 0.3
+        Label:
+            #size_hint_x: 1.75
+            text: root.filename
+            font_size: 35
+            markup: True
+            text_size: self.size
+            shorten: True
+            halign: 'left'
+            valign: 'center'
+            color: 0.4,0.7,0.91,1 
+        Label:
+            size_hint_x: 0.3
+            text: root.progress
+            markup: True
+            halign: 'right'
+            valign: 'center'
+            text_size: self.size        
+
+    BoxLayout:
+        size_hint_y: 0.3
+        orientation: 'vertical'
+        id: progress_and_time
+        
+        BoxLayout:
+            size_hint_y: 0.3
+            padding:10,0,10,0
+            id: progress_bar_goes_here  
+            canvas.after:
+                #progress bar
+                Color:
+                    #grey 817F7F
+                    rgba: 0.50390625,0.49609375,0.49609375,1
+                Rectangle:
+                    pos:progress_bar_goes_here.x, progress_bar_goes_here.y
+                    size: root.progress_width, progress_bar_goes_here.height
+        
+                Color:
+                    #white
+                    rgba: 1,1,1,1
+                Rectangle:
+                    pos:progress_bar_goes_here.x, progress_bar_goes_here.y
+                    size: root.progress_number, progress_bar_goes_here.height
+
+        BoxLayout:
+            size_hint_y: 0.5  
+            padding: 0,10,0,0 #pad the top by 10 units
+            orientation: 'horizontal'  
+            Label:                    
+                text: "[size=30]" + root.te
+                markup: True
+                valign: 'center'
+                halign: 'left'
+                text_size: self.size  
+            Label:                    
+                text: "[size=30]" + root.etr
+                markup: True
+                valign: 'center'
+                halign: 'right'
+                text_size: self.size            
+        
 
 <Tool_Status>:
+    background_color: 0,0,0,0
     id: tool_status
-    size: 300, 300
-    Label:
-        id:tool_label
-        #pos_hint: {'x': 0.15, 'y': 0.4}
-        center_x: tool_status.center_x
-        center_y: tool_status.center_y + 20
-        size_hint: None, None
-        text: root.name
-        font_size: 25
-        halign: 'center'
-        valign: 'center'
-        max_lines: 1
-        #color: 131,131,131,1
-    Label:
-        id: temp_label
-        center_x: tool_status.center_x
-        center_y: tool_status.center_y - 20
-        size_hint: None, None
-        text: str(root.current_temperature) + '°C'
-        font_size: 40
-        halign: 'center'
-        valign: 'center'
-        max_lines: 1
-        #color: 131,131,131,1
-    ProgressBar:
-        id: progbar
-        pos_hint: {'x': 0, 'y': -0.4}
-        max: root.max_temp
-        value: root.current_temperature
+    orientation: 'vertical'
+    padding: 0, 0, 20, 22
     Button:
-        size: tool_status.size
-        x: progbar.x
-        y:0
+        id: temp_button
         background_color: 0,0,0,0
         on_press: app.root.generate_temperature_controls(name=root.tool,title=root.name,back_destination='main')
+        BoxLayout:
+            pos: temp_button.pos
+            size: temp_button.size
+            orientation: 'vertical'
+            Label:
+                size_hint_y: 0.5
+                id:tool_label
+                text: "[color=#69B3E7]" + root.name
+                markup: True
+                font_size: 25
+                valign: 'center'
+                halign: 'left'
+                max_lines: 1
+                text_size: self.size
+            Label:
+                size_hint_y: 0.5
+                id: temp_label
+                text: str(root.current_temperature) + '°C / ' + str(root.max_temp)+ '°C'
+                font_size: 30
+                valign: 'center'
+                halign: 'left'
+                max_lines: 1
+                text_size: self.size
 
+<Motor_Control_Button>:
+    size_hint_y: .7
+    size_hint_x: 0.15
+    pos_hint: {'y': 0.1}
+    background_normal: "Icons/blue_button_style.png"
+    disabled: root.button_state
+    on_press: app.root.generate_screens("MOTOR_CONTROLS")
+    text: "Motor Controls"
+    font_size: 30
+
+<Temp_Control_Button>:
+    size_hint_y: .7
+    size_hint_x: 0.15
+    pos_hint: {'y': 0.1}
+    background_normal: "Icons/blue_button_style.png"
+    disabled: root.button_state
+    on_press: app.root.generate_screens("EXTRUDER_CONTROLS")
+    text: "Temp. Controls"
+    font_size: 30
 
 <QRCodeScreen>:
     orientation: 'vertical'

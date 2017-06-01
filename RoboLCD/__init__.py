@@ -12,7 +12,7 @@ from . import roboprinter
 from .lcd.pconsole import pconsole
 from .lcd.session_saver import session_saver
 import os
-
+import time
 
 
 class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
@@ -115,12 +115,15 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
         def reset_data():
             session_saver.save_variable('FLOW', 100)
             session_saver.save_variable('FEED', 100)
-            session_saver.save_variable('FAN', 100)
+            session_saver.save_variable('FAN', 0)
             self._printer.feed_rate(100)
             self._printer.flow_rate(100)
             self._printer.commands('M106 S0')
 
+        session_saver.saved['event'] = event
+
         if event == 'PrintStarted':
+            #callbacks
             reset_data()
         elif event == 'PrintFailed':
             reset_data()
@@ -131,7 +134,6 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
         elif event == "FileDeselected":
             reset_data()
         elif event == "UpdatedFiles":
-            self._logger.info("Files")
             if 'file_callback' in session_saver.saved:
                 session_saver.saved['file_callback']()
                     
@@ -183,22 +185,27 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
             serial_obj.close()
             serial_obj.parity = serial.PARITY_NONE
             serial_obj.open()
-            
+            self._logger.info("########################################")
+            self._logger.info("Restarting Marlin")
+            #Reset the controller
+            serial_obj.setDTR(1)
+            time.sleep(0.1)
+            serial_obj.setDTR(0)
+            time.sleep(0.2)
+            self._logger.info("Marlin Reset")     
+            #Flush input and output
             self._logger.info("Flushing Input and Output!")
             serial_obj.flushOutput()
             serial_obj.flushInput()
             self._logger.info("Finished Flushing")
-
-
+            #write something to the serial line to get rid of any bad characters in the buffer
             self._logger.info("Writing M105")
             first_write = "M105\n"
             serial_obj.write(first_write)
 
-
-        
+            self._logger.info("########################################")
 
         return serial_obj
-
 
 __plugin_name__ = "RoboLCD"
 

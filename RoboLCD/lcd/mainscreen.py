@@ -20,21 +20,13 @@ class MainScreen(Screen):
     """
 
     def __init__(self, **kwargs):
-        super(MainScreen, self).__init__(**kwargs)
-        Clock.schedule_interval(self.update, .1)
-
-        
+        super(MainScreen, self).__init__(**kwargs)        
 
 
     def query_eeprom(self):
         if not roboprinter.printer_instance._printer.is_printing():
 
-            pconsole.query_eeprom()
-        
-
-    def update(self,dt):
-        self.ids.printer_status_content.update(dt)
-        
+            pconsole.query_eeprom()        
 
     
     def open_tab(self, tab_id):

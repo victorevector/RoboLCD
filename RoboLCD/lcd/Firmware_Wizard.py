@@ -32,7 +32,7 @@ class Firmware_Wizard(FloatLayout):
         if files:
             #continue to the hex select screen
             back_destination = self.sm.current
-            name = "Firmware Wizard"
+            name = "Select Firmware"
             buttons = []
             for file in files:
                 temp_button = Hex_Button(file, files[file], self.generate_confirmation)

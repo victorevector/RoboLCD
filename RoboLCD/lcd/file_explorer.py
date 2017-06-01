@@ -570,6 +570,8 @@ class Save_File():
 
     #have to add *args and **kwargs because of the backbutton screen
     def save(self, usb = False, *args,**kwargs):
+        if self.meta != None:
+            self.save_meta()
         save_dir = roboprinter.robo_screen()
         Logger.info(save_dir)
         save_dir = save_dir.replace("ROBOSAVE", "")
@@ -579,26 +581,34 @@ class Save_File():
 
         if save_dir == 'local':
             save_dir = FILES_DIR + "/"+ filename
+            final_dir = save_dir
+            counter = 0
+            #don't overwrite an already saved file
+            while os.path.isfile(final_dir):
+                counter += 1
+                final_dir = save_dir.replace(".gcode", "_" + str(counter) + ".gcode")
+                
             short_dir = 'local/'
         else:
             short_dir = save_dir  + "/"
             save_dir = FILES_DIR + "/" + save_dir + "/"+ filename
+            final_dir = save_dir
+            counter = 0
+            #dont overwrite an already saved file
+            while os.path.isfile(final_dir):
+                counter += 1
+                final_dir = save_dir.replace(".gcode", "_" + str(counter) + ".gcode")
+                
 
 
         if os.path.isfile(self.temp_file_path):
             #copy the file
-            shutil.copyfile(self.temp_file_path, save_dir)
+            shutil.copyfile(self.temp_file_path, final_dir)
             #remove the temporary file if it is not from a USB drive
             if not usb:
                 os.remove(self.temp_file_path)
 
-            # ep = Error_Popup("File Saved", "")
-            # ep.show()
-            #if len(filename) > 50
-            #42 characters across
-            #24 characters left
-            #                                            Has been saved to
-            fit_filename = filename.replace(".gcode", "")
+            fit_filename = filename.replace(".gcode", "_" + str(counter))
             
 
             if len(fit_filename) > 24:
@@ -609,8 +619,7 @@ class Save_File():
             sc.add_widget(layout)
             roboprinter.robosm.add_widget(sc)
             roboprinter.robosm.current = sc.name
-            if self.meta != None:
-                self.save_meta(filename, short_dir)
+            
         Logger.info('File Saved/Removed')
         #add a 2 second delay for updating files
         Clock.schedule_once(self.update_files, 2)
@@ -621,19 +630,18 @@ class Save_File():
             session_saver.saved['file_callback']()
 
 
-    def save_meta(self,name,path):
-        new_path = ''
-        if path == 'local/':
-            new_path = '/home/pi/.octoprint/uploads/' + name
-            new_path = roboprinter.printer_instance._file_manager.path_in_storage('local', new_path)
-        else:
-            new_path = path + name
+    def save_meta(self):
+        #append meta data to the end of a file
+        if os.path.isfile(self.temp_file_path):
+            with open(self.temp_file_path, "a") as file:
+                file.write("\n\n") #skip two lines
+                file.write(";Custom Meta Data from RoboLCD Written by Matt Pedler:\n")
+                for meta in self.meta:
+                    file.write("; " + str(meta) + " = " + str(self.meta[meta]) + "\n")
 
-        Logger.info("Saved to " + new_path)
-        Logger.info(str(self.meta))
-        self.npath = new_path
+        return
 
-        Clock.schedule_interval(self.meta_saver, 0.2)
+
 
     def meta_saver(self, dt):
         
