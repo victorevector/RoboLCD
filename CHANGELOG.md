@@ -1,5 +1,11 @@
 # RoboLCD Changelog
 
+## 1.8.0 (2017-6-9)
+
+### Improvements
+
+* New option: see the status of the onboard webcam: on or off; toggle its state (R2 only).
+
 ## 1.7.0 (2017-6-1)
 
 ### Improvements
