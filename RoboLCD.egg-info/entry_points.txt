@@ -1,3 +1,0 @@
-[octoprint.plugin]
-RoboLCD = RoboLCD
-

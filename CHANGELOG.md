@@ -1,5 +1,11 @@
 # RoboLCD Changelog
 
+## 1.8.1 (2017-6-12)
+
+### Bug Fixes
+
+* Installation of RoboLCD does not ignore the new onboard webcam option created in 1.8.0.
+
 ## 1.8.0 (2017-6-9)
 
 ### Improvements
