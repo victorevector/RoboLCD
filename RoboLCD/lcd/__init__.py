@@ -70,6 +70,7 @@ def start():
 
     from bed_calibration_wizard import Bed_Calibration
     from errors_and_warnings import Refresh_Screen
+    from webcam import Camera
 
 
     Logger.info('Start')
@@ -134,6 +135,7 @@ def start():
                 'FIRMWARE' : {'name': 'firmware_updater','title':'Firmware', 'back_destination': 'main', 'function': self.update_firmware},
                 'MOTORS_OFF':{'name': 'Motors_Off', 'title':'', 'back_destination':'options', 'function':self.motors_off},
                 'MAINBOARD': {'name': 'mainboard_status', 'title': 'Connection Status', 'back_destination': 'options', 'function': self.mainboard_status },
+                'WEBCAM' : {'name': 'webcam_status', 'title': "Webcam Status", 'back_destination': 'options', 'function': self.webcam_status},
 
                 #System Sub Screen
                 'SHUTDOWN': {'name': 'Shutdown', 'title':'', 'back_destination': '', 'function':self.system_handler},
@@ -589,11 +591,23 @@ def start():
             firm = Robo_Icons('Icons/System_Icons/Firmware update wizard.png', 'Firmware Update', 'FIRMWARE')
             motors = Robo_Icons('Icons/Tuning/New Tuning/motors off.png', 'Motors Off', 'MOTORS_OFF')
             main_status = Robo_Icons('Icons/Printer Status/Connection.png', 'Connection', 'MAINBOARD')
+            cam = Robo_Icons('Icons/System_Icons/Webcam.png', 'Webcam', 'WEBCAM')
 
-            buttons = [opt,usb, firm, motors, main_status]
+            model = roboprinter.printer_instance._settings.get(['Model'])
+            if model == "Robo R2":
+              buttons = [opt,usb, firm, motors, main_status, cam]
+            else:
+              buttons = [opt,usb, firm, motors, main_status]
             layout = Scroll_Box_Icons(buttons)
 
             self._generate_backbutton_screen(name = _name, title = kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
+
+        def webcam_status(self, **kwargs):
+          layout = Camera()
+
+          self._generate_backbutton_screen(name = kwargs['name'], title = kwargs['title'], back_destination=kwargs['back_destination'], content=layout)
+
+
 
         def generate_system(self, **kwargs):
             _name = kwargs['name']
