@@ -12,7 +12,7 @@ from kivy.logger import Logger
 from kivy.clock import Clock
 from pconsole import pconsole
 import thread
-from connection_popup import Connection_Popup, Updating_Popup, Error_Popup, Warning_Popup
+from connection_popup import Error_Popup
 import os
 import tempfile
 import traceback
@@ -24,7 +24,7 @@ USB_DIR = '/home/pi/.octoprint/uploads/USB'
 FILES_DIR = '/home/pi/.octoprint/uploads'
 
 class Firmware_Wizard(FloatLayout):
-
+    
     def __init__(self,robosm, back_destination):
         super(Firmware_Wizard, self).__init__()
         self.sm = robosm
@@ -32,7 +32,7 @@ class Firmware_Wizard(FloatLayout):
         if files:
             #continue to the hex select screen
             back_destination = self.sm.current
-            name = "Select Firmware"
+            name = roboprinter.lang.pack['Firmware_Wizard']['Select_Firmware']
             buttons = []
             for file in files:
                 temp_button = Hex_Button(file, files[file], self.generate_confirmation)
@@ -46,7 +46,7 @@ class Firmware_Wizard(FloatLayout):
 
         else:
             #show warning saying that we cannot detect a hex file on the USB
-            ep = Error_Popup("No Hex File", "Please supply a valid\nHex file on the USB stick")
+            ep = Error_Popup(roboprinter.lang.pack['Firmware_Wizard']['Hex_Error_Title'], roboprinter.lang.pack['Firmware_Wizard']['Hex_Error_Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
             ep.open()
 
 
@@ -55,7 +55,7 @@ class Firmware_Wizard(FloatLayout):
     def generate_confirmation(self,name, path):
         flash = roboprinter.printer_instance.flash_usb
         screen_name = "hex_confirmation"
-        title = "Confirm Hex File"
+        title = roboprinter.lang.pack['Firmware_Wizard']['Confirm_Hex']
         back_destination = self.sm.current
         layout = Hex_Confirmation_Screen(name, path, flash)
         self.sm._generate_backbutton_screen(name = screen_name, title = title, back_destination=back_destination, content=layout)

@@ -18,6 +18,7 @@ class MainScreen(Screen):
 
     Is in charge of orchestrating content update for all 3 tabs
     """
+    lang = roboprinter.lang
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)        
@@ -37,17 +38,6 @@ class MainScreen(Screen):
 
     def update_tab(self,tab):
         roboprinter.open_tab = tab
-
-    def update_files(self):
-        pass
-        #self.ids.files_content.update_files()
-        
-
-    
-        
-
-
-
 
 class MainScreenTabbedPanel(TabbedPanel):
     """

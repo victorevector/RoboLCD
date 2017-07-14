@@ -1,5 +1,27 @@
 # RoboLCD Changelog
 
+## 1.9.0 (2017-7-14)
+
+### Improvements
+
+* Motor control screen redesign.
+
+* Custom preheat settings.
+
+* Added 0.05mm increment to Z Offset Wizard.
+
+* Z Offset Wizard measures z offset from corner for accuracy.
+
+* Added confirmation screens to Reset Eeprom, shut down, reboot, reset connection, and delete files and folders
+
+* Added more custom settings to Slicer Wizard: brim, build plate rafts, non-build plate rafts, temperature, and fans on.
+
+### Bug Fixes
+
+* Installing dual extruders do not crash the screen.
+
+* Error message no longer displays "printing" when screen disconnects from motor contorls while printing. It will display real error message.
+
 ## 1.8.1 (2017-6-12)
 
 ### Bug Fixes

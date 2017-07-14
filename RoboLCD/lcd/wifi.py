@@ -42,7 +42,7 @@ class AP_Mode():
     def __init__(self, robosm, name, **kwargs):
         self.sm = robosm
         self.name = name #name of initial screen
-        self.title = 'Wi-Fi Hotspot'
+        self.title = roboprinter.lang.pack['WiFi']['AP_Title']
         self.ap_mode_1_4()
         self.settings = roboprinter.printer_instance._settings
 
@@ -152,14 +152,14 @@ class AP_Mode_Success(FloatLayout):
         self.ap = ap_mode
 
 class APConfirmation(Label):
-    text = StringProperty('Initiating... This might take up to 2 minutes.')
+    text = StringProperty(roboprinter.lang.pack['WiFi']['Initiating'])
 
 class StartAPButton(Button):
     pass
 
 
 class APConfirmation(Label):
-    text = StringProperty('Initiating... This might take up to 2 minutes.')
+    text = StringProperty(roboprinter.lang.pack['WiFi']['Initiating'])
 
 
 class WifiButton(Button):
@@ -177,7 +177,7 @@ class WifiButton(Button):
 
         #if the ssid is empty name it so
         if self.ssid == '':
-            self.ssid = 'EMPTY SSID'
+            self.ssid = roboprinter.lang.pack['WiFi']['Empty_SSID']
 
         #switch out locked or unlocked ssid
         if self.encrypted != True:
@@ -271,7 +271,7 @@ class WifiPasswordInput(FloatLayout):
         Callback function that catches keyboard events and writes them as password
         """
         # Writes to self.ids.password.text
-        if self.ids.password.text == '**Enter Password**': #clear stub text with first keyboard push
+        if self.ids.password.text == roboprinter.lang.pack['WiFi']['Enter_Password']: #clear stub text with first keyboard push
             self.ids.password.text = ''
         if keycode == 'backspace':
             self.ids.password.text = self.ids.password.text[:-1]
@@ -304,7 +304,10 @@ class WifiConfirmation(FloatLayout):
     ssid = StringProperty('')
 
 class WifiFailure(BoxLayout):
-    pass
+    callback = ObjectProperty(None)
+    def __init__(self, callback, **kwargs):
+        self.callback = callback
+        super(WifiFailure, self).__init__()
 
 class SuccessButton(Button):
     current_screen = StringProperty('') #Deprecated 8/24 No longer necessary since this button is binded to go_back_to_main which only takes self as argument
@@ -376,7 +379,7 @@ class WifiConfiguration(Widget):
 
         self.rsm._generate_backbutton_screen(
             name=self.name,
-            title='Select Network',
+            title=roboprinter.lang.pack['WiFi']['Select_Network'],
             back_destination=self.back_destination,
             content=self.wifi_grid,
             cta=self._refresh_wifi_list,
@@ -470,8 +473,7 @@ class WifiConfiguration(Widget):
 
     def _generate_failure_screen(self, *args):
         s = Screen(name=self.name+'[3]')
-        c = WifiFailure()
-        c.ids.retry.bind(on_press=self._retry_config)
+        c = WifiFailure(self._retry_config)
         s.add_widget(c)
 
         self.rsm.add_widget(s)

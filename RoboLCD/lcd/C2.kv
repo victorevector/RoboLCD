@@ -20,7 +20,7 @@
         size_hint_y: 0.6
         orientation: 'horizontal'
         spacing: 25
-        padding: 25, 0, 0, 0
+        padding: 25, 15, 0, 15
         canvas.after:
             Color:
                 # hex #817f7f
@@ -34,9 +34,7 @@
 
         Button:
             id: temp
-            size_hint_y: .7
             size_hint_x: 0.15
-            pos_hint: {'y': 0.1}
             on_press: root.move_tools_to("TEMP")
             background_normal: "Icons/white_outline.png"
             background_down: "Icons/white_outline.png"
@@ -55,9 +53,7 @@
 
         Button:
             id: error
-            size_hint_y: .7
             size_hint_x: 0.15
-            pos_hint: {'y': 0.1}
             background_normal: "Icons/white_outline.png"
             background_down: "Icons/white_outline.png"
             on_press: root.move_tools_to("ERROR")
@@ -245,7 +241,7 @@
             Label:
                 size_hint_y: 0.5
                 id: temp_label
-                text: str(root.current_temperature) + '°C / ' + str(root.max_temp)+ '°C'
+                text: str(root.current_temperature) + app.root.lang.pack['Temperature_Controls']['Celsius_with_slash'] + str(root.max_temp)+ app.root.lang.pack['Temperature_Controls']['Celsius_Alone']
                 font_size: 30
                 valign: 'center'
                 halign: 'center'
@@ -253,23 +249,17 @@
                 text_size: self.size
 
 <Motor_Control_Button>:
-    size_hint_y: .7
-    size_hint_x: 0.15
-    pos_hint: {'y': 0.1}
     background_normal: "Icons/blue_button_style.png"
     disabled: root.button_state
     on_press: app.root.generate_screens("MOTOR_CONTROLS")
-    text: "Motor Controls"
+    text: root.lang.pack['Robo_Controls']['Motor_Controls']
     font_size: 30
 
 <Temp_Control_Button>:
-    size_hint_y: .7
-    size_hint_x: 0.15
-    pos_hint: {'y': 0.1}
     background_normal: "Icons/blue_button_style.png"
     disabled: root.button_state
     on_press: app.root.generate_screens("EXTRUDER_CONTROLS")
-    text: "Temp. Controls"
+    text: root.lang.pack['Robo_Controls']['Temperature_Controls']
     font_size: 30
 
 <QRCodeScreen>:
@@ -320,7 +310,7 @@
         center_x: screen.center_x - 300
         center_y: screen.center_y -50
     Label:
-        text: 'Connecting...'
+        text: app.root.lang.pack['WiFi']['Connecting_dots']
         font_size: 40
         center_x: screen.center_x - 300
         center_y: screen.center_y - 150
@@ -332,7 +322,7 @@
         size_hint: None, None
         source: 'Icons/Icon_Buttons/Preheat.png'
         center_x: screen.center_x
-        center_y: screen.center_y + 70
+        center_y: screen.center_y + 100
         allow_stretch: True
         size: 125,125
     Label:
@@ -346,11 +336,11 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=30]{}°C/100°C'.format(root.temperature)
+        text: '[size=30]{}'.format(root.temperature) + app.root.lang.pack['Preheat']['Celsius_100']
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
-        center_y: screen.center_y - 120
+        center_y: screen.center_y - 130
 
 <BackButtonScreen>:
     background_color: 0,0,0,1
@@ -373,6 +363,7 @@
                 background_color: 0,0,0,1
                 id: back_button
                 on_press: app.root.go_back_to_screen(root.name, root.back_destination)
+                on_press: root.back_button()
                 size_hint_x: .2
                 Image:
                     source: 'Icons/back.png'

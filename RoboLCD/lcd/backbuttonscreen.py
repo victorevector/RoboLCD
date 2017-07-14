@@ -17,12 +17,15 @@ class BackButtonScreen(Screen):
     cta = ObjectProperty(None)
     icon = StringProperty('Icons/rounded_black.png')
 
-    def __init__(self, name, title, back_destination, content, **kwargs):
+    def __init__(self, name, title, back_destination, content, backbutton_callback=None,**kwargs):
         super(BackButtonScreen, self).__init__()
         self.name = name
         self.title = title
         self.back_destination = back_destination
         self.content = content
+        self.backbutton_callback = None
+        if backbutton_callback != None:
+            self.backbutton_callback = backbutton_callback
 
         if kwargs.has_key('cta'):
             self.cta = kwargs['cta']
@@ -37,4 +40,10 @@ class BackButtonScreen(Screen):
     def populate_layout(self):
         # adds the self.content widget to the layout that is defined in the .kv
         self.ids.content_layout.add_widget(self.content)
+
+
+    def back_button(self, *args, **kwargs):
+        if self.backbutton_callback != None:
+            self.backbutton_callback()
+
         

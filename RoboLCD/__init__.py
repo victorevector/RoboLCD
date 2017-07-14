@@ -4,7 +4,7 @@ import octoprint.plugin
 
 # import os
 # import subprocess
-import thread
+import threading
 import qrcode
 import serial
 from . import lcd
@@ -12,7 +12,9 @@ from . import roboprinter
 from .lcd.pconsole import pconsole
 from .lcd.session_saver import session_saver
 import os
+from .lcd.Language import lang
 import time
+
 
 
 class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
@@ -21,10 +23,17 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
                     octoprint.plugin.EventHandlerPlugin,
                     ):
 
+    def __init__(self, **kwargs):
+        super(RobolcdPlugin, self).__init__(**kwargs)
+        self.lcd_thread = None
+
+
     def get_settings_defaults(self):
         return dict(
             Wifi = {},
-            Model = None
+            Model = None,
+            Language = None,
+            Temp_Preset = {}
             )
 
     def _get_api_key(self):
@@ -36,15 +45,22 @@ class RobolcdPlugin(octoprint.plugin.SettingsPlugin,
         img.save('{}/{}'.format(folder, 'qr_code.png'))
 
     def on_after_startup(self):
-        """
-        Run this plugin when octoprint server has start up.
-        1) Starts the kivy applicatio. function start() is called. it is located in ./lcd/__init__.py
-        2) Converts Octoprint's API key to a QR code and saves it to file
-        """
+        
+        lang_pack = self._settings.get(['Language'])
+        self._logger.info("Loading Language Pack " + str(lang_pack))
+        lang.load_language(lang_pack)
+
+        passing = lang.pack['Load_Success']['pass']
+        self._logger.info("Loading Success? " + str(passing) + " ######################################")
+        roboprinter.lang = lang
+
+
+
         self._logger.info("RoboLCD Starting up")
         # saves the printer instance so that it can be accessed by other modules
         roboprinter.printer_instance = self
-        thread.start_new_thread(lcd.start, ())
+        self.lcd_thread = threading.Thread(target=lcd.start, args=())
+        self.lcd_thread.start()
         self._logger.info("Rendering screen... ")
 
         # writes printer's QR code to plugin data folder

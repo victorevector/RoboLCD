@@ -80,6 +80,7 @@ class Scroll_Box_Even(BoxLayout):
     down_icon = ObjectProperty("Icons/Down-arrow-grey.png")
     def __init__(self, button_array):
         super(Scroll_Box_Even, self).__init__()
+        Logger.info("Initializing SBE")
         self.up_event = None
         self.down_event = None
         self.grid = self.ids.content
@@ -166,7 +167,7 @@ class Scroll_Box_Even_Button(Button):
     arg = ObjectProperty("ERROR")
     def __init__(self, text_button, generator_fuction, arg):
         super(Scroll_Box_Even_Button, self).__init__()
-        self.button_text = str(text_button)
+        self.button_text = text_button.encode('utf-8')
         self.generator = generator_fuction
         self.arg = arg
 

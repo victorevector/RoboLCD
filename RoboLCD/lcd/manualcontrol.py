@@ -18,56 +18,6 @@ from printer_jog import printer_jog
 from kivy.logger import Logger
 from pconsole import pconsole
 
-class MotorControl(GridLayout):
-    mms = ListProperty([0.1,1,10,100])
-    inx = NumericProperty(2)
-    toggle_pic = ['Icons/Manual_Control/increments_4_1.png', 'Icons/Manual_Control/increments_4_2.png', 'Icons/Manual_Control/increments_4_3.png', 'Icons/Manual_Control/increments_4_4.png' ]
-
-    def move_pos(self, axis):
-        if axis == 'e' and self.temperature() < 175:
-            Mintemp_Warning_Popup(self.temperature())
-        else:
-            amnt = self.mms[self.inx]
-            self._move(axis, amnt)
-
-    def move_neg(self, axis):
-        if axis == 'e' and self.temperature() < 175:
-            Mintemp_Warning_Popup(self.temperature())
-        else:
-            amnt = -self.mms[self.inx]
-            self._move(axis, amnt)
-
-    def _move(self, axis, amnt):
-        if axis != 'e':
-            jogger = {axis:amnt}
-            printer_jog.jog(desired=jogger, speed=1500, relative=True)
-        else:
-            jogger = {axis:amnt}
-            printer_jog.jog(desired=jogger, speed=100, relative=True)
-
-    def toggle_mm(self):
-        if self.inx == 3:
-            self.inx = 0
-        else:
-            self.inx += 1
-       
-        self.ids.toggle_pic.source = self.toggle_pic[self.inx]
-
-    def home(self):
-        roboprinter.printer_instance._printer.home(['x', 'y', 'z'])
-
-    def temperature(self):
-        temps  = roboprinter.printer_instance._printer.get_current_temperatures()
-        current_temperature = ''
-        current_temperature = int(temps['tool0']['actual'])
-        
-        return current_temperature
-
-    def raise_buildplate(self):
-        roboprinter.printer_instance._printer.commands('G28')
-        roboprinter.printer_instance._printer.commands('G90')
-        roboprinter.printer_instance._printer.commands('G1 Z20')
-
 class TemperatureControl(BoxLayout):
     current_temp = StringProperty('--')
     target_temp = StringProperty('--')
@@ -95,10 +45,10 @@ class TemperatureControl(BoxLayout):
 
     def update(self, dt):
         if self.desired_temp == 0:
-            self.ids.set_cool.text = 'Cooldown'
+            self.ids.set_cool.text = roboprinter.lang.pack['Temperature_Controls']['Cooldown']
             self.ids.set_cool.background_normal = 'Icons/blue_button_style.png'
         else:
-            self.ids.set_cool.text = 'Set'
+            self.ids.set_cool.text = roboprinter.lang.pack['Temperature_Controls']['Set']
             self.ids.set_cool.background_normal = 'Icons/green_button_style.png'
         if self.current_temp == self.target_temp and self.current_temp != '--':
             self.ids.c_temp.color = 0,1,0,1
@@ -134,10 +84,10 @@ class TemperatureControl(BoxLayout):
                 self.input_temp = "290"
                 self.desired_temp = 290
 
-            elif temp > 110 and self.selected_tool == 'bed' and float(pconsole.temperature['bed']) > 0:
-                temp = 110
-                self.input_temp = "110"
-                self.desired_temp = 110
+            elif temp > 100 and self.selected_tool == 'bed' and float(pconsole.temperature['bed']) > 0:
+                temp = 100
+                self.input_temp = "100"
+                self.desired_temp = 100
 
         
         Logger.info("Setting " + str(ext) + " to " + str(temp))

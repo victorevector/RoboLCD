@@ -30,19 +30,22 @@ class Tuning_Overseer(object):
 
 class Print_Tuning(BoxLayout):
 
+    lang = roboprinter.lang
+
     tuning_number = StringProperty('[size=30]999')
-    title_label_text = StringProperty('[size=40][color=#69B3E7]Fan Speed[/color][/size]')
-    up_icon = StringProperty("Icons/Tuning/New Tuning/Up +1.png")
-    down_icon = StringProperty("Icons/Tuning/New Tuning/Down +1.png")
+    title_label_text = StringProperty('[size=40][color=#69B3E7]' + lang.pack['Print_Tuning']['Fan_Speed'] + '[/color][/size]')
+    up_icon = StringProperty("Icons/Tuning/bigger_icons/up_1.png")
+    down_icon = StringProperty("Icons/Tuning/bigger_icons/down_1.png")
 
     flow_rate_number = NumericProperty(100)
     feed_rate_number = NumericProperty(100)
     fan_speed_number = NumericProperty(0)
 
     change_amount_value = [1,10]
-    change_icon_up = ["Icons/Tuning/New Tuning/Up +1.png", "Icons/Tuning/New Tuning/Up +10.png"]
-    change_icon_down = ["Icons/Tuning/New Tuning/Down +1.png", "Icons/Tuning/New Tuning/Down +10.png"]
-    change_value = 0
+    change_icon_up = ["Icons/Tuning/bigger_icons/up_1.png", "Icons/Tuning/bigger_icons/up_10.png"]
+    change_icon_down = ["Icons/Tuning/bigger_icons/down_1.png", "Icons/Tuning/bigger_icons/down_10.png"]
+    change_increment = ["Icons/Tuning/bigger_icons/increment_1.png", "Icons/Tuning/bigger_icons/increment_10.png"]
+    change_value = NumericProperty(0)
 
     blue_color = [0.41015625, 0.69921875, 0.90234375, 1]
     black_color = [0.0,0.0,0.0,0.0]
@@ -112,17 +115,17 @@ class Print_Tuning(BoxLayout):
 
     def flow_button(self):
         self.set_active('FLOW')
-        self.title_label_text = "[size=40][color=#69B3E7]Flow Rate[/size][/color]"
+        self.title_label_text = "[size=40][color=#69B3E7]" + roboprinter.lang.pack['Print_Tuning']['Flow_Rate'] + "[/size][/color]"
         self.save_tuning_info()
 
     def feed_button(self):
         self.set_active('FEED')
-        self.title_label_text = "[size=40][color=#69B3E7]Printing Speed[/size][/color]"
+        self.title_label_text = "[size=40][color=#69B3E7]" + roboprinter.lang.pack['Print_Tuning']['Printing_Speed'] + "[/size][/color]"
         self.save_tuning_info()
 
     def fan_button(self):
         self.set_active('FAN')
-        self.title_label_text = "[size=40][color=#69B3E7]Fan Speed[/size][/color]"
+        self.title_label_text = "[size=40][color=#69B3E7]" + roboprinter.lang.pack['Print_Tuning']['Fan_Speed'] + "[/size][/color]"
         self.save_tuning_info()
 
     def set_active(self, tuner):
@@ -240,7 +243,8 @@ class Print_Tuning(BoxLayout):
         if self.change_value > 1:
             self.change_value = 0
 
-        self.ids.change_text.text = "[size=60]{}[/size]".format(self.change_amount_value[self.change_value]) 
+        #self.ids.change_text.text = "[size=60]{}[/size]".format(self.change_amount_value[self.change_value]) 
+        self.ids.increment_image.source = self.change_increment[self.change_value]
         self.ids.up_image.source = self.change_icon_up[self.change_value]
         self.ids.down_image.source = self.change_icon_down[self.change_value] 
 

@@ -13,49 +13,18 @@ from pconsole import pconsole
 from session_saver import session_saver
 import time
 from bed_calibration_wizard import Modal_Question
-from fine_tune_zoffset import Button_Screen, Picture_Button_Screen, Title_Button_Screen
+from common_screens import Button_Screen, Picture_Button_Screen, Title_Button_Screen
 from functools import partial
-
-class MainBoard_Screen(Modal_Question):
-    #title, body_text, option1_text, option2_text, option1_function, option2_function
-    """docstring for MainBoard_Screen"""
-    def __init__(self):
-        Clock.schedule_interval(self.update_connection_status, 0.2)
-        self.title = "Main Board Disconnected"
-        self.body = "The printer is disconnected, please reconnect the printer"
-        self.option1 = "Connect"
-        self.option2 = "Disconnect"
-        super(MainBoard_Screen, self).__init__(self.title, self.body, self.option1, self.option2, self.connect, self.disconnect)
-        
-    def connect(self):
-        roboprinter.printer_instance._printer.connect()
-    def disconnect(self):
-        roboprinter.printer_instance._printer.disconnect()
-
-    def update_connection_status(self, dt):
-        current_data = roboprinter.printer_instance._printer.get_current_data()
-        status = current_data['state']['text']
-
-        self.body_text = self.body + "\n" + str(status)
-
-        if status == 'Operational':
-            self.title = "Main Board Connected"
-            self.body = "The printer is functioning normally"
-        else:
-            self.title = "Main Board Disconnected"
-            self.body = "The printer is disconnected, please reconnect the printer"
-
-        if roboprinter.robo_screen() != 'mainboard':
-            return False
 
 class Refresh_Screen(Title_Button_Screen):
     # title_text, body_text, image_source, button_function, button_text = "OK", **kwargs
     bed_checker = None
-    def __init__(self, title_text, body_text, button_text, bed_disconnect=False, **kwargs):
+    def __init__(self, title_text, body_text, button_text, bed_disconnect=False, start_refresh=False, **kwargs):
         self.clock_monitor = None
         self.changed_text = False
         self.reconnect_choice = button_text
         self.bed_disconnect = bed_disconnect
+        self.start_refresh = start_refresh
 
         if self.bed_disconnect:
             if self.bed_checker != None:
@@ -64,16 +33,21 @@ class Refresh_Screen(Title_Button_Screen):
 
         super(Refresh_Screen, self).__init__(title_text, body_text, self.reset, button_text)
 
+        #Immediately start the refresh function as if someone had pressed the button
+        if self.start_refresh:
+            self.reset()
+
+
     def soft_reset(self):
         current_data = roboprinter.printer_instance._printer.get_current_data()
         status = current_data['state']['text']
         if status.find("Offline") != -1:
-            status = "Connection Offline"
+            status = roboprinter.lang.pack['Refresh_Screen']['Soft_Reset']['Status']
 
-        reset_title = 'Connection Interrupted'
-        body_text = ('Please ' + str(self.reconnect_choice).lower() +' the connection to the printer controls. If'
-                     '\nerror persists, please call customer service and report:\n'
-                     '[color=FF0000]'  + status.replace("Error:","").strip() + '[/color]'
+        reset_title = roboprinter.lang.pack['Refresh_Screen']['Soft_Reset']['Title']
+        body_text = (roboprinter.lang.pack['Refresh_Screen']['Soft_Reset']['Please'] + str(self.reconnect_choice).lower()
+                     + roboprinter.lang.pack['Refresh_Screen']['Soft_Reset']['Body'] 
+                     + '[color=FF0000]'  + status.replace("Error:","").strip() + '[/color]'
                      )
         self.title_text = reset_title
         self.body_text = body_text
@@ -81,15 +55,18 @@ class Refresh_Screen(Title_Button_Screen):
 
     def reset(self):
         self.changed_text = False
-        self.title = str(self.reconnect_choice) + " in progress"
-        self.body_text = "Disconnecting. The screen may freeze."
-        roboprinter.printer_instance._printer.disconnect()
-        if self.clock_monitor == None:
-            self.clock_monitor = Clock.schedule_interval(self.update_connection_status, 0.2)
-        else:
-            self.clock_monitor.cancel()
-            self.clock_monitor = Clock.schedule_interval(self.update_connection_status, 0.2)
-        Clock.schedule_once(self.connect, 2)        
+        self.title = str(self.reconnect_choice) + roboprinter.lang.pack['Refresh_Screen']['Reset']['Title']
+        self.body_text = roboprinter.lang.pack['Refresh_Screen']['Reset']['Body']
+
+        def reconnect(dt):
+            roboprinter.printer_instance._printer.disconnect()
+            if self.clock_monitor == None:
+                self.clock_monitor = Clock.schedule_interval(self.update_connection_status, 0.2)
+            else:
+                self.clock_monitor.cancel()
+                self.clock_monitor = Clock.schedule_interval(self.update_connection_status, 0.2)
+            Clock.schedule_once(self.connect, 2)    
+        Clock.schedule_once(reconnect, 0.5)    
 
     def connect(self, dt):
         roboprinter.printer_instance._printer.connect()
@@ -98,7 +75,7 @@ class Refresh_Screen(Title_Button_Screen):
         current_data = roboprinter.printer_instance._printer.get_current_data()
         status = current_data['state']['text']
 
-        self.title_text = str(self.reconnect_choice) + " Succesful"
+        self.title_text = str(self.reconnect_choice) + roboprinter.lang.pack['Refresh_Screen']['Update_Connection']['Successful']
         self.body_text = status
         self.clock_monitor.cancel()
         Clock.schedule_interval(self.check_connection_reset, 0.2)
@@ -107,17 +84,17 @@ class Refresh_Screen(Title_Button_Screen):
         current_data = roboprinter.printer_instance._printer.get_current_data()
         status = current_data['state']['text']
 
-        self.title_text = str(self.reconnect_choice) + " in progress"
+        self.title_text = str(self.reconnect_choice) + roboprinter.lang.pack['Refresh_Screen']['Update_Connection']['In_Progress']
 
         if status.find("Offline") != -1:
             self.body_text = "Offline"
 
     def error_report(self, status):
 
-        self.title_text = "Connection Interrupted"
-        self.body_text = ('Please ' + str(self.reconnect_choice).lower() +' the connection to the printer controls. If'
-                     '\nerror persists, please call customer service and report:\n'
-                     '[color=FF0000]'  + status.replace("Error:","").strip() + '[/color]'
+        self.title_text = roboprinter.lang.pack['Refresh_Screen']['Soft_Reset']['Title']
+        self.body_text = (roboprinter.lang.pack['Refresh_Screen']['Soft_Reset']['Please'] + str(self.reconnect_choice).lower()
+                     + roboprinter.lang.pack['Refresh_Screen']['Soft_Reset']['Body'] 
+                     + '[color=FF0000]'  + status.replace("Error:","").strip() + '[/color]'
                      )
         self.clock_monitor.cancel()
         Clock.schedule_interval(self.check_connection_reset, 0.2)
@@ -132,7 +109,7 @@ class Refresh_Screen(Title_Button_Screen):
                 Clock.schedule_once(self.slow_operational, 0.5)
             #if we are looking for a bed disconnect say so
             else:
-                self.title_text = "Checking for bed Connection"
+                self.title_text = roboprinter.lang.pack['Refresh_Screen']['Update_Connection']['bed_connect']
                 if self.bed_checker != None:
                     self.bed_checker.cancel()
                     self.bed_checker = Clock.schedule_interval(self.check_for_bed, 0.2)
@@ -147,7 +124,7 @@ class Refresh_Screen(Title_Button_Screen):
             self.changed_text = True
 
         if status.find("Offline") != -1:
-            self.body_text = "Offline"
+            self.body_text = roboprinter.lang.pack['Refresh_Screen']['Update_Connection']['offline']
         else:
             self.body_text = status
 
@@ -202,8 +179,8 @@ class Firmware_Upgrade(Picture_Button_Screen):
     #title_text, body_text, image_source, button_function
     """docstring for Firmware_Upgrade"""
     def __init__(self):
-        self.title = "Firmware is updating"
-        self.body = "Please wait. Most functions are unusable until the\nupdate is complete."
+        self.title = roboprinter.lang.pack['Firmware']['Title']
+        self.body = roboprinter.lang.pack['Firmware']['Body']
         self.icon = "Icons/Printer Status/Firmware warning.png"
         super(Firmware_Upgrade, self).__init__(self.title, self.body, self.icon, self.goto_main)
 
@@ -214,9 +191,8 @@ class Bed_Heating(Picture_Button_Screen):
     #title_text, body_text, image_source, button_function
     """docstring for Bed_Heating"""
     def __init__(self):
-        self.title = "Print Bed is hot"
-        self.body = ("Please do not remove the print bed while it is in use."
-                   "\nDoing so can cause permanent damage to the bed")
+        self.title = roboprinter.lang.pack['Bed_Hot']['Title']
+        self.body = roboprinter.lang.pack['Bed_Hot']['Body']
         self.icon = "Icons/Printer Status/bed heating.png"
         super(Bed_Heating, self).__init__(self.title, self.body, self.icon, self.goto_main)
     def goto_main(self):
@@ -225,10 +201,10 @@ class Bed_Heating(Picture_Button_Screen):
 class Filament_Runout(Modal_Question):
     #title, body_text, option1_text, option2_text, option1_function, option2_function
     def __init__(self):
-        self.title = "Filament Has Run Out"
-        self.body_text = ("\nPlease reload more filament once the printer has paused.\nThen resume the print.")
+        self.title = roboprinter.lang.pack['Filament']['Title']
+        self.body_text = roboprinter.lang.pack['Filament']['Body']
         func = partial(roboprinter.robosm.generate_screens, 'FIL_CHANGE')
-        super(Filament_Runout, self).__init__(self.title, self.body_text,"OK", "Filament Wizard", self.goto_main, func)
+        super(Filament_Runout, self).__init__(self.title, self.body_text,roboprinter.lang.pack['Filament']['Button1'], roboprinter.lang.pack['Filament']['Button2'], self.goto_main, func)
 
     def goto_main(self):
         roboprinter.robosm.go_back_to_main('printer_status_tab')
@@ -257,43 +233,43 @@ class Error_Detection(Button):
 
         acceptable_errors = {
             'MAINBOARD': {
-                'title': "Connection Error",
-                'body' : "Please reset connection",
+                'title': roboprinter.lang.pack['Error_Detection']['MAINBOARD']['Title'],
+                'body' : roboprinter.lang.pack['Error_Detection']['MAINBOARD']['Body'],
                 'icon' : "Icons/Printer Status/main board warning.png",
                 'function': self.main_board_disconnect,
                 'caret': True
             },
             'FIRMWARE':{
-                'title': "Firmware is updating",
-                'body' : "Please wait",
+                'title': roboprinter.lang.pack['Error_Detection']['FIRMWARE']['Title'],
+                'body' :roboprinter.lang.pack['Error_Detection']['FIRMWARE']['Body'],
                 'icon' : "Icons/Printer Status/Firmware warning.png",
                 'function': self.firmware_updating,
                 'caret': True,
             },
             'BED_HOT':{
-                'title': "Print Bed is Hot",
-                'body' : "Do not remove bed",
+                'title': roboprinter.lang.pack['Error_Detection']['BED_HOT']['Title'],
+                'body' : roboprinter.lang.pack['Error_Detection']['BED_HOT']['Body'],
                 'icon' : "Icons/Printer Status/bed heating.png",
                 'function': self.bed_hot_warning,
                 'caret': True,
             },
             'BED_DISCONNECT':{
-                'title': "Print Bed Disconnected",
-                'body' : "Please reconnect the Print Bed",
+                'title': roboprinter.lang.pack['Error_Detection']['BED_DISCONNECT']['Title'],
+                'body' : roboprinter.lang.pack['Error_Detection']['BED_DISCONNECT']['Body'],
                 'icon' : "Icons/Printer Status/bed warning.png",
                 'function': self.bed_disconnect_screen,
                 'caret': True,
             },
             'PAUSED':{
-                'title': "Print Paused",
-                'body' : "[color=#69B3E7]Please resume when ready",
+                'title': roboprinter.lang.pack['Error_Detection']['PAUSED']['Title'],
+                'body' : "[color=#69B3E7]" + roboprinter.lang.pack['Error_Detection']['PAUSED']['Body'],
                 'icon' : "Icons/Printer Status/Pause.png",
                 'function': self.placeholder,
                 'caret': False
             },
             'FIL_RUNOUT':{
-                'title': "Filament has run out",
-                'body' : "Please reload more filament",
+                'title': roboprinter.lang.pack['Error_Detection']['FIL_RUNOUT']['Title'],
+                'body' : roboprinter.lang.pack['Error_Detection']['FIL_RUNOUT']['Body'],
                 'icon' : "Icons/Printer Status/Filament warning.png",
                 'function': self.fil_runout,
                 'caret': True
@@ -306,8 +282,8 @@ class Error_Detection(Button):
                 'caret': False
             },
             'DEFAULT':{
-                'title': "Robo Ready" if not roboprinter.printer_instance._printer.is_printing() else "Robo Active",
-                'body' : "[color=#69B3E7]Let's print something![/color]" if not roboprinter.printer_instance._printer.is_printing() else "[color=#69B3E7]Print in progress.[/color]",
+                'title': roboprinter.lang.pack['Error_Detection']['DEFAULT']['Title_Idle'] if not roboprinter.printer_instance._printer.is_printing() else roboprinter.lang.pack['Error_Detection']['DEFAULT']['Title_Active'],
+                'body' : "[color=#69B3E7]" + roboprinter.lang.pack['Error_Detection']['DEFAULT']['Body_Idle'] + "[/color]" if not roboprinter.printer_instance._printer.is_printing() else "[color=#69B3E7]" + roboprinter.lang.pack['Error_Detection']['DEFAULT']['Body_Active'] + "[/color]",
                 'icon' : "Icons/check_icon.png",
                 'function': self.placeholder,
                 'caret': False
@@ -350,13 +326,13 @@ class Error_Detection(Button):
 
     def bed_disconnect_screen(self):
        
-        title = '[color=FF0000]Print Bed Disconnected[/color]'
-        body_text = 'Please put the print bed back in place, then reconnect'
-        button_text = 'Reconnect'
+        title = '[color=FF0000]' + roboprinter.lang.pack['Error_Detection']['BED_DISCONNECT']['E_Sub_Title'] + '[/color]'
+        body_text = roboprinter.lang.pack['Error_Detection']['BED_DISCONNECT']['E_Body']
+        button_text = roboprinter.lang.pack['Error_Detection']['BED_DISCONNECT']['E_Button']
             
         layout = Refresh_Screen(title, body_text, button_text, bed_disconnect=True)
 
-        title = "Print Bed Status"
+        title = roboprinter.lang.pack['Error_Detection']['BED_DISCONNECT']['E_Title']
         name = 'mainboard'
         back_destination = 'main'
 
@@ -370,7 +346,7 @@ class Error_Detection(Button):
     def bed_hot_warning(self):
         layout = Bed_Heating()
 
-        title = "Print Bed Status"
+        title = roboprinter.lang.pack['Error_Detection']['BED_DISCONNECT']['E_Title']
         name = 'bed_warning'
         back_destination = 'main'
 
@@ -384,7 +360,7 @@ class Error_Detection(Button):
     def firmware_updating(self):
         layout = Firmware_Upgrade()
 
-        title = "Firmware Update"
+        title = roboprinter.lang.pack['Error_Detection']['FIRMWARE']['E_Title']
         name = 'firmware_update'
         back_destination = 'main'
 
@@ -403,18 +379,20 @@ class Error_Detection(Button):
             current_data = roboprinter.printer_instance._printer.get_current_data()
             status = current_data['state']['text']
             if status.find("Offline") != -1:
-                status = "Connection Offline"
+                status = roboprinter.lang.pack['Error_Detection']['MAINBOARD']['Connection_Offline']
+            elif status.find("Printing") != -1:
+                while status == "Printing":
+                    current_data = roboprinter.printer_instance._printer.get_current_data()
+                    status = current_data['state']['text']
 
-            reset_title = 'Connection Interrupted'
-            body_text = ('Please reset the connection to the printer controls. If'
-                     '\nerror persists, please call customer service and report:\n'
-                     '[color=FF0000]'  + status.replace("Error:","").strip() + '[/color]'
+            reset_title = roboprinter.lang.pack['Error_Detection']['MAINBOARD']['E_Sub_Title']
+            body_text = (roboprinter.lang.pack['Error_Detection']['MAINBOARD']['E_Body'] + '[color=FF0000]'  + status.replace("Error:","").strip() + '[/color]'
                      )
-            button_text = 'Reset'
+            button_text = roboprinter.lang.pack['Error_Detection']['MAINBOARD']['E_Button']
             
             layout = Refresh_Screen(reset_title, body_text, button_text)
     
-            title = "Error Detected"
+            title =roboprinter.lang.pack['Error_Detection']['MAINBOARD']['E_Title']
             name = 'mainboard'
             back_destination = 'main'
     
@@ -427,7 +405,7 @@ class Error_Detection(Button):
     def fil_runout(self):
         layout = Filament_Runout()
 
-        title = "Filament Status"
+        title = roboprinter.lang.pack['Error_Detection']['FIL_RUNOUT']['E_Title']
         name = 'fil_runout'
         back_destination = 'main'
 
@@ -467,6 +445,7 @@ class Error_Detection(Button):
     ############################################Detirmine Errors##################################################
 
     def check_connection_status(self, dt):
+        self.model = roboprinter.printer_instance._settings.get(['Model'])
         bed = self.grab_target_and_actual('bed')
         self.bed_max_temp = bed['target']
         self.bed_temp = bed['actual']
@@ -512,8 +491,8 @@ class Error_Detection(Button):
                 roboprinter.robosm.go_back_to_main('printer_status_tab')
 
         if is_closed and not is_updating_firm and not self.firm_lock:
-            if 'bed' in pconsole.temperature:
-                if float(pconsole.temperature['bed']) <= 0:
+            if 'bed' in pconsole.temperature and self.model == "Robo R2":
+                if float(pconsole.temperature['bed']) < 0:
                     #self.connection_popup = self.generate_connection_popup(warning = 'bed')
                     self.populate_error('BED_DISCONNECT')
                 else:
@@ -522,9 +501,9 @@ class Error_Detection(Button):
             else:
                 self.populate_error('MAINBOARD')
 
-        elif is_error and not is_updating_firm and not self.firm_lock:
-            if 'bed' in pconsole.temperature:
-                if float(pconsole.temperature['bed']) <= 0:
+        elif is_error and not is_updating_firm and not self.firm_lock :
+            if 'bed' in pconsole.temperature and self.model == "Robo R2":
+                if float(pconsole.temperature['bed']) < 0:
                     #self.connection_popup = self.generate_connection_popup(warning = 'bed')
                     self.populate_error('BED_DISCONNECT')
                 else:

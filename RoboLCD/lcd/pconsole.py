@@ -31,6 +31,14 @@ class PConsole(octoprint.printer.PrinterCallback):
     cur_time = 0
 
     busy = False
+    temperature = {
+                    'tool1': 0,
+                    'tool1_desired': 0,
+                    'tool2': 0,
+                    'tool2_desired': 0,
+                    'bed': 0,
+                    'bed_desired': 0,
+                    }
 
     def on_printer_add_message(self, data):
 
@@ -82,20 +90,78 @@ class PConsole(octoprint.printer.PrinterCallback):
         #Find out if octoprint is not reporting a bed temp loss
         model = roboprinter.printer_instance._settings.get(['Model'])
         if model == "Robo R2":
-            temperature =  "[+-]?\d+(?:\.\d+)?"
+            
+            def find_temps():
+                ext1 = -1
+                ext1_dual = -1
+                ext2 = -1
+                bed = -1
+                if data.find('T:') != -1:
+                    ext1 = data.find('T:')
+                if data.find('T0:') != -1:
+                    ext_dual = data.find('T0:')
+                if data.find('T1:') != -1:
+                    ext2 = data.find('T1:')
+                if data.find('B:') != -1:
+                    bed = data.find('B:')
 
-            current_temp = re.findall(temperature, data)
-            if current_temp != [] and len(current_temp) == 6 and data.find("ok T") != -1:
-                self.temperature = {
-                    'tool1': current_temp[0],
-                    'tool1_desired': current_temp[1],
-                    'bed': current_temp[2],
-                    'bed_desired': current_temp[3],
-                    'tool1_pwm': current_temp[4],
-                    'bed_pwm': current_temp[5]
-                }
-                #disconnect if the bed reports a negative number two times in a row
-                if float(self.temperature['bed']) <= 0:
+                #Dual Extrusion R2
+                if ext1_dual != -1 and ext2 != -1 and bed != -1:
+                    bed_s = temp[bed:ext1_dual]
+                    bed = extract_data(bed_s)
+
+                    self.temperature['bed'] = bed['current']
+                    self.temperature['bed_desired'] = bed['desired']
+
+                    ext1_s = temp[ext1_dual+2:ext2]
+                    tool1 = extract_data(ext1_s)
+
+                    self.temperature['tool1'] = tool1['current']
+                    self.temperature['tool1_desired'] = tool1['desired']
+
+                    ext2_s = temp[ext2+2:temp.find('@')]
+                    tool2 = extract_data(ext2_s)
+
+                    self.temperature['tool2'] = tool2['current']
+                    self.temperature['tool2_desired'] = tool2['desired']
+
+
+                    
+
+                #Single Nozzle R2
+                elif ext1 != -1 and bed != -1:
+                    ext1_s = data[ext1:bed]
+                    tool1 = extract_data(ext1_s)
+
+                    self.temperature['tool1'] = tool1['current']
+                    self.temperature['tool1_desired'] = tool1['desired']
+
+                    bed_s = data[bed:data.find('@')]
+                    bed = extract_data(bed_s)
+
+                    self.temperature['bed'] = bed['current']
+                    self.temperature['bed_desired'] = bed['desired']
+
+                else:
+                    roboprinter.printer_instance._logger.info("Model is R2 and we cannot find bed and extruder!!!")
+                    roboprinter.printer_instance._logger.info(data)
+
+            def extract_data(temp_string):
+                temperature =  "[+-]?\d+(?:\.\d+)?"
+                current_temp = re.findall(temperature, temp_string)
+
+                temp = {
+                        'current':current_temp[0],
+                        'desired':current_temp[1]
+                       }
+                return temp
+
+            #disconnect if the bed reports a negative number two times in a row
+            if data.find('T:') != -1 and data.find('B:') != -1:
+                
+                find_temps()
+
+                if float(self.temperature['bed']) < 0:
                     self.t_counter -= 1
                     roboprinter.printer_instance._logger.info(str(self.t_counter))
                     if self.t_counter == 0:

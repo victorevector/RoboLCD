@@ -35,12 +35,12 @@ class UtilitiesContent(BoxLayout):
         super(UtilitiesContent, self).__init__()
 
         #add Icons
-        self.wiz = Robo_Icons('Icons/White_Utilities/Wizards.png', 'Wizards', 'WIZARDS')
-        self.rc = Robo_Icons('Icons/White_Utilities/Print tuning_White.png', 'Print Tuning', 'PRINT_TUNING')
-        self.net = Robo_Icons('Icons/White_Utilities/Networking.png', 'Network', 'NETWORK')
-        self.upd = Robo_Icons('Icons/White_Utilities/Updates.png', 'Update', 'UPDATES')
-        self.sys = Robo_Icons('Icons/System_Icons/Shutdown 2.png', 'System', 'SYSTEM')
-        self.opt = Robo_Icons('Icons/White_Utilities/Options.png', 'Options', 'OPTIONS')
+        self.wiz = Robo_Icons('Icons/White_Utilities/Wizards.png', roboprinter.lang.pack['RoboIcons']['Wizards'] , 'WIZARDS')
+        self.rc = Robo_Icons('Icons/White_Utilities/Print tuning_White.png', roboprinter.lang.pack['RoboIcons']['Print_Tuning'], 'PRINT_TUNING')
+        self.net = Robo_Icons('Icons/White_Utilities/Networking.png', roboprinter.lang.pack['RoboIcons']['Network'], 'NETWORK')
+        self.upd = Robo_Icons('Icons/White_Utilities/Updates.png', roboprinter.lang.pack['RoboIcons']['Update'], 'UPDATES')
+        self.sys = Robo_Icons('Icons/System_Icons/Shutdown 2.png', roboprinter.lang.pack['RoboIcons']['System'], 'SYSTEM')
+        self.opt = Robo_Icons('Icons/White_Utilities/Options.png', roboprinter.lang.pack['RoboIcons']['Options'], 'OPTIONS')
         icons = [self.rc, self.wiz, self.net, self.upd, self.opt, self.sys]
         layout = Scroll_Box_Icons(icons)
         self.clear_widgets()
@@ -53,12 +53,12 @@ class UtilitiesContent(BoxLayout):
     def monitor_layout(self, dt):
         if roboprinter.printer_instance._printer.is_printing() != True:
             self.state = 'NOT_PRINTING'
-            self.rc.icon_name = 'Fan Control'
+            self.rc.icon_name = roboprinter.lang.pack['RoboIcons']['Fan_Control']
             self.rc.img_source = 'Icons/White_Utilities/Fans.png'
             self.rc.generator = "FAN_CONTROL"
         elif roboprinter.printer_instance._printer.is_printing():
             self.state = 'PRINTING'
-            self.rc.icon_name = 'Print Tuning'
+            self.rc.icon_name = roboprinter.lang.pack['RoboIcons']['Print_Tuning']
             self.rc.img_source = 'Icons/White_Utilities/Print tuning_White.png'
             self.rc.generator = 'PRINT_TUNING'
 

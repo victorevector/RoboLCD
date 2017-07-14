@@ -1,3 +1,4 @@
+# coding=utf-8
 from kivy.uix.floatlayout import FloatLayout
 from kivy.logger import Logger
 from kivy.clock import Clock
@@ -11,10 +12,12 @@ from .. import roboprinter
 from connection_popup import Error_Popup, Warning_Popup
 from functools import partial
 from shutil import rmtree
+from .. import roboprinter
+
 
 class UpdateScreen(FloatLayout):
-    installed_version = StringProperty('Checking...')
-    avail_version = StringProperty('Checking...')
+    installed_version = StringProperty(roboprinter.lang.pack['Update_Printer']['Checking'])
+    avail_version = StringProperty(roboprinter.lang.pack['Update_Printer']['Checking'])
 
     def __init__(self, populate=True, **kwargs):
         super(UpdateScreen, self).__init__()
@@ -39,7 +42,7 @@ class UpdateScreen(FloatLayout):
         self.refresh_button()
 
     def refresh_button(self, *args):
-        if self.installed_version < self.avail_version and self.avail_version != "Connection Error!":
+        if self.installed_version < self.avail_version and self.avail_version != roboprinter.lang.pack['Update_Printer']['Connection_Error']:
             self.enable_me()
         else:
             self.disable_me()
@@ -48,8 +51,8 @@ class UpdateScreen(FloatLayout):
         """populates self.installed_version && self.avail_version: values are rendered on the UpdateScreen."""
         self.installed_version = self.get_installed_version()
         self.avail_version = self.get_avail_version()
-        if self.avail_version == 'Connection Error!' and self.populate:
-            Error_Popup('Connection Error', 'Check internet connection.').show()
+        if self.avail_version == roboprinter.lang.pack['Update_Printer']['Connection_Error'] and self.populate:
+            Error_Popup(roboprinter.lang.pack['Update_Printer']['Connect_Error']['Title'], roboprinter.lang.pack['Update_Printer']['Connect_Error']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab')).show()
 
     def get_installed_version(self):
         path = self.versioning_path
@@ -73,7 +76,7 @@ class UpdateScreen(FloatLayout):
         if r and code is 200:
             return self._get_avail_version(r.json())
         else:
-            return "Connection Error!"
+            return roboprinter.lang.pack['Update_Printer']['Connection_Error']
 
     def _get_avail_version(self, r):
         # parse json response for latest release version
@@ -100,7 +103,7 @@ class UpdateScreen(FloatLayout):
 
     def run_updater(self, *args):
         self.disable_me()
-        self.warning = Warning_Popup('Loading Update', 'This may take up to a minute.')
+        self.warning = Warning_Popup(roboprinter.lang.pack['Update_Printer']['Loading']['Title'], roboprinter.lang.pack['Update_Printer']['Loading']['Body'])
         self.warning.show()
         execute = lambda funcs, dt: map(lambda f: f(), funcs)
         series = [self.update_updater, self._run_updater]
@@ -137,7 +140,7 @@ class UpdateScreen(FloatLayout):
             p.join()
             self.populate_values()
             self.warning.dismiss()
-            Error_Popup('Update Notification', 'No update needed.').show()
+            Error_Popup(roboprinter.lang.pack['Update_Printer']['No_Update']['Title'], roboprinter.lang.pack['Update_Printer']['No_Update']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab')).show()
 
     def disable_me(self):
         self.ids.updatebtn.disabled = True
@@ -146,3 +149,4 @@ class UpdateScreen(FloatLayout):
     def enable_me(self):
         self.ids.updatebtn.disabled = False
         self.ids.updatebtn.canvas.ask_update()
+

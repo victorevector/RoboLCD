@@ -1,3 +1,4 @@
+# coding=utf-8
 from session_saver import session_saver
 from scrollbox import Scroll_Box_Even_Button, Scroll_Box_Even
 from pconsole import pconsole
@@ -11,6 +12,7 @@ from .. import roboprinter
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
 from connection_popup import Status_Popup
+from common_screens import Modal_Question_No_Title, Button_Screen
 
 
 class EEPROM():
@@ -18,27 +20,46 @@ class EEPROM():
         self.sm = robosm
         self.buttons = []
         self.eeprom_dictionary = {
-            'Home Offsets' : 'HOME_OFFSETS',
-            'Probe Offset' : 'Z_OFFSET_EEPROM',
-            'Filament Settings' : 'FILAMENT_SETTINGS',
-            'Feed Rates': 'FEED_RATES',
-            'PID Settings' : 'PID',
-            'Bed PID Settings': 'BPID',
-            'Steps Per Unit' : 'STEPS_PER_UNIT',
-            'Accelerations' : 'ACCELERATIONS',
-            'Max Accelerations' : 'MAX_ACCELERATIONS',
-            'Advanced Variables': 'ADVANCED_VARIABLES',
+            roboprinter.lang.pack['EEPROM']['Home_Offset'] : 'HOME_OFFSETS',
+            roboprinter.lang.pack['EEPROM']['Probe_Offset'] : 'Z_OFFSET_EEPROM',
+            roboprinter.lang.pack['EEPROM']['Filament_Settings'] : 'FILAMENT_SETTINGS',
+            roboprinter.lang.pack['EEPROM']['Feed_Rates']: 'FEED_RATES',
+            roboprinter.lang.pack['EEPROM']['PID_Settings'] : 'PID',
+            roboprinter.lang.pack['EEPROM']['Bed_PID']: 'BPID',
+            roboprinter.lang.pack['EEPROM']['Steps_Unit'] : 'STEPS_PER_UNIT',
+            roboprinter.lang.pack['EEPROM']['Accelerations'] : 'ACCELERATIONS',
+            roboprinter.lang.pack['EEPROM']['Max_Accelerations'] : 'MAX_ACCELERATIONS',
+            roboprinter.lang.pack['EEPROM']['Advanced']: 'ADVANCED_VARIABLES',
 
         }
         model = roboprinter.printer_instance._settings.get(['Model'])
 
         if model == "Robo R2":
             #add bed PID for the R2
-            self.button_order = ['Home Offsets','Probe Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations',  
-                                'Filament Settings', 'Feed Rates', 'PID Settings','Bed PID Settings', 'Advanced Variables']
+            self.button_order = [
+                                 roboprinter.lang.pack['EEPROM']['Home_Offset'],
+                                 roboprinter.lang.pack['EEPROM']['Probe_Offset'] , 
+                                 roboprinter.lang.pack['EEPROM']['Steps_Unit'], 
+                                 roboprinter.lang.pack['EEPROM']['Accelerations'], 
+                                 roboprinter.lang.pack['EEPROM']['Max_Accelerations'],  
+                                 roboprinter.lang.pack['EEPROM']['Filament_Settings'], 
+                                 roboprinter.lang.pack['EEPROM']['Feed_Rates'], 
+                                 roboprinter.lang.pack['EEPROM']['PID_Settings'],
+                                 roboprinter.lang.pack['EEPROM']['Bed_PID'], 
+                                 roboprinter.lang.pack['EEPROM']['Advanced']
+                                 ]
         else:
-            self.button_order = ['Home Offsets','Probe Offset', 'Steps Per Unit', 'Accelerations', 'Max Accelerations',  
-                                'Filament Settings', 'Feed Rates', 'PID Settings', 'Advanced Variables']
+            self.button_order = [
+                                 roboprinter.lang.pack['EEPROM']['Home_Offset'],
+                                 roboprinter.lang.pack['EEPROM']['Probe_Offset'] , 
+                                 roboprinter.lang.pack['EEPROM']['Steps_Unit'], 
+                                 roboprinter.lang.pack['EEPROM']['Accelerations'], 
+                                 roboprinter.lang.pack['EEPROM']['Max_Accelerations'],  
+                                 roboprinter.lang.pack['EEPROM']['Filament_Settings'], 
+                                 roboprinter.lang.pack['EEPROM']['Feed_Rates'], 
+                                 roboprinter.lang.pack['EEPROM']['PID_Settings'],
+                                 roboprinter.lang.pack['EEPROM']['Advanced']
+                                 ]
         self.load_eeprom()
 
         
@@ -46,9 +67,10 @@ class EEPROM():
     def load_eeprom(self):
         pconsole.query_eeprom()
         for cat in self.button_order:
+            Logger.info(cat)
             temp = Scroll_Box_Even_Button(cat, self.load_values, [self.eeprom_dictionary[cat], cat])
             self.buttons.append(temp)
-        temp = Scroll_Box_Even_Button("Reset EEPROM", self.reset_defaults, "placeholder")
+        temp = Scroll_Box_Even_Button(roboprinter.lang.pack['EEPROM']['Reset'], self.reset_defaults, "placeholder")
         self.buttons.append(temp)
 
 
@@ -56,10 +78,44 @@ class EEPROM():
 
 
     def reset_defaults(self, placeholder):
-        roboprinter.printer_instance._printer.commands("M502")
-        roboprinter.printer_instance._printer.commands("M500")
-        roboprinter.printer_instance._printer.commands("M501")
-        self.sm.go_back_to_main()
+
+        #get the current screen
+        back_screen = roboprinter.robosm.current
+
+        def reset():
+            roboprinter.printer_instance._printer.commands("M502")
+            roboprinter.printer_instance._printer.commands("M500")
+            roboprinter.printer_instance._printer.commands("M501")
+
+            #make screen to say that the variables have been reset
+
+            #body_text, button_function, button_text = roboprinter.lang.pack['Button_Screen']['Default_Button']
+            content = Button_Screen(roboprinter.lang.pack['EEPROM']['Acknowledge_Reset']['Body_Text'],
+                                    self.sm.go_back_to_main,
+                                    button_text = roboprinter.lang.pack['EEPROM']['Acknowledge_Reset']['Button'])
+
+            #make screen
+            roboprinter.robosm._generate_backbutton_screen(name='ack_reset_eeprom', 
+                                                           title = roboprinter.lang.pack['EEPROM']['Acknowledge_Reset']['Title'] , 
+                                                           back_destination=back_screen, 
+                                                           content=content)
+
+        def cancel():
+            roboprinter.robosm.current = back_screen
+
+        #make the confirmation screen
+        #body_text, option1_text, option2_text, option1_function, option2_function
+        content = Modal_Question_No_Title(roboprinter.lang.pack['EEPROM']['Reset_Confirmation']['Body_Text'],
+                                          roboprinter.lang.pack['EEPROM']['Reset_Confirmation']['positive'],
+                                          roboprinter.lang.pack['EEPROM']['Reset_Confirmation']['negative'],
+                                          reset,
+                                          cancel) 
+
+        #make screen
+        roboprinter.robosm._generate_backbutton_screen(name='reset_eeprom', 
+                                                       title = roboprinter.lang.pack['EEPROM']['Reset_Confirmation']['Title'] , 
+                                                       back_destination=back_screen, 
+                                                       content=content)       
         
 
     def load_values(self, catagory):
@@ -162,7 +218,7 @@ class Change_Value(BoxLayout):
         roboprinter.printer_instance._printer.commands(self.command + str(self.value))
         roboprinter.printer_instance._printer.commands("M500")
         pconsole.query_eeprom()
-        ep = Status_Popup("Value Changed", "Value has been applied to the EEPROM")
+        ep = Status_Popup(roboprinter.lang.pack['EEPROM']['Error_Title'], roboprinter.lang.pack['EEPROM']['Error_Body'])
         ep.show()
 
 

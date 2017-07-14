@@ -10,7 +10,7 @@ from kivy.logger import Logger
 from kivy.clock import Clock
 from kivy.uix.modalview import ModalView
 from .. import roboprinter
-from connection_popup import Zoffset_Warning_Popup, Error_Popup, Update_Warning_Popup
+from connection_popup import Zoffset_Warning_Popup, Update_Warning_Popup
 import math
 import subprocess
 from multiprocessing import Process
@@ -19,7 +19,9 @@ from updater import UpdateScreen
 from session_saver import session_saver
 import time
 import traceback
+from functools import partial
 from scrollbox import ScrollBox, Scroll_Box_Even, Scroll_Box_Icons, Robo_Icons
+from common_screens import Auto_Image_Label_Button
 
 #errors and warnings
 from errors_and_warnings import Error_Detection
@@ -87,7 +89,10 @@ class PrinterStatusContent(BoxLayout):
         Clock.schedule_interval(self.monitor_errors, 0.2)
         self.update_lock = False
         Clock.schedule_interval(self.safety, 1)
-        Clock.schedule_interval(self.update, 0.2)       
+        Clock.schedule_interval(self.update, 0.2)   
+
+        #add the move tools function to a global space
+        session_saver.saved['Move_Tools'] = self.move_tools_to    
 
 
     def move_tools_to(self, content_space):
@@ -283,24 +288,24 @@ class PrinterStatusContent(BoxLayout):
         
 
         if tool0 and tool1 and bed:
-            tool_0 = Tool_Status("Extruder 1 Temp", "tool0")
-            tool_1 = Tool_Status("Extruder 2 Temp", "tool1")
-            bed = Tool_Status("Bed Temp", "bed")
+            tool_0 = Tool_Status(roboprinter.lang.pack['Tool_Status']['Tool1'], "tool0")
+            tool_1 = Tool_Status(roboprinter.lang.pack['Tool_Status']['Tool2'], "tool1")
+            bed = Tool_Status(roboprinter.lang.pack['Tool_Status']['Bed'], "bed")
 
             self.ids.tools.add_widget(tool_0)
             self.ids.tools.add_widget(tool_1)
             self.ids.tools.add_widget(bed)
 
         elif tool0 and bed:
-            tool_0 = Tool_Status("Extruder 1 Temp", "tool0")
-            bed = Tool_Status("Bed Temp", "bed")
+            tool_0 = Tool_Status(roboprinter.lang.pack['Tool_Status']['Tool1'], "tool0")
+            bed = Tool_Status(roboprinter.lang.pack['Tool_Status']['Bed'], "bed")
             self.ids.tools.add_widget(tool_0)
             self.ids.tools.add_widget(Label())
             self.ids.tools.add_widget(bed)
             
             
         elif tool0:
-            tool_0 = Tool_Status("Extruder 1 Temp", "tool0")
+            tool_0 = Tool_Status(roboprinter.lang.pack['Tool_Status']['Tool1'], "tool0")
             self.ids.tools.add_widget(Label())
             self.ids.tools.add_widget(tool_0)
             self.ids.tools.add_widget(Label())
@@ -351,9 +356,9 @@ class PrinterStatusContent(BoxLayout):
         installed = self.updates.get_installed_version()
         available = self.updates.get_avail_version()
 
-        Logger.info("Available: " + str(available) + " Installed: " + str(installed) )
+        Logger.info("Available: " + available.encode('utf-8') + " Installed: " + installed.encode('utf-8') )
 
-        if installed < available and available != "Connection Error!" and not self.update_lock:
+        if installed < available and available != roboprinter.lang.pack['Update_Printer']['Connection_Error'] and not self.update_lock:
             self.update_lock = True
             #updater popup
             update = Update_Warning_Popup(self.run_update, self.unlock_updater)
@@ -372,16 +377,12 @@ class PrinterStatusContent(BoxLayout):
         safety_time = 60
 
         if self.safety_counter == safety_time and self.startup == False:
-            #Logger.info("Safety Counter went off!")
             self.detirmine_layout()
-            #check for updates
             self.check_updates()
-            #check for updates every hour
             Clock.schedule_interval(self.update_clock, 3600)
             Clock.unschedule(self.splash_event)
             return False
         elif self.safety_counter == safety_time and self.startup == True:
-            #Logger.info("Unscheduling safety event")
             return False
 
 class Idle_Screen(BoxLayout):
@@ -449,14 +450,14 @@ class Print_Screen(BoxLayout):
         
 
         
-        self.filename = filename.replace('.gcode','') if filename else 'Canceling'
+        self.filename = filename.replace('.gcode','') if filename else ''
 
         
         self.progress_width = self.ids.progress_bar_goes_here.width
         if progress != None:
             self.progress_number = (float(progress) / 100.00) * float(self.progress_width)
             p_transformed = int(progress)
-            self.progress = '[size=40]{}%[/size]'.format(p_transformed)
+            self.progress = '[size=40]{}'.format(p_transformed) + roboprinter.lang.pack['Printer_Status']['Percent'] + '[/size]'
 
         if current_time != None:
             time_elapsed = self.parse_time(current_time)
@@ -467,7 +468,7 @@ class Print_Screen(BoxLayout):
         if print_time_left != None:
             time_remaining = self.parse_time(print_time_left)
             if int(time_remaining['hours']) == 0 and int(time_remaining['minutes']) == 0:
-                self.etr = 'Less than a minute'
+                self.etr = roboprinter.lang.pack['Printer_Status']['Minute_Left']
             else:
                 self.etr = "{0:02d}:".format(time_remaining['hours']) + "{0:02d}".format(time_remaining['minutes']) 
         else:
@@ -482,10 +483,15 @@ class Print_Screen(BoxLayout):
         if progress == None:
             return False     
 
-class StartPauseButton(Button):
-    subtract_amount =  NumericProperty(35)
+class StartPauseButton(Auto_Image_Label_Button):
     def __init__(self, **kwargs):
-        super(StartPauseButton, self).__init__(**kwargs)
+        #text, image_icon, background_normal, callback
+        self.button_text = '[size=30]' + roboprinter.lang.pack['File_Screen']['Pause'] + '[/size]'
+        self.image_icon = "Icons/Printer Status/pause_button_icon.png"
+        self.background_normal = "Icons/blue_button_style.png"
+        self.callback = self.toggle_pause_print
+
+        super(StartPauseButton, self).__init__(self.button_text, self.image_icon, self.background_normal, self.callback)
         Clock.schedule_interval(self.sync_with_devices, .1)
         Clock.schedule_interval(self.colors, .1)
         self.auto_pause_pop = None
@@ -497,24 +503,13 @@ class StartPauseButton(Button):
     def sync_with_devices(self, dt):
         '''makes sure that button's state syncs up with the commands that other devices push to the printer '''
         is_paused = roboprinter.printer_instance._printer.is_paused()
-        if is_paused and self.ids.stopgo_label.text ==  '[size=30]Pause[/size]':
-            self.ids.stopgo_label.text =  '[size=30]Resume[/size]'
-            self.ids.stopgo_icon.source = 'Icons/Manual_Control/start_button_icon.png'
-            self.subtract_amount = 50
-        elif not is_paused and self.ids.stopgo_label.text ==  '[size=30]Resume[/size]':
-            self.ids.stopgo_label.text =  '[size=30]Pause[/size]'
-            self.ids.stopgo_icon.source = "Icons/Printer Status/pause_button_icon.png"
-            self.subtract_amount =  35
+        if is_paused and self.button_text ==  '[size=30]{}[/size]'.format(roboprinter.lang.pack['File_Screen']['Pause']):
+            self.button_text =  '[size=30]{}[/size]'.format(roboprinter.lang.pack['File_Screen']['Resume'])
+            self.image_icon = 'Icons/Manual_Control/start_button_icon.png'
+        elif not is_paused and self.button_text ==  '[size=30]{}[/size]'.format(roboprinter.lang.pack['File_Screen']['Resume']):
+            self.button_text =  '[size=30]{}[/size]'.format(roboprinter.lang.pack['File_Screen']['Pause'])
+            self.image_icon = "Icons/Printer Status/pause_button_icon.png"
             self.auto_pause_pop = None
-
-    def check_pause_status(self):
-        if roboprinter.printer_instance.check_auto_pause != None:
-            auto_pause = roboprinter.printer_instance.check_auto_pause()
-            if auto_pause and self.auto_pause_pop == None:
-                self.auto_pause_pop = Error_Popup("Filament Has Run out", "Please add more filament")
-                self.auto_pause_pop.open()
-        else:
-            Logger.info("RoboLCD Does not have a helper function for auto pause")
 
     def colors(self, dt):
         '''updates the color  of the button based on Start or Pause state. Green for Start'''
@@ -525,7 +520,16 @@ class StartPauseButton(Button):
         else:
             self.background_normal = 'Icons/blue_button_style.png'
 
-class CancelButton(Button):
+class CancelButton(Auto_Image_Label_Button):
+
+    def __init__(self):
+        #button_text, image_icon, background_normal, callback
+        self.button_text = '[size=30]' + roboprinter.lang.pack['File_Screen']['Cancel'] + '[/size]'
+        self.image_icon = "Icons/Printer Status/cancel_button_icon.png"
+        self.background_normal = "Icons/red_button_style.png"
+        self.callback = self.modal_view
+        super(CancelButton, self).__init__(self.button_text, self.image_icon, self.background_normal, self.callback)
+
     def cancel_print(self, *args):
         Clock.schedule_once(self.cancel_callback, 0.5)
 
@@ -533,19 +537,10 @@ class CancelButton(Button):
         if self.is_printing() or roboprinter.printer_instance._printer.is_paused() == True:
             roboprinter.printer_instance._printer.cancel_print()
             Logger.info('Cancellation: Successful')
-            Clock.schedule_once(self.unselect_callback, 30)
             self.mv.dismiss()
-            
 
-    def unselect_callback(self, dt):
-        roboprinter.printer_instance._printer.unselect_file()
-        Logger.info('Unselect: Successful')
-    def no_button(self, instance):
-        pass
     def modal_view(self):
-        self.mv = ModalPopup()
-        self.mv.ids.yes_button.bind(on_press = self.cancel_print)
-        self.mv.ids.no_button.bind(on_press = self.no_button)
+        self.mv = ModalPopup(self.cancel_print)
         self.mv.open()
 
     def is_printing(self):
@@ -559,6 +554,7 @@ class CancelButton(Button):
 class Motor_Control_Button(Button):
     """docstring for Motor_Control_Button"""
     button_state = ObjectProperty(False)
+    lang = roboprinter.lang
     def __init__(self):
         super(Motor_Control_Button, self).__init__()
         pass
@@ -566,17 +562,38 @@ class Motor_Control_Button(Button):
 class Temp_Control_Button(Button):
     """docstring for Motor_Control_Button"""
     button_state = ObjectProperty(False)
+    lang = roboprinter.lang
     def __init__(self):
         super(Temp_Control_Button, self).__init__()
         pass
         
 
 class ModalPopup(ModalView):
-    def cancellation_feedback(self):
-        self.ids.modal_question.text = "Cancelling..."
 
-    def dismiss_popup(self, *args):
+    def __init__(self, yes_callback):
+        super(ModalPopup, self).__init__()
+        self.yes_callback = yes_callback
+        self.populate_buttons()
+        
+    def cancellation_feedback(self):
+        self.ids.modal_question.text = roboprinter.lang.pack['File_Screen']['Canceling']
+
+    def cancel_popup(self, *args):
         self.cancellation_feedback()
+        self.yes_callback()
+    def dismiss_pop(self, **kwargs):
+        self.dismiss()
+
+
+    def populate_buttons(self):
+        content = self.ids.yes_no_grid
+
+        yes_button = Auto_Image_Label_Button('[size=30]' + roboprinter.lang.pack['Popup']['PYes'], 'Icons/Manual_Control/ok_button_icon.png', 'Icons/blue_button_style.png', self.cancel_popup)
+        no_button = Auto_Image_Label_Button('[size=30]' + roboprinter.lang.pack['Popup']['PNo'], 'Icons/Manual_Control/cancel_button_icon.png', 'Icons/red_button_style.png', self.dismiss_pop)
+        
+
+        content.add_widget(yes_button)
+        content.add_widget(no_button)
 
 class Tool_Status(BoxLayout):
     name = StringProperty("Error")

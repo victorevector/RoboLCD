@@ -21,7 +21,7 @@
         size_hint_y: 0.25
         Label:
         Label:
-            text: "[size=22]Estimated Time: {0:02d}:".format(root.hours) + "{0:02d}:".format(root.minutes) + "{0:02d}[/size]".format(root.seconds)
+            text: "[size=22]{}".format(app.root.lang.pack['File_Screen']['Estimated_Time']) + ": {0:02d}:".format(root.hours) + "{0:02d}:".format(root.minutes) + "{0:02d}[/size]".format(root.seconds)
             text_size: self.size
             markup: True
             halign: 'right'
@@ -45,7 +45,7 @@
                 halign: 'center'
 
             Label:
-                text: '[size=30]Z Offset[/size]'
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Z_Offset'])
                 markup: True
                 valign: 'middle'
                 halign: 'center'
@@ -60,7 +60,7 @@
                 halign: 'center'
 
             Label:
-                text: '[size=30]Infill[/size]'
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Infill'])
                 markup: True
                 valign: 'middle'
                 halign: 'center'
@@ -76,7 +76,7 @@
                 halign: 'center'
 
             Label:
-                text: '[size=30]Layer\nHeight[/size]'
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Layer_Height'])
                 markup: True
                 valign: 'middle'
                 halign: 'center'
@@ -92,7 +92,7 @@
                 halign: 'center'
 
             Label:
-                text: '[size=30]Layers[/size]'
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Layers'])
                 markup: True
                 valign: 'middle'
                 halign: 'center'
@@ -100,22 +100,13 @@
     BoxLayout:
         size_hint_y: 0.5
         padding: [root.width/4, 10, root.width/4, 10]
-        Button:
+        Auto_Image_Label_Button:
             id: start
-            font_size: 30
-            on_press: root.start_print( app.root.go_back_to_main('printer_status_tab'))
+            button_text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Start'])
+            image_icon: "Icons/Manual_Control/start_button_icon.png"
             background_normal: "Icons/green_button_style.png"
-            Image:
-                id: start_icon
-                source: "Icons/Manual_Control/start_button_icon.png"
-                center_x: start.center_x - root.subtract_amount
-                center_y: start.center_y
-            Label:
-                id: start_label
-                markup: True
-                text: '[size=30]Start[/size]'
-                center_x: start.center_x + 30
-                center_y: start.center_y
+            on_press: root.start_print( app.root.go_back_to_main('printer_status_tab'))
+
 
 <-PrintUSB>:
     id: screen
@@ -129,7 +120,7 @@
         size_hint_y: 0.25
         Label:
         Label:
-            text: "[size=22]Estimated Time: {0:02d}:".format(root.hours) + "{0:02d}:".format(root.minutes) + "{0:02d}[/size]".format(root.seconds)
+            text: "[size=22]{}".format(app.root.lang.pack['File_Screen']['Estimated_Time']) + ": {0:02d}:".format(root.hours) + "{0:02d}:".format(root.minutes) + "{0:02d}[/size]".format(root.seconds)
             text_size: self.size
             markup: True
             halign: 'right'
@@ -153,7 +144,7 @@
                 halign: 'center'
 
             Label:
-                text: '[size=30]Z Offset[/size]'
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Z_Offset'])
                 markup: True
                 valign: 'middle'
                 halign: 'center'
@@ -168,7 +159,7 @@
                 halign: 'center'
 
             Label:
-                text: '[size=30]Infill[/size]'
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Infill'])
                 markup: True
                 valign: 'middle'
                 halign: 'center'
@@ -184,7 +175,7 @@
                 halign: 'center'
 
             Label:
-                text: '[size=30]Layer\nHeight[/size]'
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Layer_Height'])
                 markup: True
                 valign: 'middle'
                 halign: 'center'
@@ -200,7 +191,7 @@
                 halign: 'center'
 
             Label:
-                text: '[size=30]Layers[/size]'
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Layers'])
                 markup: True
                 valign: 'middle'
                 halign: 'center'
@@ -213,34 +204,29 @@
             font_size: 30
             on_press: root.start_print( app.root.go_back_to_main('printer_status_tab'))
             background_normal: "Icons/green_button_style.png"
-            Image:
-                id: start_icon
-                source: "Icons/Manual_Control/start_button_icon.png"
-                center_x: start.center_x - root.subtract_amount
-                center_y: start.center_y
             Label:
+                pos: start.pos
+                size: start.size
                 id: start_label
                 markup: True
-                text: '[size=30]Start[/size]'
-                center_x: start.center_x + 30
-                center_y: start.center_y
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Start'])
+                text_size: self.size
+                valign: 'middle'
+                halign: 'center'
         Button:
             id: save
             font_size: 30
             on_press: root.save_file_to_local() 
             background_normal: "Icons/blue_button_style.png"
-            Image:
-                id: save_icon
-                source: 'Icons/save_button_icon.png'
-                center_x: save.center_x - 40
-                center_y: save.center_y
             Label:
                 id: save_label
+                size: save.size
+                pos: save.pos
+                text_size: self.size
                 markup: True
-                text: '[size=30]Save[/size]'
-                center_x: save.center_x + 20
-                center_y: save.center_y
-
+                text: '[size=30]{}[/size]'.format(app.root.lang.pack['File_Screen']['Save'])
+                valign: 'middle'
+                halign: 'center'
 
 
 <FileButton>:
@@ -318,15 +304,6 @@
             shorten: True
             halign: 'left'
             valign: 'center'
-        # Label:
-        #     size_hint_x: 0.2
-        #     id:date
-        #     text: ''
-        #     markup: True
-        #     font_size: 20
-        #     text_size: self.size
-        #     halign: 'right'
-        #     valign: 'center'
 
         Button:
             background_color: (0,0,0,1)
@@ -340,11 +317,6 @@
                 size_hint: None, None
                 halign: 'right'
                 valign: 'center'
-
-        
-        
-
-
 
 <FilesContent>:
     orientation: 'horizontal'
@@ -383,7 +355,7 @@
                     size_hint_y: 0.2
                     id: delete_file
                     markup: True
-                    text : "[size=30]Delete"
+                    text : "[size=30]{}".format(app.root.lang.pack['File_Options']['Delete'])
                     text_size: self.size
                     valign: 'middle'
                     halign: 'center'
@@ -404,7 +376,7 @@
                     size_hint_y: 0.2
                     id: delete_file
                     markup: True
-                    text : "[size=30]Add Folder"
+                    text : "[size=30]{}".format(app.root.lang.pack['File_Options']['Add_Folder'])
                     text_size: self.size
                     valign: 'middle'
                     halign: 'center'
@@ -418,7 +390,7 @@
                 padding: 15,15
                 orientation: 'vertical'
                 Image:
-                    source: "Icons/Files_Icons/Move file.png" if root.move_text == "Move File" else "Icons/Files_Icons/Move folder.png"
+                    source: "Icons/Files_Icons/Move file.png" if root.move_text == app.root.lang.pack['File_Options']['Move_File'] else "Icons/Files_Icons/Move folder.png"
                 Label:
                     size_hint_y: 0.2
                     id: delete_file
@@ -434,14 +406,14 @@
         size_hint: .7, .2
         pos_hint: {'top': 1}
         halign: 'right'
-        text: "New_Folder"
+        text: root.default_text
         font_size: 35
         color: 1,1,1,1
     Button:
         id: connect
         size_hint: .2, .2
         pos_hint: {'top': 1, 'x': .75}
-        text: "Continue"
+        text: app.root.lang.pack['File_Options']['Continue']
         font_size: 30
         on_press: root.keyboard_callback(str(fname.text))
         on_press: root.close_screen()
@@ -449,48 +421,47 @@
         id: show_keyboard
         size_hint: .35, .2
         pos_hint: {'x': .35, 'y': .30}
-        text: "Show Keyboard"
+        text: app.root.lang.pack['File_Options']['Show_Keyboard']
         font_size: 30
         on_press: root._set_keyboard('keyboards/abc.json')
 
-<StartPauseButton>:
-    id:startpause
-    font_size: 35
-    size_hint_y: .7
-    size_hint_x: 0.15
-    pos_hint: {'y': 0.1}
-    background_normal: "Icons/blue_button_style.png"
-    on_press: self.toggle_pause_print()
+<Auto_Image_Label_Button>:
+    id:auto_button
+    background_normal: root.background_normal
+    on_press: root.button_press()
+
     Image:
-        id:stopgo_icon
-        source: "Icons/Printer Status/pause_button_icon.png"
-        center_x: startpause.center_x - root.subtract_amount
-        center_y: startpause.center_y
+        id:auto_icon
+        source: root.image_icon
+        size: auto_icon.texture_size
+        pos: auto_button.x + ((auto_button.width - (auto_icon.width + auto_label.width + 15) ) / 2), auto_button.y  + ((auto_button.height - auto_icon.height) / 2)
+        # canvas.after:
+        #     Color:
+        #         rgba: 1,0,0,1
+        #     Line:
+        #         cap: 'round'
+        #         joint: 'round'
+        #         close: False
+        #         width: 1
+        #         points: auto_icon.x, auto_icon.y, auto_icon.x, auto_icon.y + auto_icon.height, auto_icon.x + auto_icon.width, auto_icon.y + auto_icon.height, auto_icon.x + auto_icon.width, auto_icon.y, auto_icon.x,auto_icon.y
+
     Label:
         markup: True
-        id: stopgo_label
-        text: '[size=30]Pause[/size]'
-        center_x: startpause.center_x + 25
-        center_y: startpause.center_y
+        id: auto_label
+        text: root.button_text
+        size: auto_label.texture_size
+        pos: (auto_icon.x + auto_icon.width) + 15, auto_button.y  + ((auto_button.height - auto_label.height) / 2)
+        
+        # canvas.after:
+        #     Color:
+        #         rgba: 0,1,0,1
+        #     Line:
+        #         cap: 'round'
+        #         joint: 'round'
+        #         close: False
+        #         width: 1
+        #         points: auto_label.x, auto_label.y, auto_label.x, auto_label.y + auto_label.height, auto_label.x + auto_label.width, auto_label.y + auto_label.height, auto_label.x + auto_label.width, auto_label.y, auto_label.x,auto_label.y
 
-
-<CancelButton>:
-    id: cancel
-    font_size: 35
-    size_hint_y: .7
-    size_hint_x: 0.15
-    pos_hint: {'y': 0.1}
-    background_normal: "Icons/red_button_style.png"
-    on_press: self.modal_view()
-    Image:
-        source: "Icons/Printer Status/cancel_button_icon.png"
-        center_x: cancel.center_x - 40
-        center_y: cancel.center_y
-    Label:
-        markup: True
-        text: '[size=30]Cancel[/size]'
-        center_x: cancel.center_x + 25
-        center_y: cancel.center_y
 
 <Confirmation_Screen>:
     background_color: 0,0,0,1
@@ -516,32 +487,43 @@
         Label:
             size_hint_x: 0.3
             text:""
-        Button:
-    
-            id: ok_button
-            on_press: root.button_function()
-            halign: 'center'
-            valign: 'center'
-            background_normal: "Icons/Slicer wizard icons/button bkg active.png"                
-            
-            Image:
-                source: 'Icons/Manual_Control/ok_button_icon.png'
-                center_y: ok_button.center_y 
-                center_x: ok_button.center_x - 35
-                
-            Label:
-                markup: True
-                text: "[size=40]Done"
-                halign: 'right'
-                valign: 'center'
-                center_y: ok_button.center_y 
-                center_x: ok_button.center_x + 35
+
+        Auto_Image_Label_Button:
+            button_text: "[size=40]" + app.root.lang.pack['Slicer_Wizard']['Confirmation']['Button']
+            image_icon: 'Icons/Manual_Control/ok_button_icon.png'
+            background_normal: "Icons/Slicer wizard icons/button bkg active.png"
+            callback: root.button_function
         Label:
             size_hint_x: 0.3
             text:""
 
-
-
+<UpdateScreen>
+    id: updatescreen
+    background_color: 0,0,0,1
+    Label:
+        id: version_number
+        text: '[size=40][color=#69B3E7]' + app.root.lang.pack['Update_Printer']['Welcome']['RoboOS'] + '\n[/size][size=35]' + app.root.lang.pack['Update_Printer']['Welcome']['Installed'] + root.installed_version + '\n' + app.root.lang.pack['Update_Printer']['Welcome']['Available'] + root.avail_version
+        font_size: 30
+        size_hint: None, None
+        text_size: updatescreen.width, None
+        markup: True
+        max_lines: 0
+        halign: 'center'
+        valign: 'center'
+        pos_hint: {'center_y': .75}
+        center_x: updatescreen.center_x
+    Button:
+        id: updatebtn
+        text: app.root.lang.pack['Update_Printer']['Welcome']['Up2Date'] if root.installed_version >= root.avail_version else app.root.lang.pack['Update_Printer']['Welcome']['Update']
+        disabled: True
+        font_size: 40
+        pos_hint: {'center_x': .5, 'center_y': .25}
+        size_hint: .7, .3
+        border: 40,40,40,40
+        background_normal: "Icons/button_blue.png"
+        background_disabled_down: "Icons/button_blue.png"
+        background_disabled_normal: "Icons/button_blue.png"
+        on_press: root.run_updater()
 
 <ModalPopup>:
     background_color: 0,0,0,1
@@ -561,70 +543,27 @@
             points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
     BoxLayout:
         background_color: 0,0,0,1
-        cols: 1
-        rows: 2
         size: popup.size
         orientation: 'vertical'
-        GridLayout:
-            id: top
-            background_color: 0,0,0,1
-            cols: 1
-            rows: 1
-            FloatLayout:
-                Image:
-                    source: 'Icons/Manual_Control/failure_icon.png'
-                    size_hint: None, None
-                    center_x: top.center_x
-                    center_y: top.center_y + 20
-                Label:
-                    id: modal_question
-                    size_hint: None, None
-                    text: 'Are you sure you want to cancel this print?'
-                    valign: 'middle'
-                    font_size: 30
-                    center_x: top.center_x
-                    center_y: top.center_y - 70
-
-        GridLayout:
-            background_color: 0,0,0,1
-            cols: 2
-            rows: 1
-            padding: 35,50,35,50
-            spacing: 50
-            Button:
-                id: yes_button
-                height: 75
-                width: 100
-                on_press: popup.dismiss_popup()
-                background_normal: 'Icons/blue_button_style.png'
-                Image:
-                    source: 'Icons/Manual_Control/ok_button_icon.png'
-                    center_x: yes_button.center_x - 25
-                    center_y: yes_button.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text:'Yes'
-                    font_size: 30
-                    center_x: yes_button.center_x + 20
-                    center_y: yes_button.center_y
-            Button:
-                id: no_button
+        
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 0,15,0,0
+            Image:
+                source: 'Icons/Manual_Control/failure_icon.png'
+            Label:
+                id: modal_question
+                size: self.texture_size
+                text: app.root.lang.pack['Popup']['Cancel_Print'] 
+                valign: 'center'
+                halign: 'center'
                 font_size: 30
-                height: 75
-                width: 100
-                on_press: root.dismiss()
-                background_normal: 'Icons/red_button_style.png'
-                Image:
-                    source: 'Icons/Manual_Control/cancel_button_icon.png'
-                    center_x: no_button.center_x - 20
-                    center_y: no_button.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'No'
-                    font_size: 30
-                    center_x: no_button.center_x + 20
-                    center_y: no_button.center_y
-
+        BoxLayout:
+            size_hint_y: 0.5
+            padding: 50,15,50,15
+            spacing: 50
+            id: yes_no_grid
+            
 <Connection_Popup>:
     background_color: 0,0,0,1
     id: popup
@@ -660,26 +599,11 @@
                 halign: 'center'
                 center_x: popup.center_x
                 center_y: popup.center_y - 15
-            Button:
-                size_hint: None, None
-                id: connect
+            Auto_Image_Label_Button:
+                button_text: "[size=30]" + app.root.lang.pack['Popup']['Connect']
+                image_icon: 'Icons/Manual_Control/refresh_icon.png'
                 background_normal: 'Icons/blue_button_style.png'
-                width: 225
-                height: 85
-                on_press: root.reconnect_button()
-                center_x: popup.center_x
-                center_y: popup.center_y - 125
-                Image:
-                    source: 'Icons/Manual_Control/refresh_icon.png'
-                    allow_stretch: False
-                    center_x: connect.center_x - 55
-                    center_y: connect.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'Connect'
-                    font_size: 30
-                    center_x: connect.center_x + 30
-                    center_y: connect.center_y
+                callback: root.reconnect_button
 
 <Updating_Popup>:
     background_color: 0,0,0,1
@@ -711,7 +635,7 @@
                 id: modal_question
                 markup: True
                 size_hint: None, None
-                text: '[size=40][color=#69B3E7]Firmware is updating[/size][/color]\n[size=30]Your printer will restart\nafter the update is finished[/size]'
+                text: '[size=40][color=#69B3E7]' + app.root.lang.pack['Popup']['Firmware_Title'] +'[/size][/color]\n[size=30]' + app.root.lang.pack['Popup']['Firmware_Body'] +'[/size]'
                 valign: 'middle'
                 halign: 'center'
                 center_x: popup.center_x
@@ -737,61 +661,36 @@
         cols:1
         rows:1
         background_color: 0,0,0,1
-        FloatLayout:
+        BoxLayout:
+            orientation: 'vertical'
 
             Label:
                 id: modal_question
                 markup: True
-                size_hint: None, None
-                text: '[size=40][color=#69B3E7]Current Z Offset is {} mm[/size][/color][size=30]\n\nThis is the default setting for the Z Offset\n\nPress Continue to start print or \n press Z Offset to start the wizard'.format(root.current_z_offset)
+                text: '[size=40][color=#69B3E7]' + app.root.lang.pack['Popup']['ZOffset_Title'] +' {} '.format(root.current_z_offset) + app.root.lang.pack['Popup']['ZOffset_Units'] +'[/size][/color][size=30]\n\n' + app.root.lang.pack['Popup']['ZOffset_Body'] 
                 valign: 'middle'
                 halign: 'center'
-                center_x: popup.center_x
-                center_y: popup.center_y + 65
+                
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: 0.5
+                spacing: 25
+                padding: 25, 15, 25, 15
+    
+                Auto_Image_Label_Button:
+                    button_text: "[size=30]" + app.root.lang.pack['Popup']['Z_Offset']
+                    image_icon: 'Icons/Manual_Control/printer_button_icon.png'
+                    background_normal: 'Icons/blue_button_style.png'
+                    callback: app.root.generate_zaxis_wizard
+                    kwargs: {'name':'zoffset', 'title':'Z Offset Wizard', 'back_destination':'main'}
+                    on_press: root.dismiss_popup()
+    
+                Auto_Image_Label_Button:
+                    button_text: "[size=30]" + app.root.lang.pack['Popup']['Continue']
+                    image_icon: 'Icons/Manual_Control/start_button_icon.png'
+                    background_normal: 'Icons/red_button_style.png'
+                    callback: root.start_print_button
 
-
-            Button:
-                size_hint: None, None
-                id: cancel
-                background_normal: 'Icons/blue_button_style.png'
-                width: 225
-                height: 85
-                on_press: app.root.generate_zaxis_wizard(name='zoffset', title='Z Offset Wizard', back_destination='main')
-                on_press: root.dismiss_popup()
-                center_x: popup.center_x + 125
-                center_y: popup.center_y - 125
-                Image:
-                    source: 'Icons/Manual_Control/printer_button_icon.png'
-                    allow_stretch: False
-                    center_x: cancel.center_x - 55
-                    center_y: cancel.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'Z Offset'
-                    font_size: 30
-                    center_x: cancel.center_x + 30
-                    center_y: cancel.center_y
-
-            Button:
-                size_hint: None, None
-                id: start_print
-                background_normal: 'Icons/red_button_style.png'
-                width: 225
-                height: 85
-                on_press: root.start_print_button()
-                center_x: popup.center_x - 125
-                center_y: popup.center_y - 125
-                Image:
-                    source: 'Icons/Manual_Control/start_button_icon.png'
-                    allow_stretch: False
-                    center_x: start_print.center_x - 55
-                    center_y: start_print.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'Continue'
-                    font_size: 30
-                    center_x: start_print.center_x + 30
-                    center_y: start_print.center_y
 
 <Update_Warning_Popup>:
     background_color: 0,0,0,1
@@ -809,64 +708,34 @@
             close: False
             width: 3
             points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
-    GridLayout:
-        cols:1
-        rows:1
-        background_color: 0,0,0,1
-        FloatLayout:
 
-            Label:
-                id: modal_question
-                markup: True
-                size_hint: None, None
-                text: root.body_text
-                valign: 'middle'
-                halign: 'center'
-                center_x: popup.center_x
-                center_y: popup.center_y + 65
+    BoxLayout:
+        orientation: 'vertical'
 
+        Label:
+            id: modal_question
+            markup: True
+            text: root.body_text
+            valign: 'middle'
+            halign: 'center'
 
-            Button:
-                size_hint: None, None
-                id: cancel
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.5
+            spacing: 25
+            padding: 25, 15, 25, 15
+            Auto_Image_Label_Button:
+                button_text: "[size=30]" + app.root.lang.pack['Popup']['Later']
+                image_icon: "Icons/Manual_Control/cancel_button_icon.png"
                 background_normal: 'Icons/red_button_style.png'
-                width: 225
-                height: 85
-                on_press: root.dismiss_popup()
-                center_x: popup.center_x + 125
-                center_y: popup.center_y - 125
-                Image:
-                    source: "Icons/Manual_Control/cancel_button_icon.png"
-                    allow_stretch: False
-                    center_x: cancel.center_x - 55
-                    center_y: cancel.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'Later'
-                    font_size: 30
-                    center_x: cancel.center_x + 30
-                    center_y: cancel.center_y
+                callback: root.dismiss_popup
 
-            Button:
-                size_hint: None, None
-                id: start_print
+            Auto_Image_Label_Button:
+                button_text: "[size=30]" + app.root.lang.pack['Popup']['Update']
+                image_icon: 'Icons/Manual_Control/start_button_icon.png'
                 background_normal: 'Icons/blue_button_style.png'
-                width: 225
-                height: 85
-                on_press: root.start_update_button()
-                center_x: popup.center_x - 125
-                center_y: popup.center_y - 125
-                Image:
-                    source: 'Icons/Manual_Control/start_button_icon.png'
-                    allow_stretch: False
-                    center_x: start_print.center_x - 55
-                    center_y: start_print.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'Update'
-                    font_size: 30
-                    center_x: start_print.center_x + 30
-                    center_y: start_print.center_y
+                callback: root.start_update_button
+
 
 <Mintemp_Warning_Popup>:
     background_color: 0,0,0,1
@@ -898,7 +767,7 @@
                 id: modal_question
                 markup: True
                 size_hint: None, None
-                text: '[size=40][color=#69B3E7]Extruder Error [/size][/color]\n[size=30]{}°C / 175°C\nYour printer is not hot enough to\nmove filament[/size]'.format(root.current_temp)
+                text: '[size=40][color=#69B3E7]' + app.root.lang.pack['Warning']['Mintemp'] + '[/size][/color]\n[size=30]{}'.format(root.current_temp) + app.root.lang.pack['Warning']['Mintemp_Body'] + '[/size]'
                 valign: 'middle'
                 halign: 'center'
                 center_x: popup.center_x
@@ -957,46 +826,79 @@
             close: False
             width: 3
             points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
-    GridLayout:
-        cols:1
-        rows:1
-        background_color: 0,0,0,1
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/failure_icon.png'
-                size_hint: None, None
-                center_x: popup.center_x
-                center_y: popup.center_y + 120
-            Label:
-                id: modal_question
-                markup: True
-                size_hint: None, None
-                text: '[size=40][color=#69B3E7]'+ root.error + '[/size][/color]\n[size=30]'+ root.body_text + '[/size]'
-                valign: 'middle'
-                halign: 'center'
-                center_x: popup.center_x
-                center_y: popup.center_y
-            Button:
-                size_hint: None, None
-                id: error_ok
-                background_normal: 'Icons/blue_button_style.png'
-                width: 225
-                height: 85
-                on_press: app.root.go_back_to_main('printer_status_tab')
-                center_x: popup.center_x
-                center_y: popup.center_y - 125
-                Image:
-                    source: 'Icons/Manual_Control/ok_button_icon.png'
-                    allow_stretch: False
-                    center_x: error_ok.center_x - 20
-                    center_y: error_ok.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'OK'
-                    font_size: 30
-                    center_x: error_ok.center_x + 20
-                    center_y: error_ok.center_y
+    BoxLayout:
+        orientation: 'vertical'
 
+        Image:
+            size_hint_y: 0.5
+            source: 'Icons/Manual_Control/failure_icon.png'
+            
+        Label:
+            id: modal_question
+            markup: True
+            text: '[size=40][color=#69B3E7]'+ root.error + '[/size][/color]\n[size=30]'+ root.body_text + '[/size]'
+            valign: 'middle'
+            halign: 'center'
+            
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.6
+            spacing: 25
+            padding: 175, 15, 175, 15
+
+            Auto_Image_Label_Button:
+                button_text: "[size=30]" + app.root.lang.pack['Popup']['OK']
+                image_icon: 'Icons/Manual_Control/ok_button_icon.png'
+                background_normal: 'Icons/blue_button_style.png'
+                callback: root.callback
+                on_press: root.dismiss()
+<Info_Popup>:
+    background_color: 0,0,0,1
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 600, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
+           
+    BoxLayout:
+        background_color: 0,0,0,1
+        orientation: 'vertical'
+        padding: 10, 0, 10, 10
+        Label:
+            size_hint_y: 0.5
+            id: modal_question
+            markup: True
+            text: '[size=40][color=#69B3E7]'+ root.error + '[/size][/color]'
+            valign: 'center'
+            halign: 'center'
+            size: self.size
+        Label:
+            id: body_text
+            markup: True
+            text: '[size=30]'+ root.body_text + '[/size]'
+            valign: 'center'
+            halign: 'center'
+            size: self.size
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.6
+            padding: 100, 0, 100, 15
+
+            Auto_Image_Label_Button:
+                button_text: "[size=30]" + app.root.lang.pack['Popup']['OK']
+                image_icon: 'Icons/Manual_Control/ok_button_icon.png'
+                background_normal: 'Icons/blue_button_style.png'
+                on_press: root.dismiss()
 <Status_Popup>:
     background_color: 0,0,0,1
     id: popup
@@ -1013,45 +915,33 @@
             close: False
             width: 3
             points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
-    GridLayout:
-        cols:1
-        rows:1
-        background_color: 0,0,0,1
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/failure_icon.png'
-                size_hint: None, None
-                center_x: popup.center_x
-                center_y: popup.center_y + 120
-            Label:
-                id: modal_question
-                markup: True
-                size_hint: None, None
-                text: '[size=40][color=#69B3E7]'+ root.error + '[/size][/color]\n[size=30]'+ root.body_text + '[/size]'
-                valign: 'middle'
-                halign: 'center'
-                center_x: popup.center_x
-                center_y: popup.center_y
-            Button:
-                size_hint: None, None
-                id: error_ok
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 0, 15, 0, 0
+
+        Image:
+            size_hint_y: 0.5
+            source: 'Icons/Manual_Control/failure_icon.png'
+            
+        Label:
+            id: modal_question
+            markup: True
+            text: '[size=40][color=#69B3E7]'+ root.error + '[/size][/color]\n[size=30]'+ root.body_text + '[/size]'
+            valign: 'middle'
+            halign: 'center'
+            
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.6
+            spacing: 25
+            padding: 175, 15, 175, 15
+
+
+            Auto_Image_Label_Button:
+                button_text: "[size=30]" + app.root.lang.pack['Popup']['OK']
+                image_icon: 'Icons/Manual_Control/ok_button_icon.png'
                 background_normal: 'Icons/blue_button_style.png'
-                width: 225
-                height: 85
-                on_press: root.hide()
-                center_x: popup.center_x
-                center_y: popup.center_y - 125
-                Image:
-                    source: 'Icons/Manual_Control/ok_button_icon.png'
-                    allow_stretch: False
-                    center_x: error_ok.center_x - 20
-                    center_y: error_ok.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'OK'
-                    font_size: 30
-                    center_x: error_ok.center_x + 20
-                    center_y: error_ok.center_y
+                on_press: root.dismiss()
 
 <USB_Progress_Popup>:
     background_color: 0,0,0,1
@@ -1119,113 +1009,8 @@
                 center_x: popup.center_x
                 center_y: popup.center_y - 75
 
-            # ProgressBar:
-            #     max: root.max_progress
-            #     value: root.value_progress
-            #     size_hint: None, None
-            #     x: popup.center_x - 150
-            #     y: popup.y + 20
-            #     width: 300
-
-
-<StartUpdateButton>:
-    text: 'Install'
-    font_size: 40
-    pos_hint: {'center_x': .5, 'center_y': .5}
-    size_hint: .5, .5
-    border: 40,40,40,40
-    background_normal: "Icons/button_pause_blank.png"
-
-<UpdateScreen>
-    id: updatescreen
-    background_color: 0,0,0,1
-    Label:
-        id: version_number
-        text: '[size=40][color=#69B3E7]RoboOS\n[/size][size=35]Installed: {} \nAvailable: {}'.format(root.installed_version, root.avail_version)
-        font_size: 30
-        size_hint: None, None
-        text_size: updatescreen.width, None
-        markup: True
-        max_lines: 0
-        halign: 'center'
-        valign: 'center'
-        pos_hint: {'center_y': .75}
-        center_x: updatescreen.center_x
-    Button:
-        id: updatebtn
-        text: 'Up-to-date' if root.installed_version >= root.avail_version else 'Update'
-        disabled: True
-        font_size: 40
-        pos_hint: {'center_x': .5, 'center_y': .25}
-        size_hint: .7, .3
-        border: 40,40,40,40
-        background_normal: "Icons/button_blue.png"
-        background_disabled_down: "Icons/button_blue.png"
-        background_disabled_normal: "Icons/button_blue.png"
-        on_press: root.run_updater()
-
-<NoupdatePopup>
-    size_hint: .6, .5
-    title: 'Update Notification'
-    title_size: 30
-    background_color: (0, 0, 0, 1)
-    BoxLayout:
-        Label:
-            text: '[size=30]No Updates.[/size]'
-            markup: True
-            color: 1,1,1,1
-
-<RunningPopup>
-    size_hint: .6, .5
-    title: 'Kaa Notification'
-    title_size: 30
-    auto_dismiss: False
-    background_color: (0, 0, 0, 1)
-    BoxLayout:
-        Label:
-            text: '[size=30]Upgrading...\n please wait a minute...[/size]'
-            markup: True
-            color: 0,0,1,1
-
-<ErrorPopup>
-    size_hint: .5, .4
-    title: 'Kaa Error Notification'
-    title_size: 30
-    background_color: (0, 0, 0, 1)
-    BoxLayout:
-        Label:
-            text: '[size=30]Update error[/size]'
-            markup: True
-            color: 1,0,0,1
-
-<CompletePopup>
-    size_hint: .4, .3
-    title: 'Kaa Notification'
-    title_size: 30
-    background_color: (0, 0, 0, 1)
-    BoxLayout:
-        Label:
-            text: '[size=30]Update Completed![/size]'
-            markup: True
-            color: 0,0,1,1
-
-
-<ULabel>:
-    markup: True
-    size_hint_y: None
-    height: 100
-    background_color: (0,0,0,1)
-    halign: 'left'
-    text_size: self.width, self.height
-    width: self.texture_size[0]
-    valign: 'middle'
-    font_size: 30
-
 <UtilitiesContent>
     background_color: 0,0,0,1
-
-
-
 
 <AP_Mode_1_4>:
     id: screen
@@ -1237,31 +1022,24 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=30]By starting a Wi-Fi hotspot, you will be able to\nconnect to your printer through Wi-Fi enabled devices.[/size]'
+        text: '[size=30]' + app.root.lang.pack['WiFi']['Start_Hotspot'] + '[/size]'
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
         center_y: screen.center_y + 20
-    Button:
-        id: start
-        background_normal: 'Icons/blue_button_style.png'
+
+    BoxLayout:
+        orientation: 'vertical'
         size_hint: None, None
         width: 225
         height: 85
         center_x: screen.center_x
         center_y: screen.center_y - 85
-        on_press: root.ap.ap_mode_2_4()
-        Image:
-            source: 'Icons/Manual_Control/start_button_icon.png'
-            size_hint: None, None
-            center_x: start.center_x - 30
-            center_y: start.center_y
-        Label:
-            text: 'Start'
-            font_size: 30
-            size_hint: None, None
-            center_x: start.center_x + 30
-            center_y: start.center_y
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['WiFi']['Start']
+            image_icon: 'Icons/Manual_Control/start_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.ap.ap_mode_2_4()
 
 <AP_Mode_2_4>:
     id: screen
@@ -1273,7 +1051,7 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=50][color=#69B3E7]Hotspot Initiating...[/color][/size][size=40]\nThis can take up to two minutes[/size]'
+        text: '[size=50][color=#69B3E7]' + app.root.lang.pack['WiFi']['Hotspot_Title'] +  '[/color][/size][size=40]' + app.root.lang.pack['WiFi']['Hotspot_Body'] + '[/size]'
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
@@ -1288,7 +1066,7 @@
         Label:
             markup: True
             size_hint: None, None
-            text: '[size=45][color=#69B3E7]Hotspot Failure[/color][/size][size=35]\nPress Retry to refresh the network module\nand try again[/size]'
+            text: '[size=45][color=#69B3E7]' + app.root.lang.pack['WiFi']['Hotspot_Failure_Title'] + '[/color][/size][size=35]' + app.root.lang.pack['WiFi']['Hotspot_Failure_Body'] + '[/size]'
             valign: 'middle'
             halign: 'center'
             center_x: screen.center_x
@@ -1297,34 +1075,16 @@
         padding: 50,35,50,35
         spacing: 30
         orientation: 'horizontal'
-        Button:
-            id: cancel
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['WiFi']['Cancel']
+            image_icon: 'Icons/cancel_button_icon.png'
             background_normal: 'Icons/blue_button_style.png'
             on_press: app.root.go_back_to_main()
-            FloatLayout:
-                Image:
-                    source: 'Icons/cancel_button_icon.png'
-                    center_x: cancel.center_x - 65
-                    center_y: cancel.center_y
-                Label:
-                    text: 'Cancel'
-                    font_size: 40
-                    center_x: cancel.center_x + 20
-                    center_y: cancel.center_y
-        Button:
-            id: retry
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['WiFi']['Retry']
+            image_icon: 'Icons/retry_button_icon.png'
             background_normal: 'Icons/blue_button_style.png'
             on_press: root.ap.retry()
-            FloatLayout:
-                Image:
-                    source: 'Icons/retry_button_icon.png'
-                    center_x: retry.center_x - 60
-                    center_y: retry.center_y
-                Label:
-                    text: 'Retry'
-                    font_size: 40
-                    center_x: retry.center_x + 20
-                    center_y: retry.center_y
 
 <AP_Mode_Success>:
     id: screen
@@ -1336,32 +1096,24 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=45][color=#69B3E7]Wi-Fi Hotspot Created[/color][/size][size=35]\nYou can now use your Wi-Fi enabled device to\nconnect to your printer.[/size]'
+        text: '[size=45][color=#69B3E7]' + app.root.lang.pack['WiFi']['Hotspot_Success_Title'] + '[/color][/size][size=35]' + app.root.lang.pack['WiFi']['Hotspot_Success_Body'] + '[/size]'
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
         center_y: screen.center_y
-    Button:
-        id: ok
-        background_normal: 'Icons/blue_button_style.png'
+    BoxLayout:
+        orientation: 'vertical'
         size_hint: None, None
         width: 225
         height: 85
         center_x: screen.center_x
         center_y: screen.center_y - 150
-        on_press: app.root.go_back_to_main()
-        Image:
-            source: 'Icons/Manual_Control/ok_button_icon.png'
-            size_hint: None, None
-            center_x: ok.center_x - 30
-            center_y: ok.center_y
-        Label:
-            text: 'OK'
-            font_size: 30
-            size_hint: None, None
-            center_x: ok.center_x + 30
-            center_y: ok.center_y
 
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['WiFi']["Ok"]
+            image_icon: 'Icons/Manual_Control/ok_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: app.root.go_back_to_main()
 <APConfirmation>:
     font_size: 30
 
@@ -1410,12 +1162,12 @@
         source: 'Icons/time_button_icon.png'
         pos_hint: {'center_x': 0.5, 'y': 0.23}
     Label:
-        text: 'Connecting to {}...'.format(root.ssid)
+        text: app.root.lang.pack["WiFi"]["Connecting"] + '{}'.format(root.ssid) + app.root.lang.pack["WiFi"]["ellipsis"]
         font_size: 40
         pos_hint: {'center_x': 0.5, 'y': 0}
         color: (0.4,0.7,0.91,1)
     Label:
-        text: 'This can take up to two minutes'
+        text: app.root.lang.pack["WiFi"]["Time_Warning"]
         font_size: 27
         pos_hint: {'center_x': 0.5, 'y': -0.13}
 
@@ -1424,7 +1176,7 @@
 <WifiUnencrypted>:
     Button:
         id: connect
-        text: 'Connect'
+        text: app.root.lang.pack["WiFi"]['Connect']
         font_size: 50
         pos_hint: {'center_x': .5, 'center_y': .5}
         size_hint: .5, .5
@@ -1437,20 +1189,20 @@
         size_hint: .7, .2
         pos_hint: {'top': 1}
         halign: 'right'
-        text: "**Enter Password**"
+        text: app.root.lang.pack["WiFi"]['Enter_Password']
         font_size: 35
         color: 1,1,1,1
     Button:
         id: connect
         size_hint: .2, .2
         pos_hint: {'top': 1, 'x': .75}
-        text: "Connect"
+        text: app.root.lang.pack["WiFi"]['Connect']
         font_size: 30
     Button:
         id: show_keyboard
         size_hint: .35, .2
         pos_hint: {'x': .35, 'y': .30}
-        text: "Show Keyboard"
+        text: app.root.lang.pack["WiFi"]['Show_Keyboard']
         font_size: 30
         on_press: root._set_keyboard('keyboards/abc.json')
 
@@ -1462,86 +1214,61 @@
         center_x: screen.center_x
         center_y: screen.center_y + 150
     Label:
-        text: 'Connected'
+        text: app.root.lang.pack["WiFi"]['Connected']
         font_size: 40
         color: (0.4,0.7,0.91,1)
         size_hint: None, None
         center_x: screen.center_x
         center_y: screen.center_y + 50
     Label:
-        text: 'Successfully connected to {}'.format(root.ssid)
+        text: app.root.lang.pack["WiFi"]['Success_Connect'] + ' {}'.format(root.ssid)
         font_size: 27
         size_hint: None, None
         center_x: screen.center_x
         center_y: screen.center_y
-    Button:
-        id: ok
-        background_normal: 'Icons/blue_button_style.png'
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: None, None
         width: 225
         height: 85
-        on_press: app.root.go_back_to_main()
-        size_hint: None, None
         center_x: screen.center_x
         center_y: screen.center_y - 100
-        FloatLayout:
-            AsyncImage:
-                source: 'Icons/Manual_Control/ok_button_icon.png'
-                size_hint: None, None
-                center_x: ok.center_x - 25
-                center_y: ok.center_y
-            Label:
-                text: 'OK'
-                font_size: 40
-                size_hint: None, None
-                center_x: ok.center_x + 25
-                center_y: ok.center_y
+
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack["WiFi"]['Ok']
+            image_icon: 'Icons/Manual_Control/ok_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: app.root.go_back_to_main()
 
 <WifiFailure>:
     orientation: 'vertical'
     AsyncImage:
         source: 'Icons/failure_icon.png'
     Label:
-        text: 'Unable to connect'
+        text: app.root.lang.pack["WiFi"]['WiFi_Failure_Title']
         font_size: 40
         color: (0.4,0.7,0.91,1)
     Label:
-        text: 'Make sure you have a strong signal and\n the password you entered is correct.'
+        text: app.root.lang.pack["WiFi"]['WiFi_Failure_Body']
         font_size: 27
     BoxLayout:
         padding: 50,20,50,20
         spacing: 30
         orientation: 'horizontal'
-        Button:
-            id: cancel
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack["WiFi"]['Cancel']
+            image_icon: 'Icons/cancel_button_icon.png'
             background_normal: 'Icons/blue_button_style.png'
             on_press: app.root.go_back_to_main()
-            FloatLayout:
-                AsyncImage:
-                    source: 'Icons/cancel_button_icon.png'
-                    center_x: cancel.center_x - 65
-                    center_y: cancel.center_y
-                Label:
-                    text: 'Cancel'
-                    font_size: 40
-                    center_x: cancel.center_x + 20
-                    center_y: cancel.center_y
-        Button:
-            id: retry
-            background_normal: 'Icons/blue_button_style.png'
-            FloatLayout:
-                AsyncImage:
-                    source: 'Icons/retry_button_icon.png'
-                    center_x: retry.center_x - 60
-                    center_y: retry.center_y
-                Label:
-                    text: 'Retry'
-                    font_size: 40
-                    center_x: retry.center_x + 20
-                    center_y: retry.center_y
 
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack["WiFi"]['Retry']
+            image_icon: 'Icons/retry_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.callback()
 
 <SuccessButton>:
-    text: 'OK'
+    text: app.root.lang.pack["WiFi"]['Ok']
     font_size: 30
     pos_hint: {'center_x': .5, 'center_y': .5}
     size_hint: .5, .5
@@ -1556,226 +1283,114 @@
     background_color: (0,0,0,1)
     markup: True
 
-<PreheatWizard>:
-    orientation: 'vertical'
-    Label:
-        text: 'Choose your filament type'
-        font_size: 30
+<Preheat_Button>:
+    background_color: 0,0,0,1
+    id: preheat
+    on_press: root.callback(root.title)
+    canvas.after:
+        Color:
+            rgba: 0.231372549,0.243137255,0.270588235,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: preheat.x, preheat.y, preheat.x + preheat.width, preheat.y
     BoxLayout:
-        orientation:'horizontal'
-        Button:
-            text: 'PLA'
-            font_size: 30
-            size_hint: .5,.5
-            # pos_hint: {'x': 0}
-            on_press: root.second_screen('pla')
-        Button:
-            text: 'ABS'
-            font_size: 30
-            size_hint: .5,.5
-            # pos_hint: {'x': 300}
-            on_press: root.second_screen('abs')
+        orientation: 'horizontal'
+        pos: preheat.pos
+        size: preheat.size
+        Label:
+            size_hint_x: 0.05
+        Label:
+            text_size: self.size
+            halign: 'left'
+            valign: 'center'
+            markup: True
+            text: '[color=#69B3E7][size=30][font=fonts/S-Core - CoreSansD55Bold.otf][b]' + root.title + "[/color][/b][/size][/font]\n[size=25][font=fonts/S-Core - CoreSansD35Regular.otf]" + root.body_text
+<Simple_Button>:
+    id: simple
+    background_normal: root.background_normal
+    on_press: root.callback()
+    Label:
+        size: simple.size
+        pos: simple.pos
+        text: root.button_text
+        text_size: self.size
+        halign: 'center'
+        valign: 'center'
+        markup: True
+<Option_View>:
+    orientation: 'vertical'
+    BoxLayout:
+        id: button_box
+        orientation:'vertical'
+    BoxLayout:
+        id: modal_box
+        size_hint_y: 0.4
+        orientation: 'horizontal'
+        padding: root.button_padding
+        spacing: root.button_spacing
+
+
+<Motor_Control_Operator>:
+    id: MC_Button
+    on_press: root.button_function(root.button_variable)
+    background_normal: root.background_normal
+    BoxLayout:
+        orientation: 'vertical'
+        size: MC_Button.size
+        pos: MC_Button.pos
+        padding: 0, 15, 0, 5
+        Image:
+            source: root.control_image
+            size: self.texture_size
+
+        Label:
+            background_color: 0,0,0,0
+            text: '[size=30]' + root.button_text
+            markup: True
+            size: self.texture_size
+            halign: 'center'
+            valign: 'center'
+
+<Temperature_Operator>:
+    id: MC_Button
+    on_press: root.button_function(name=root.selected_extruder, title=app.root.lang.pack['Utilities']['Tool1'] if root.selected_extruder == 'tool0' else app.root.lang.pack['Utilities']['Tool2'], back_destination='motor_control_screen')
+    background_normal: root.background_normal
+    BoxLayout:
+        orientation: 'vertical'
+        size: MC_Button.size
+        pos: MC_Button.pos
+        padding: 0, 0, 0, 15
+        Label:
+            background_color: 0,0,0,0
+            text: '[size=30]' + root.temp_text
+            markup: True
+            size: self.size
+            halign: 'center'
+            valign: 'center'
+
+        Label:
+            size_hint_y: 0.3
+            background_color: 0,0,0,0
+            text: '[size=30]' + root.button_text
+            markup: True
+            size: self.size
+            halign: 'center'
+            valign: 'center'
+            
 
 
 <MotorControl>:
     id: manualcontrol
     spacing: 5,5
-    padding: 0,20,0,20
-    cols: 5
-    rows: 2
-    Button:
-        id: toggle_mm
-        on_press: root.toggle_mm()
-        background_normal: 'Icons/blue_button_style.png'
-        FloatLayout:
-            Image:
-                id: toggle_pic
-                source: 'Icons/Manual_Control/increments_4_3.png'
-                allow_stretch: False
-                center_x: toggle_mm.center_x
-                center_y: toggle_mm.center_y + 20
+    padding: root.padding
+    cols: root.cols
+    rows: root.rows
 
-            Label:
-                background_color: 0,0,0,0
-                text: '{}mm'.format(root.mms[root.inx])
-                font_size: 30
-                center_x: toggle_mm.center_x
-                center_y: toggle_mm.center_y - 30
-
-    Button:
-        id: y_up
-        # text: 'Y+'
-        # font_size: 30
-        on_press: root.move_pos('y')
-        background_normal: 'Icons/button_pause_blank.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/Y+_icon.png'
-                allow_stretch: False
-                center_x: y_up.center_x
-                center_y: y_up.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'Y+'
-                font_size: 30
-                center_x: y_up.center_x
-                center_y: y_up.center_y - 30
-    Button:
-        id: home
-        # text: 'home'
-        # font_size: 30
-        on_press: root.home()
-        background_normal: 'Icons/blue_button_style.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/home_icon.png'
-                allow_stretch: False
-                center_x: home.center_x
-                center_y: home.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'Home'
-                font_size: 30
-                center_x: home.center_x
-                center_y: home.center_y - 30
-    Button:
-        id: z_up
-        # text: 'Z+'
-        # font_size: 30
-        on_press: root.move_neg('z')
-        background_normal: 'Icons/button_pause_blank.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/Z+_icon.png'
-                allow_stretch: False
-                center_x: z_up.center_x
-                center_y: z_up.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'Z-'
-                font_size: 30
-                center_x: z_up.center_x
-                center_y: z_up.center_y - 30
-    Button:
-        id: e_retract
-        # text: 'Z-'
-        # font_size: 30
-        on_press: root.move_neg('e')
-        background_normal: 'Icons/button_pause_blank.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/retract_icon.png'
-                allow_stretch: False
-                center_x: e_retract.center_x
-                center_y: e_retract.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'Retract'
-                font_size: 30
-                center_x: e_retract.center_x
-                center_y: e_retract.center_y - 30
-
-    Button:
-        id: x_left
-        # text: '<-X'
-        # font_size: 30
-        on_press: root.move_neg('x')
-        background_normal: 'Icons/button_pause_blank.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/X+_icon.png'
-                allow_stretch: False
-                center_x: x_left.center_x
-                center_y: x_left.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'X-'
-                font_size: 30
-                center_x: x_left.center_x
-                center_y: x_left.center_y - 30
-    Button:
-        id: y_down
-        # text: 'Y-'
-        # font_size: 30
-        on_press: root.move_neg('y')
-        background_normal: 'Icons/button_pause_blank.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/Y-_icon.png'
-                allow_stretch: False
-                center_x: y_down.center_x
-                center_y: y_down.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'Y-'
-                font_size: 30
-                center_x: y_down.center_x
-                center_y: y_down.center_y - 30
-    Button:
-        id: x_right
-        # text: 'X->'
-        # font_size: 30
-        on_press: root.move_pos('x')
-        background_normal: 'Icons/button_pause_blank.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/X-_icon.png'
-                allow_stretch: False
-                center_x: x_right.center_x
-                center_y: x_right.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'X+'
-                font_size: 30
-                center_x: x_right.center_x
-                center_y: x_right.center_y - 30
-    Button:
-        id: z_down
-        # text: 'Z-'
-        # font_size: 30
-        on_press: root.move_pos('z')
-        background_normal: 'Icons/button_pause_blank.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/Z-_icon.png'
-                allow_stretch: False
-                center_x: z_down.center_x
-                center_y: z_down.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'Z+'
-                font_size: 30
-                center_x: z_down.center_x
-                center_y: z_down.center_y - 30
-
-
-    Button:
-        id: e_extrude
-        # text: 'Z-'
-        # font_size: 30
-        on_press: root.move_pos('e')
-        background_normal: 'Icons/button_pause_blank.png'
-        FloatLayout:
-            Image:
-                source: 'Icons/Manual_Control/extrude_icon.png'
-                allow_stretch: False
-                center_x: e_extrude.center_x
-                center_y: e_extrude.center_y + 20
-
-            Label:
-                background_color: 0,0,0,0
-                text: 'Extrude'
-                font_size: 30
-                center_x: e_extrude.center_x
-                center_y: e_extrude.center_y - 30
+<Switchable_Motors>:
+    orientation: 'vertical'
 
 
 <TemperatureControl>:
@@ -1787,7 +1402,7 @@
         Label:
             size_hint_x: 0.5
             id: c_temp
-            text: ' Current:'
+            text: ' ' + app.root.lang.pack['Temperature_Controls']['Current']
             text_size: self.size
             font_size: 35
             halign: 'left'
@@ -1795,14 +1410,14 @@
             markup: True
         Label:
             id: c_temp2
-            text: '[size=40]{}'.format(root.current_temp) + '°C / ' + '{}'.format(root.target_temp) + '°C[/size]'
+            text: '[size=40]{}'.format(root.current_temp) + app.root.lang.pack['Temperature_Controls']['Celsius_with_slash'] + ' {}'.format(root.target_temp) + app.root.lang.pack['Temperature_Controls']['Celsius_Alone'] + '[/size]'
             halign: 'center'
             valign: 'center'
             markup: True
             text_size: self.size
         Label:
             size_hint_x: 0.5
-            text: 'Desired:'     
+            text: app.root.lang.pack['Temperature_Controls']['Desired']  
             font_size: 35
             halign: 'left'
             valign: 'center'
@@ -1810,7 +1425,7 @@
             text_size: self.size
         Label:
             size_hint_x: 0.5
-            text: '[size=40]{}°C[/size] '.format(root.input_temp)
+            text: '[size=40]{}'.format(root.input_temp) + app.root.lang.pack['Temperature_Controls']['Celsius_Alone'] + '[/size] '
             halign: 'center'
             valign: 'center'
             markup: True
@@ -1819,17 +1434,17 @@
         orientation: 'horizontal'     
         Button:
             font_size: 30
-            text: "7"
+            text: app.root.lang.pack['Temperature_Controls']['seven']
             on_press: root.add_number(7)
             background_color: 0,0,0,1
         Button:
             font_size: 30
-            text: "8"
+            text: app.root.lang.pack['Temperature_Controls']['eight']
             on_press: root.add_number(8)
             background_color: 0,0,0,1
         Button:
             font_size: 30
-            text: "9"
+            text: app.root.lang.pack['Temperature_Controls']['nine']
             on_press: root.add_number(9)
             background_color: 0,0,0,1
 
@@ -1837,17 +1452,17 @@
         orientation: 'horizontal'    
         Button:
             font_size: 30
-            text: "4"
+            text: app.root.lang.pack['Temperature_Controls']['four']
             on_press: root.add_number(4)
             background_color: 0,0,0,1
         Button:
             font_size: 30
-            text: "5"
+            text: app.root.lang.pack['Temperature_Controls']['five']
             on_press: root.add_number(5)
             background_color: 0,0,0,1
         Button:
             font_size: 30
-            text: "6"
+            text: app.root.lang.pack['Temperature_Controls']['six']
             on_press: root.add_number(6)
             background_color: 0,0,0,1
 
@@ -1855,17 +1470,17 @@
         orientation: 'horizontal'    
         Button:
             font_size: 30
-            text: "1"
+            text: app.root.lang.pack['Temperature_Controls']['one']
             on_press: root.add_number(1)
             background_color: 0,0,0,1
         Button:
             font_size: 30
-            text: "2"
+            text: app.root.lang.pack['Temperature_Controls']['two']
             on_press: root.add_number(2)
             background_color: 0,0,0,1
         Button:
             font_size: 30
-            text: "3"
+            text: app.root.lang.pack['Temperature_Controls']['three']
             on_press: root.add_number(3)
             background_color: 0,0,0,1
 
@@ -1873,145 +1488,111 @@
         orientation: 'horizontal'    
         Button:
             font_size: 30
-            text: "Delete"
+            text: app.root.lang.pack['Temperature_Controls']['Delete']
             on_press: root.delete_number()
             background_normal: 'Icons/red_button_style.png'
             background_down: 'Icons/blue_button_style.png'
             border: 40,40,40,40
         Button:
             font_size: 30
-            text: "0"
+            text: app.root.lang.pack['Temperature_Controls']['zero']
             on_press: root.add_number(0)
             background_color: 0,0,0,1
         Button:
             id: set_cool
             font_size: 30
-            text: "Set"
+            text: app.root.lang.pack['Temperature_Controls']['Set']
             on_press: root.set_temperature(root.selected_tool)
             border: 40,40,40,40
             background_normal: 'Icons/blue_button_style.png'
             background_down: 'Icons/blue_button_style.png'
 
-
-
-<PLA_Button>:
-    markup: True
-    background_color: (0,0,0,1)
-    text: root.button_text
-    valign: 'middle'
-    halign: 'left'
-    text_size: self.width, self.height
-    on_press: app.root.generate_Preheat_Screen(name='preheat_screen',title='Extruder Temperature',back_destination=self.name)
-    on_press: root._preheat_pla()
-
-<ABS_Button>:
-    height: 150
-    markup: True
-    background_color: (0,0,0,1)
-    text: root.button_text
-    valign: 'middle'
-    halign: 'left'
-    text_size: self.width, self.height
-    on_press: app.root.generate_Preheat_Screen(name='preheat_screen',title='Extruder Temperature',back_destination=self.name)
-    on_press: root._preheat_abs()
-
-<Empty_Button>:
-    markup: True
-    size_hint_y: None
-    height: 150
-    markup: True
-    text:''
-    background_color: (0,0,0,1)
-    valign: 'middle'
-    halign: 'left'
-    text_size: self.width, self.height
-
-<Preheat_Screen>:
-    rows: 2
-    cols: 1
+<Keypad>:
     orientation: 'vertical'
-    GridLayout:
-        rows:1
-        cols:1
-        id: temp_grid
-        FloatLayout:
-            id: extruder_one_status
-            size: self.size
-            # Image:
-            #     source: 'Icons/print_head.png'
-            #     width: 70
-            #     height: 70
-            #     allow_stretch: True
-            #     size_hint: None, None
-            #     center_x: temp_grid.center_x - 80
-            #     center_y: temp_grid.center_y
-            #     #pos: self.parent.x - 5, self.parent.y + 35
 
-            Label:
-                #pos: self.parent.x + 95, self.parent.y + 48
-                size_hint: None, None
-                text: 'Heating to ' + str(root.extruder_one_max_temp) + '°C'
-                font_size: 30
-                text_size: self.x, self.y
-                halign: 'center'
-                center_x: temp_grid.center_x #+ 230
-                center_y: temp_grid.center_y + 250
-            Label:
-                size_hint: None, None
-                #pos_hint: {'x': 0.15, 'y': 0}
-                #pos: self.parent.x + 81, self.parent.y + 27
-                text: str(root.extruder_one_temp) + '°C'
-                font_size: 50
-                halign: 'center'
-                text_size: self.x, self.y
-                center_x: temp_grid.center_x #+ 10
-                center_y: temp_grid.center_y + 135
-            ProgressBar:
-                #pos_hint: {'x': 0, 'y': -0.4}
-                size_hint: None, None
-                max: root.extruder_one_max_temp
-                value: root.extruder_one_temp
-                width: 200
-                center_x: temp_grid.center_x
-                center_y: temp_grid.center_y - 50
-    GridLayout:
-        cols:2
-        rows:1
-        padding: 50,40,50,40
-        spacing: 30
+    BoxLayout:
+        orientation: 'horizontal'
+        Label:
+            text: '[size=40]' + root.input_temp + app.root.lang.pack['Temperature_Controls']['Celsius_Alone'] + '[/size] '
+            halign: 'center'
+            valign: 'center'
+            markup: True
+            text_size: self.size
+    BoxLayout:   
+        orientation: 'horizontal'     
         Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['seven']
+            on_press: root.add_number(7)
+            background_color: 0,0,0,1
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['eight']
+            on_press: root.add_number(8)
+            background_color: 0,0,0,1
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['nine']
+            on_press: root.add_number(9)
+            background_color: 0,0,0,1
+
+    BoxLayout:   
+        orientation: 'horizontal'    
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['four']
+            on_press: root.add_number(4)
+            background_color: 0,0,0,1
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['five']
+            on_press: root.add_number(5)
+            background_color: 0,0,0,1
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['six']
+            on_press: root.add_number(6)
+            background_color: 0,0,0,1
+
+    BoxLayout:   
+        orientation: 'horizontal'    
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['one']
+            on_press: root.add_number(1)
+            background_color: 0,0,0,1
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['two']
+            on_press: root.add_number(2)
+            background_color: 0,0,0,1
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['three']
+            on_press: root.add_number(3)
+            background_color: 0,0,0,1
+
+    BoxLayout:   
+        orientation: 'horizontal'    
+        Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['Delete']
+            on_press: root.delete_number()
             background_normal: 'Icons/red_button_style.png'
-            id: stop
-            on_press: root.stop_button()
-            FloatLayout:
-                Image:
-                    source: 'Icons/Manual_Control/stop_button_icon.png'
-                    allow_stretch: False
-                    center_x: stop.center_x - 30
-                    center_y: stop.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'Stop'
-                    font_size: 30
-                    center_x: stop.center_x + 25
-                    center_y: stop.center_y
+            background_down: 'Icons/blue_button_style.png'
         Button:
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['zero']
+            on_press: root.add_number(0)
+            background_color: 0,0,0,1
+        Button:
+            id: set_cool
+            font_size: 30
+            text: app.root.lang.pack['Temperature_Controls']['Set']
+            on_press: root.set_number()
             background_normal: 'Icons/blue_button_style.png'
-            id: printer
-            on_press: app.root.go_back_to_main('printer_status_tab')
-            on_press: root.update_screen()
-            FloatLayout:
-                Image:
-                    source: 'Icons/Manual_Control/printer_button_icon.png'
-                    allow_stretch: False
-                    center_x: printer.center_x - 40
-                    center_y: printer.center_y
-                Label:
-                    background_color: 0,0,0,0
-                    text: 'Printer'
-                    font_size: 30
-                    center_x: printer.center_x + 30
-                    center_y: printer.center_y
+            background_down: 'Icons/blue_button_style.png'
+
 
 <Filament_Wizard_1_5>:
     id: screen
@@ -2023,56 +1604,47 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=27]Use the Filament Wizard to add a clean spool of filament\nto your printer before you print[/size]'
+        text: '[size=27]' + app.root.lang.pack['Filament_Wizard']['Wizard_Description'] +  '[/size]'
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
         center_y: screen.center_y + 20
-    Button:
-        id: start
-        background_normal: 'Icons/blue_button_style.png'
+
+    BoxLayout:
+        orientation: 'vertical'
         size_hint: None, None
         width: 225
         height: 85
         center_x: screen.center_x
         center_y: screen.center_y - 85
-        on_press: None
-        Image:
-            source: 'Icons/Manual_Control/start_button_icon.png'
-            size_hint: None, None
-            center_x: start.center_x - 30
-            center_y: start.center_y
-        Label:
-            text: 'Start'
-            font_size: 30
-            size_hint: None, None
-            center_x: start.center_x + 30
-            center_y: start.center_y
+
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['Filament_Wizard']['Start']
+            image_icon: 'Icons/Manual_Control/start_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.callback()
+
 
 <Filament_Wizard_2_5>:
     id: screen
     Label:
-        #pos: self.parent.x + 95, self.parent.y + 48
         size_hint: None, None
-        text: 'Heating to 230°C'
+        text: app.root.lang.pack['Filament_Wizard']['Heat_230'] + str(root.extruder_max_temp) + app.root.lang.pack['Filament_Wizard']['Celsius_Alone']
         font_size: 30
         text_size: self.x, self.y
         halign: 'center'
-        center_x: screen.center_x #+ 230
+        center_x: screen.center_x
         center_y: screen.center_y + 250
     Label:
         size_hint: None, None
-        #pos_hint: {'x': 0.15, 'y': 0}
-        #pos: self.parent.x + 81, self.parent.y + 27
         id:temp_label
-        text: str(root.extruder_temp) + '°C'
+        text: str(root.extruder_temp) + app.root.lang.pack['Filament_Wizard']['Celsius_Alone']
         font_size: 50
         halign: 'center'
         text_size: self.x, self.y
-        center_x: screen.center_x #+ 10
+        center_x: screen.center_x 
         center_y: screen.center_y + 135
     ProgressBar:
-        #pos_hint: {'x': 0, 'y': -0.4}
         size_hint: None, None
         max: root.extruder_max_temp
         value: root.extruder_temp
@@ -2082,7 +1654,7 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=27]Heating extruder. The wizard will go to the next\nstep once heating is complete.[/size]'
+        text: '[size=27]' + app.root.lang.pack['Filament_Wizard']['Auto_Next'] +  '[/size]'
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
@@ -2100,31 +1672,25 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=30]Remove the filament from the printer then press next[/size]'
+        text: '[size=30]' + app.root.lang.pack['Filament_Wizard']['Remove_Filament'] + '[/size]'
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
         center_y: screen.center_y + 20
-    Button:
-        id: next_button
-        background_normal: 'Icons/blue_button_style.png'
+
+    BoxLayout:
+        orientation: 'vertical'
         size_hint: None, None
         width: 225
         height: 85
         center_x: screen.center_x
         center_y: screen.center_y - 85
-        on_press: None
-        Image:
-            source: 'Icons/Manual_Control/next_button_icon.png'
-            size_hint: None, None
-            center_x: next_button.center_x + 30
-            center_y: next_button.center_y
-        Label:
-            text: 'Next'
-            font_size: 30
-            size_hint: None, None
-            center_x: next_button.center_x - 30
-            center_y: next_button.center_y
+
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['Filament_Wizard']['Next']
+            image_icon: 'Icons/Manual_Control/next_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.callback()
 
 <Filament_Wizard_4_5>:
     id: screen
@@ -2138,31 +1704,24 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=30]Cut used filament tip, load filament\nwith a clean tip and press next[/size]'
+        text: '[size=30]' + app.root.lang.pack['Filament_Wizard']['Cut_Tip'] + '[/size]'
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
         center_y: screen.center_y + 20
-    Button:
-        id: next_button
-        background_normal: 'Icons/blue_button_style.png'
+    BoxLayout:
+        orientation: 'vertical'
         size_hint: None, None
         width: 225
         height: 85
         center_x: screen.center_x
         center_y: screen.center_y - 85
-        on_press: None
-        Image:
-            source: 'Icons/Manual_Control/next_button_icon.png'
-            size_hint: None, None
-            center_x: next_button.center_x + 30
-            center_y: next_button.center_y
-        Label:
-            text: 'Next'
-            font_size: 30
-            size_hint: None, None
-            center_x: next_button.center_x - 30
-            center_y: next_button.center_y
+
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['Filament_Wizard']['Next']
+            image_icon: 'Icons/Manual_Control/next_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.callback()
 
 <Filament_Wizard_5_5>:
     id: screen
@@ -2176,31 +1735,24 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=30]Press next when you see filament extruding[/size]'
+        text: '[size=30]' + app.root.lang.pack['Filament_Wizard']['Extrude_Filament'] + '[/size]'
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
         center_y: screen.center_y + 20
-    Button:
-        id: next_button
-        background_normal: 'Icons/blue_button_style.png'
+    BoxLayout:
+        orientation: 'vertical'
         size_hint: None, None
         width: 225
         height: 85
         center_x: screen.center_x
         center_y: screen.center_y - 85
-        on_press: None
-        Image:
-            source: 'Icons/Manual_Control/next_button_icon.png'
-            size_hint: None, None
-            center_x: next_button.center_x + 30
-            center_y: next_button.center_y
-        Label:
-            text: 'Next'
-            font_size: 30
-            size_hint: None, None
-            center_x: next_button.center_x - 30
-            center_y: next_button.center_y
+
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['Filament_Wizard']['Next']
+            image_icon: 'Icons/Manual_Control/next_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.callback()
 
 <Filament_Wizard_Finish>:
     id: screen
@@ -2212,242 +1764,109 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=40][color=#69B3E7]Filament Wizard Complete[/color][/size][size=30]\nYou can now start printing with a clean\nfilament tip.'
+        text: '[size=40][color=#69B3E7]' + app.root.lang.pack['Filament_Wizard']['Complete_Title'] + '[/color][/size][size=30]' + app.root.lang.pack['Filament_Wizard']['Complete_Body']
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
         center_y: screen.center_y + 20
-    Button:
-        id: ok_button
-        background_normal: 'Icons/blue_button_style.png'
+    BoxLayout:
+        orientation: 'vertical'
         size_hint: None, None
         width: 225
         height: 85
         center_x: screen.center_x
         center_y: screen.center_y - 95
-        on_press: root.button_function()
-        Image:
-            source: 'Icons/Manual_Control/ok_button_icon.png'
-            size_hint: None, None
-            center_x: ok_button.center_x - 20
-            center_y: ok_button.center_y
-        Label:
-            text: 'Ok'
-            font_size: 30
-            size_hint: None, None
-            center_x: ok_button.center_x + 20
-            center_y: ok_button.center_y
 
-<Z_Offset_Wizard_1_4>:
-    id: screen
-    Image:
-        size_hint: None, None
-        source: 'Icons/Manual_Control/info_icon.png'
-        center_x: screen.center_x
-        center_y: screen.center_y + 115
-    Label:
-        markup: True
-        size_hint: None, None
-        text: '[size=27]Use the Z Offset Wizard to properly set the home\nposition for the Z value of your printer.[/size]'
-        valign: 'middle'
-        halign: 'center'
-        center_x: screen.center_x
-        center_y: screen.center_y + 20
-    Button:
-        id: start
-        background_normal: 'Icons/blue_button_style.png'
-        size_hint: None, None
-        width: 225
-        height: 85
-        center_x: screen.center_x
-        center_y: screen.center_y - 85
-        on_press: None
-        Image:
-            source: 'Icons/Manual_Control/start_button_icon.png'
-            size_hint: None, None
-            center_x: start.center_x - 30
-            center_y: start.center_y
-        Label:
-            text: 'Start'
-            font_size: 30
-            size_hint: None, None
-            center_x: start.center_x + 30
-            center_y: start.center_y
-
-<Z_Offset_Wizard_2_4>:
-    id: screen
-    Image:
-        size_hint: None, None
-        source: 'Icons/Manual_Control/Z-_icon.png'
-        center_x: screen.center_x
-        center_y: screen.center_y + 50
-        allow_stretch: True
-        size: 125,125
-    Label:
-        markup: True
-        size_hint: None, None
-        text: '[size=30]Moving Z Axis to minimum position. The wizard will\ngo to the next step once this is complete.[/size]'
-        valign: 'middle'
-        halign: 'center'
-        center_x: screen.center_x
-        center_y: screen.center_y - 40
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['Filament_Wizard']["Ok"]
+            image_icon: 'Icons/Manual_Control/ok_button_icon.png'
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.button_function()
 
 
-
-<Z_Offset_Wizard_3_4>:
+<Z_Offset_Adjuster>:
+    orientation: 'vertical'
+    padding: 5,0,5,0
     id: screen
     Label:
         markup: True
-        size_hint: None, None
-        text: '[size=27]Using the buttons below, adjust the bed height so a\npiece of paper can just freely pass between\nthe nozzle and the bed.[/size]'
+        text: '[size=27]' + app.root.lang.pack['ZOffset_Wizard']['Adjust_Instructions'] + '[/size]'
         valign: 'middle'
         halign: 'center'
-        center_x: screen.center_x
-        center_y: screen.center_y + 80
-    Button:
-        id: toggle_mm
-        background_normal: 'Icons/blue_button_style.png'
-        size_hint: None, None
-        width: 125
-        height: 125
-        center_x: screen.center_x - 225
-        center_y: screen.center_y - 85
-        on_press: root.toggle_mm_z()
-        Image:
-            id: toggle_icon
-            source: 'Icons/Manual_Control/increments_2_1.png'
-            size_hint: None, None
-            center_x: toggle_mm.center_x
-            center_y: toggle_mm.center_y + 20
-        Label:
-            id: toggle_label
-            text: root.s_toggle_mm[root.toggle_mm]
-            font_size: 30
-            size_hint: None, None
-            center_x: toggle_mm.center_x
-            center_y: toggle_mm.center_y - 25
+        text_size: self.size
+    BoxLayout:
+        size_hint_y: 0.6
+        orientation: "horizontal"
+        spacing: 25
+        padding: 25, 0, 25, 10
 
-    Button:
-        id: z_plus
-        background_normal: 'Icons/button_pause_blank.png'
-        size_hint: None, None
-        width: 125
-        height: 125
-        center_x: screen.center_x - 75
-        center_y: screen.center_y - 85
-        on_press: root._jog(1)
-        Image:
-            source: 'Icons/Manual_Control/Z-_icon.png'
-            size_hint: None, None
-            center_x: z_plus.center_x
-            center_y: z_plus.center_y + 20
-        Label:
-            id: toggle_amount
-            text: 'Z-'
-            font_size: 30
-            size_hint: None, None
-            center_x: z_plus.center_x
-            center_y: z_plus.center_y - 25
-
-    Button:
-        id: z_minus
-        background_normal: 'Icons/button_pause_blank.png'
-        size_hint: None, None
-        width: 125
-        height: 125
-        center_x: screen.center_x + 75
-        center_y: screen.center_y - 85
-        on_press: root._jog(-1)
-        Image:
-            source: 'Icons/Manual_Control/Z+_icon.png'
-            size_hint: None, None
-            center_x: z_minus.center_x
-            center_y: z_minus.center_y + 20
-        Label:
-            id: toggle_amount
-            text: 'Z+'
-            font_size: 30
-            size_hint: None, None
-            center_x: z_minus.center_x
-            center_y: z_minus.center_y - 25
-
-    Button:
-        id: done
-        background_normal: 'Icons/blue_button_style.png'
-        size_hint: None, None
-        width: 125
-        height: 125
-        center_x: screen.center_x + 225
-        center_y: screen.center_y - 85
-        on_press: None
-        Image:
-            source: 'Icons/Manual_Control/ok_button_icon.png'
-            size_hint: None, None
-            center_x: done.center_x
-            center_y: done.center_y + 20
-        Label:
-            id: toggle_amount
-            text: 'Done'
-            font_size: 30
-            size_hint: None, None
-            center_x: done.center_x
-            center_y: done.center_y - 25
-
-<Z_Offset_Wizard_4_4>:
-    id: screen
-    Image:
-        size_hint: None, None
-        source: 'Icons/Manual_Control/info_icon.png'
-        center_x: screen.center_x
-        center_y: screen.center_y + 75
-        allow_stretch: True
-        size: 125,125
-    Label:
-        markup: True
-        size_hint: None, None
-        text: '[size=30]Capturing Z Offset. The wizard will\n go to the next step once this is complete[/size]'
-        valign: 'middle'
-        halign: 'center'
-        center_x: screen.center_x
-        center_y: screen.center_y - 40
-
-<Z_Offset_Wizard_Finish>:
-    id: screen
-    Image:
-        size_hint: None, None
-        source: 'Icons/Manual_Control/check_icon.png'
-        center_x: screen.center_x
-        center_y: screen.center_y + 125
-    Label:
-        markup: True
-        size_hint: None, None
-        text: '[size=40][color=#69B3E7]Z Offset Captured[/color][/size][size=30]\nYour new Z Offset value of {} has been captured.'.format(root.z_value)
-        valign: 'middle'
-        halign: 'center'
-        center_x: screen.center_x
-        center_y: screen.center_y + 20
-    Button:
-        id: save
-        background_normal: 'Icons/blue_button_style.png'
-        size_hint: None, None
-        width: 225
-        height: 85
-        center_x: screen.center_x
-        center_y: screen.center_y - 95
-        on_press: None
-        Image:
-            source: 'Icons/Manual_Control/ok_button_icon.png'
-            size_hint: None, None
-            center_x: save.center_x - 30
-            center_y: save.center_y
-        Label:
-            text: 'Save'
-            font_size: 30
-            size_hint: None, None
-            center_x: save.center_x + 20
-            center_y: save.center_y
-
-
+        Button:
+            id: toggle_mm
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.toggle_mm_z()
+            Image:
+                id: toggle_icon
+                source: 'Icons/Manual_Control/increments_3_2.png'
+                size_hint: None, None
+                center_x: toggle_mm.center_x
+                center_y: toggle_mm.center_y + 20
+            Label:
+                id: toggle_label
+                text: root.s_toggle_mm[root.toggle_mm]
+                font_size: 30
+                size_hint: None, None
+                center_x: toggle_mm.center_x
+                center_y: toggle_mm.center_y - 25
+    
+        Button:
+            id: z_plus
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root._jog(1)
+            Image:
+                source: 'Icons/Manual_Control/Z-_icon.png'
+                size_hint: None, None
+                center_x: z_plus.center_x
+                center_y: z_plus.center_y + 20
+            Label:
+                id: toggle_amount
+                text: app.root.lang.pack['ZOffset_Wizard']['Z-']
+                font_size: 30
+                size_hint: None, None
+                center_x: z_plus.center_x
+                center_y: z_plus.center_y - 25
+    
+        Button:
+            id: z_minus
+            background_normal: 'Icons/button_pause_blank.png'
+            on_press: root._jog(-1)
+            Image:
+                source: 'Icons/Manual_Control/Z+_icon.png'
+                size_hint: None, None
+                center_x: z_minus.center_x
+                center_y: z_minus.center_y + 20
+            Label:
+                id: toggle_amount
+                text: app.root.lang.pack['ZOffset_Wizard']['Z+']
+                font_size: 30
+                size_hint: None, None
+                center_x: z_minus.center_x
+                center_y: z_minus.center_y - 25
+    
+        Button:
+            id: done
+            background_normal: 'Icons/blue_button_style.png'
+            Image:
+                source: 'Icons/Manual_Control/ok_button_icon.png'
+                size_hint: None, None
+                center_x: done.center_x
+                center_y: done.center_y + 20
+            Label:
+                id: toggle_amount
+                text: app.root.lang.pack['ZOffset_Wizard']['Done']
+                font_size: 30
+                size_hint: None, None
+                center_x: done.center_x
+                center_y: done.center_y - 25
 
 <Scroll_Box_Even>:
     grid:content
@@ -2530,84 +1949,34 @@
         size: robo_icon.size
         pos: robo_icon.pos
         orientation: 'vertical'
-        padding: 15,15
+        padding: 0,15,0,5
+        spacing: 10
         Image:
-            source: root.img_source
-            allow_stretch: False
-            halign: 'center'
-            valign: 'center'
-            
+            size: self.texture_size
+            source: root.img_source            
         Label:
-            size_hint_y: 0.2
+            size: self.texture_size
             text: root.icon_name
             font_size: 30
-            text_size: robo_icon.width, None
             markup: True
-            max_lines: 1
+            max_lines: 2
             halign: 'center'
-            valign: 'center'
-            
-
-<Scroll_Box_Icons_Anchor>:
-    background_color: (0,0,0,1)
-    AnchorLayout:
-        id: left
-        anchor_x: 'left'
-        anchor_y: 'top'
-
-    AnchorLayout:
-        id: right
-        anchor_x: 'right'
-        anchor_y: 'top'
-
-    AnchorLayout:
-        id: center
-        anchor_x: 'center'
-        anchor_y: 'bottom'
-
-
-<Robo_Icons_Anchor>:
-    id: robo_icon
-    background_color: (0,0,0,1)
-    on_press: app.root.generate_screens(root.generator)
-    FloatLayout:
-        Image:
-            source: root.img_source
-            width: 100
-            height: 100
-            size_hint_x: None
-            center_x: robo_icon.center_x
-            center_y: robo_icon.center_y + 30
-        Label:
-            text: root.icon_name
-            font_size: 30
-            text_size: robo_icon.width, None
-            markup: True
-            max_lines: 1
-            halign: 'center'
-            valign: 'center'
-            center_x: robo_icon.center_x
-            center_y: robo_icon.center_y - 50
+            valign: 'bottom'
 
 <Temperature_Label>:
     id: temp_icon
     background_color: (0,0,0,1)
     text: 'TEXT'
-    FloatLayout
-        Image:
-            source: 'Icons/Icon_Buttons/Preheat.png'
-            width: 100
-            height: 100
-            size_hint_x: None
-            center_x: temp_icon.center_x
-            center_y: temp_icon.center_y
-        Label:
-            text: str(root.extruder_one_temp) + '°C'
-            font_size: 50
-            halign: 'left'
-            text_size: temp_icon.width, None
-            center_x: temp_icon.center_x
-            center_y: temp_icon.center_y
+    Label:
+        size: temp_icon.size
+        pos: temp_icon.pos
+        text_size: self.size
+        markup: True
+        halign: 'center'
+        valign: 'center'
+        text: str(root.extruder_one_temp) + app.root.lang.pack['Filament_Wizard']['Celsius_Alone']
+        font_size: 50
+        halign: 'left'
 
 <Print_Tuning>:
     id: tuning_screen
@@ -2642,12 +2011,12 @@
                     size_hint_x: 0.25
                     source: root.fan_button_icon
                 Label:
-                    text: "[size=30]Fan Speed"
+                    text: "[size=30]" + app.root.lang.pack['Print_Tuning']['Fan_Speed']
                     markup: True
                     valign: 'center'
                     halign: 'center'
                     text_size: self.size 
-                    max_lines: 1
+                    max_lines: 2
 
         #feed Rate
         Button:
@@ -2672,12 +2041,12 @@
                     size_hint_x: 0.25
                     source: root.feed_button_icon
                 Label:
-                    text: "[size=30]Print Speed"
+                    text: "[size=30]" + app.root.lang.pack['Print_Tuning']['Print_Speed']
                     markup: True
                     valign: 'center'
                     halign: 'center'
                     text_size: self.size 
-                    max_lines: 1
+                    max_lines: 2
         #Flow rate
         Button:
             id: flow
@@ -2700,12 +2069,12 @@
                     size_hint_x: 0.25
                     source: root.flow_button_icon
                 Label:
-                    text: "[size=30]Flow Rate"
+                    text: "[size=30]" + app.root.lang.pack['Print_Tuning']['Flow_Rate']
                     markup: True
                     valign: 'center'
                     halign: 'center'
                     text_size: self.size 
-                    max_lines: 1
+                    max_lines: 2
 
         
 
@@ -2750,20 +2119,18 @@
                 BoxLayout:
                     pos: change_increment.pos
                     size: change_increment.size
-                    padding: 20, 0,0,0
-                    spacing: 10
                     Image:
-                        size_hint_x: 0.15
-                        source: 'Icons/Tuning/New Tuning/incriment.png' 
+                        id: increment_image
+                        source: "Icons/Tuning/bigger_icons/increment_1.png"
     
                 
-                    Label:
-                        id: change_text
-                        markup: True
-                        text : "[size=60]{}".format(root.change_amount_value[root.change_value])
-                        text_size: self.size
-                        valign: 'center'
-                        halign: 'center'
+                    # Label:
+                    #     id: change_text
+                    #     markup: True
+                    #     text : "[size=60]{}".format(root.change_amount_value[root.change_value])
+                    #     text_size: self.size
+                    #     valign: 'center'
+                    #     halign: 'center'
     
                     
             
@@ -2777,7 +2144,7 @@
                 
                 Image:
                     id: up_image
-                    source: "Icons/Tuning/New Tuning/Up +1.png"
+                    source: "Icons/Tuning/bigger_icons/up_1.png"
                     center_x: up.center_x
                     center_y: up.center_y
             #down
@@ -2792,177 +2159,9 @@
                 
                 Image:
                     id: down_image
-                    source: "Icons/Tuning/New Tuning/Down +1.png"
+                    source: "Icons/Tuning/bigger_icons/down_1.png"
                     center_x: down.center_x
                     center_y: down.center_y
-
-<Fan_and_Motors>:
-    id: tuning_screen
-    orientation: 'horizontal'
-    spacing: 30
-    padding:20, 15, 20, 15
-    
-    BoxLayout:
-        orientation: "vertical"
-        size_hint: 0.8, 0.87
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        spacing: 25
-        padding: 0, 0, 10, 0
-        #fans
-        Button:
-            id: fans
-            canvas.after:
-                Color:
-                    # hex #69B3E7
-                    rgba: root.fan_color
-                Triangle:
-                    points: (fans.x + fans.width) + 25 , fans.center_y,      (fans.x + fans.width) + 40, fans.center_y - 15,     (fans.x + fans.width) + 40 , fans.center_y + 15,
-
-            background_normal: root.fan_button_color
-            background_down: root.fan_button_color
-            on_press: root.fan_button()
-            BoxLayout:
-                padding: 15, 0 ,15, 0
-                pos: fans.pos
-                size: fans.size
-                Image:
-                    size_hint_x: 0.25
-                    source: root.fan_button_icon
-                Label:
-                    text: "[size=30]Fan Speed"
-                    markup: True
-                    valign: 'center'
-                    halign: 'center'
-                    text_size: self.size 
-                    max_lines: 1
-
-        #feed Rate
-        Button:
-            id: motors_off
-            canvas.after:
-                Color:
-                    # hex #69B3E7
-                    rgba: root.motor_color
-                Triangle:
-                    points: (motors_off.x + motors_off.width) + 25 , motors_off.center_y,      (motors_off.x + motors_off.width) + 40, motors_off.center_y - 15,     (motors_off.x + motors_off.width) + 40 , motors_off.center_y + 15,
-
-            background_normal: root.motor_button_color
-            background_down: root.motor_button_color
-            on_press: root.motor_button()
-
-            BoxLayout:
-                padding: 15, 0 ,15, 0
-                pos: motors_off.pos
-                size: motors_off.size
-                Image:
-                    size_hint_x: 0.25
-                    source: root.motors_icon
-                Label:
-                    text: "[size=30]Motors Off"
-                    markup: True
-                    valign: 'center'
-                    halign: 'center'
-                    text_size: self.size 
-                    max_lines: 1
-        Label:
-            text: ''
-
-        
-
-        
-        #tuning up donw
-    BoxLayout:
-        id: change_widget
-        size_hint: 1.2, 0.87
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        orientation: 'vertical'
-        padding: 20, 25, 20, 25
-        canvas.before:
-            #choose color white so it doesn't annoyingly tint the box
-            Color:
-                rgba: 1,1,1,1
-            BorderImage:
-                source: 'Icons/blue_outline.png'
-                pos: self.pos
-                size: self.size
-
-        Label:
-            id: title_label
-            background_color: (0,0,0,0)
-            text: root.title_label_text + " [size=50]" + root.tuning_number + "[/size]"
-            font_size: 30
-            markup: True
-            max_lines: 4
-            text_size: self.size
-            halign: 'center'
-            valign: 'center'
-
-        BoxLayout:
-            size_hint_y: 0.75
-            spacing: 20
-
-            #change speed Button
-            Button:
-                id: change_increment
-                disabled: root.enabled
-                background_normal: "Icons/white_outline.png"
-                background_down: "Icons/white_outline.png"
-                on_press: root.change_amount()
-                BoxLayout:
-                    pos: change_increment.pos
-                    size: change_increment.size
-                    padding: 20, 0,0,0
-                    spacing: 10
-                    Image:
-                        size_hint_x: 0.15
-                        source: 'Icons/Tuning/New Tuning/incriment.png' 
-    
-                
-                    Label:
-                        id: change_text
-                        markup: True
-                        text : "[size=60]{}".format(root.change_amount_value[root.change_value])
-                        text_size: self.size
-                        valign: 'center'
-                        halign: 'center'
-    
-                    
-            
-            Button:
-                id: up
-                disabled: root.enabled
-                background_normal: "Icons/white_outline.png"
-                background_down: "Icons/white_outline.png"
-                on_press: root.add_button(root.change_amount_value[root.change_value])
-    
-                Image:
-                    id: up_image
-                    source: "Icons/Tuning/New Tuning/Up +1.png"
-                    center_x: up.center_x
-                    center_y: up.center_y
-            #down
-    
-            Button:
-                id: down
-                disabled: root.enabled
-                background_normal: "Icons/white_outline.png"
-                background_down: "Icons/white_outline.png"
-                on_press: root.add_button(-root.change_amount_value[root.change_value])
-    
-    
-                
-                Image:
-                    id: down_image
-                    source: "Icons/Tuning/New Tuning/Down +1.png"
-                    center_x: down.center_x
-                    center_y: down.center_y
-
-
-
-        
-
-
-
 <Change_Value>:
     id: tuning_screen
     #background_color: (0,0,0,0)
@@ -2988,15 +2187,10 @@
             Label:
                 id: change_text
                 markup: True
-                text : "[size=40]Apply"
+                text: u"[size=40]" + app.root.lang.pack['EEPROM']['Apply']
 
                 center_x: apply_change.center_x
                 center_y: apply_change.center_y
-        #empty
-        # Label:
-        #     background_color: (0,0,0,0)
-
-       #change speed Button
         Button:
             id: change_increment
             background_normal: 'Icons/button_pause_blank.png'
@@ -3010,9 +2204,7 @@
 
                 center_x: change_increment.center_x
                 center_y: change_increment.center_y
-       #empty
-        # Label:
-        #     background_color: (0,0,0,0)
+      
     Label:
         
         id: tuning_number
@@ -3033,12 +2225,6 @@
         spacing: 5,5
         padding: 0,0,0,0
 
-         #empty
-        # Button:
-        #     background_color: (0,0,0,0)
-
-        #     size: root.button_size
-
         Button:
             id: up
             background_normal: 'Icons/button_pause_blank.png'
@@ -3049,13 +2235,6 @@
                 source: "Icons/Tuning/Up.png"
                 center_x: up.center_x
                 center_y: up.center_y
-
-
-
-        #empty
-        # Label:
-        #     background_color: (0,0,0,0)
-        #down
 
         Button:
             id: down
@@ -3108,12 +2287,9 @@
         orientation: 'vertical'
         id:box_layout
         padding: 0,0,0,20
-
         Image:
             id:image
             source: 'Icons/Manual_Control/failure_icon.png'
-            # center_x: popup.center_x
-            # center_y: popup.center_y + 200
         Label:
             id: modal_question
             markup: True
@@ -3122,33 +2298,6 @@
             text: "[size=40][color=#69B3E7]" + root.title_text + "[/color][/size]\n[size=30]" + root.body_text
             valign: 'middle'
             halign: 'center'
-            # center_x: popup.center_x
-            # center_y: popup.center_y
-
-
-
-<Popup_Button>:
-    id:popup
-    Button:
-        size_hint: None, None
-        id: error_ok
-        background_normal: root.color
-        width: 225
-        height: 85
-        on_press: root.function()
-        center_x: popup.center_x
-        center_y: popup.center_y - 125
-        Label:
-            background_color: 0,0,0,0
-            text: '[size=30]' + root.button_text
-            font_size: 30
-            center_x: error_ok.center_x + 20
-            center_y: error_ok.center_y
-
-<Popup_Grid>
-    cols: 3
-    rows: 1
-    background_color: 0,0,0,0
 
 <Hex_Button>:
     id: hexx
@@ -3201,30 +2350,22 @@
             halign: 'center'
 
     Label:
-        text: '[size=30]Press start to flash firmware\nThis action will cause octoprint to restart\nand your EEPROM to be erased[/size]'
+        text: '[size=30]' + app.root.lang.pack['Firmware_Wizard']['Start_Firmware'] + '[/size]'
         markup: True
         valign: 'middle'
         halign: 'center'
+
     BoxLayout:
+        orientation: 'vertical'
         size_hint_y: 0.5
         padding: [root.width/7, 10, root.width/7, 10]
         spacing: 10
-        Button:
-            id: start
-            font_size: 30
-            on_press: root.button_function(root.path)
+
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['Firmware_Wizard']['Start'] + '[/size]'
+            image_icon: "Icons/Manual_Control/start_button_icon.png"
             background_normal: "Icons/green_button_style.png"
-            Image:
-                id: start_icon
-                source: "Icons/Manual_Control/start_button_icon.png"
-                center_x: start.center_x - 30
-                center_y: start.center_y
-            Label:
-                id: start_label
-                markup: True
-                text: '[size=30]Start[/size]'
-                center_x: start.center_x + 30
-                center_y: start.center_y
+            on_press: root.button_function(root.path)
 
 <STL_Confirmation_Screen>:
     id: screen
@@ -3235,35 +2376,24 @@
         Image:
             size_hint_y: 0.35
             source: "Icons/Manual_Control/info_icon.png"
-            center_x: start.center_x
-            center_y: start.center_y 
 
     Label:
-        text: '[size=30]Use this wizard to prepare STL files for printing.\nSlicing time will vary depending on the file size.[/size]'
+        text: '[size=30]' + app.root.lang.pack['Slicing_Wizard']['Wizard_Description'] + '[/size]'
         markup: True
         valign: 'middle'
         halign: 'center'
+
     BoxLayout:
+        orientation: 'vertical'
         size_hint_y: 0.75
         padding: [root.width/7, 10, root.width/7, 10]
         spacing: 10
-        Button:
-            id: start
-            font_size: 30
-            on_press: root.button_function()
-            background_normal: "Icons/blue_button_style.png"
-            Image:
-                id: start_icon
-                source: "Icons/Manual_Control/start_button_icon.png"
-                center_x: start.center_x - 38
-                center_y: start.center_y
-            Label:
-                id: start_label
-                markup: True
-                text: '[size=30]Continue[/size]'
-                center_x: start.center_x + 38
-                center_y: start.center_y
 
+        Auto_Image_Label_Button:
+            button_text: "[size=30]" + app.root.lang.pack['Slicing_Wizard']['Continue'] + '[/size]'
+            image_icon: "Icons/Manual_Control/start_button_icon.png"
+            background_normal: 'Icons/blue_button_style.png'
+            on_press: root.button_function()
 <stl_Button>:
     id: hexx
     markup: True
@@ -3309,19 +2439,19 @@
         Label:
             size_hint_x: 1.25
             markup: True
-            text : "[size=30]Layer\nHeight"
+            text : "[size=30]" + app.root.lang.pack['Slicing_Wizard']['Layer_Height']
             valign: 'middle'
             halign: 'center'
         Label:
             size_hint_x: 1.25
             markup: True
-            text : "[size=30]Infill %"
+            text : "[size=30]" + app.root.lang.pack['Slicing_Wizard']['Infill']
             valign: 'middle'
             halign: 'center'
         Label:
             size_hint_x: 1.25
             markup: True
-            text : "[size=30]Material"
+            text : "[size=30]" + app.root.lang.pack['Slicing_Wizard']['Material']
             valign: 'middle'
             halign: 'center'
         Label:
@@ -3405,7 +2535,7 @@
             Label:
                 id:raft_text
                 markup: True
-                text: "[size=30]Raft" 
+                text: "[size=30]" + app.root.lang.pack['Slicing_Wizard']['Raft']
                 valign: 'middle'
                 halign: 'left'
                 text_size: self.size
@@ -3413,13 +2543,13 @@
             Label:
                 id:support_text
                 markup: True
-                text: "[size=30]Supports" 
+                text: "[size=30]" + app.root.lang.pack['Slicing_Wizard']['Supports'] 
                 valign: 'middle'
                 halign: 'left'
                 text_size: self.size
     BoxLayout:
         Button:
-            text: 'Continue'
+            text: app.root.lang.pack['Slicing_Wizard']['Continue']
             on_press: root.continue_slicing()
 
 <Override_Layout>:
@@ -3437,7 +2567,7 @@
         id: button_grid
         orientation: 'horizontal'
         spacing: 30
-        padding: 15,0,10,35
+        padding: root.button_padding
 
         Label:
         Label:
@@ -3537,7 +2667,7 @@
     Label:
         markup: True
         size_hint: None, None
-        text: '[size=30]{}°C/190°C'.format(root.temperature)
+        text: '[size=30]{}'.format(root.temperature) + app.root.lang.pack['Preheat']['Celsius_190']
         valign: 'middle'
         halign: 'center'
         center_x: screen.center_x
@@ -3552,7 +2682,7 @@
         text: "[size=30]" + root.body_text
         valign: 'center'
         halign: 'center'
-        text_size: self.size
+        text_size: self.size 
 
     BoxLayout:
         orientation: "horizontal"
@@ -3580,7 +2710,7 @@
 
 <Picture_Button_Screen>:
     orientation: 'vertical'
-    padding: 0,15,0,15
+    padding: 10,15,10,15
 
     Image:
         size_hint_y: 0.4
@@ -3592,7 +2722,49 @@
         text: "[size=45][color=#69B3E7]" + root.title_text + "\n" + "[/color][size=30]"+root.body_text
         valign: 'center'
         halign: 'center'
-        text_size: self.size
+        text_size: self.size 
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: 0.5
+        padding: 200, 0 ,200, 0 
+        Button:
+            id: ok_button
+            on_press: root.button_function()
+            background_normal: "Icons/Slicer wizard icons/button bkg active.png"
+            
+            BoxLayout:
+                orientation: 'horizontal'
+                x: ok_button.x
+                y: ok_button.y
+                size: ok_button.size
+                
+
+                Label:
+                    id: ok_label
+                    markup:True
+                    text: "[size=30]" + root.button_text
+                    valign: 'center'
+                    halign: 'center'
+                    text_size: self.size
+                    max_lines: 1
+
+<Picture_Button_Screen_Body>:
+    orientation: 'vertical'
+    padding: 10,15,10,15
+
+    Image:
+        size_hint_y: 0.4
+        source: root.image_source
+        allow_stretch: False
+   
+    Label:
+        text_size: self.size 
+        markup:True
+        text: "[/color][size=30]"+root.body_text
+        valign: 'center'
+        halign: 'center'
+        
 
     BoxLayout:
         orientation: "horizontal"
@@ -3621,14 +2793,14 @@
 
 <Title_Button_Screen>:
     orientation: 'vertical'
-    padding: 0,15,0,15
+    padding: 10,15,10,15
    
     Label:
         markup:True
         text: "[size=45][color=#69B3E7]" + root.title_text + "\n" + "[/color][size=30]"+root.body_text
         valign: 'center'
         halign: 'center'
-        text_size: self.width + 10, self.height + 10
+        text_size: self.size 
 
     BoxLayout:
         orientation: "horizontal"
@@ -3703,8 +2875,63 @@
                 x: second_button.x
                 y: second_button.y
                 size: second_button.size  
-                spacing: 20  
-                padding: 50,0,50,0
+
+                Label:
+                    id: ok_label
+                    markup:True
+                    text: "[size=30]" + root.option2_text
+                    valign: 'center'
+                    halign: 'center'
+                    text_size: self.size
+                    max_lines: 2
+
+<Modal_Question_No_Title>:
+    orientation: 'vertical'
+    padding: 0,30,0,15
+   
+    Label:
+        markup:True
+        text: "[size=30]" + root.body_text
+        valign: 'center'
+        halign: 'center'
+        text_size: self.size
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: 0.5
+        spacing: 20  
+        padding: 75,0,75,0
+        Button:
+            id: first_button
+            on_press: root.option1_function()
+            background_normal: "Icons/blue_button_style.png"
+            BoxLayout:
+
+                orientation: 'horizontal'
+                
+                x: first_button.x
+                y: first_button.y
+                size: first_button.size  
+                
+                Label:
+                    id: ok_label
+                    markup:True
+                    text: "[size=30]" + root.option1_text
+                    valign: 'center'
+                    halign: 'center'
+                    text_size: self.size
+                    max_lines: 2
+        Button:
+            id: second_button
+            on_press: root.option2_function()
+            background_normal: "Icons/blue_button_style.png"
+            BoxLayout:
+
+                orientation: 'horizontal'
+                
+                x: second_button.x
+                y: second_button.y
+                size: second_button.size  
 
                 Label:
                     id: ok_label
@@ -3737,13 +2964,13 @@
             text_size: self.size
         Label:
             markup:True
-            text: "[size=30]Side View"
+            text: "[size=30]" + app.root.lang.pack['FT_ZOffset_Wizard']['Side_View']
             valign: 'center'
             halign: 'center'
             text_size: self.size
         Label:
             markup:True
-            text: "[size=30]Front View"
+            text: "[size=30]" + app.root.lang.pack['FT_ZOffset_Wizard']['Front_View']
             valign: 'center'
             halign: 'center'
             text_size: self.size
@@ -3758,7 +2985,7 @@
         Label:
             size_hint_x: 0.7
             markup:True
-            text: "[size=30]Bed is\ntoo high"
+            text: "[size=30]" + app.root.lang.pack['FT_ZOffset_Wizard']['Bed_High']
             valign: 'center'
             halign: 'left'
             text_size: self.size
@@ -3780,7 +3007,7 @@
         Label:
             markup:True
             size_hint_x: 0.7
-            text: "[size=30]Bed is\nideal"
+            text: "[size=30]" + app.root.lang.pack['FT_ZOffset_Wizard']['Bed_Ideal']
             valign: 'center'
             halign: 'left'
             text_size: self.size
@@ -3802,7 +3029,7 @@
         Label:
             markup:True
             size_hint_x: 0.7
-            text: "[size=30]Bed is\ntoo low"
+            text: "[size=30]" + app.root.lang.pack['FT_ZOffset_Wizard']['Bed_Low']
             valign: 'center'
             halign: 'left'
             text_size: self.size
@@ -3823,7 +3050,7 @@
         size_hint_y: 0.7
         id: offset_text
         markup: True
-        text: '[size=27]Use the buttons below to adjust and test the current offset.\n[/size][size=40][color=#69B3E7]' + str(root.actual_offset) + '[/size]'
+        text: '[size=27]' + app.root.lang.pack['FT_ZOffset_Wizard']['Test_Instructions'] + '[/size][size=40][color=#69B3E7]' + str(root.actual_offset) + '[/size]'
         valign: 'middle'
         halign: 'center'
         
@@ -3832,6 +3059,7 @@
         spacing: 20
         padding: 20, 0, 20, 0
         size_hint_y: 0.7
+
         Button:
             id: toggle_mm
             background_normal: 'Icons/blue_button_style.png'
@@ -3861,7 +3089,7 @@
                 center_y: z_plus.center_y + 20
             Label:
                 id: toggle_amount
-                text: 'Bed Down'
+                text: app.root.lang.pack['FT_ZOffset_Wizard']['Bed_Down']
                 font_size: 30
                 size_hint: None, None
                 center_x: z_plus.center_x
@@ -3878,7 +3106,7 @@
                 center_y: z_minus.center_y + 20
             Label:
                 id: toggle_amount
-                text: 'Bed Up'
+                text: app.root.lang.pack['FT_ZOffset_Wizard']['Bed_Up']
                 font_size: 30
                 size_hint: None, None
                 center_x: z_minus.center_x
@@ -3895,7 +3123,7 @@
                 center_y: done.center_y + 35
             Label:
                 id: toggle_amount
-                text: 'Test\nOffset'
+                text: app.root.lang.pack['FT_ZOffset_Wizard']['Test_Offset']
                 font_size: 30
                 valign: 'middle'
                 halign: 'center'
@@ -3938,14 +3166,13 @@
                 id: utilities_content
         FilesTab:
             id: files_tab
-            text: "[size=15]\n\n\n\n[/size]Files"
+            text: "[size=15]\n\n\n\n[/size]" + root.lang.pack['Main_Screen']['Files']
             color:  (0.5,0.5,0.5,1) if root.ids.files_tab.state == 'normal' else (0.4,0.7,0.91,1)
             markup: True
             font_size: 25
             background_color: (0.3, 0.3, 0.3, 1) if root.ids.files_tab.state == 'normal' else (0.5,0.5,0.5,1)
             content: files_content.__self__
             on_press: root.query_eeprom()
-            on_press: root.update_files()
             Image:
                 source: "Icons/files.png" if root.ids.files_tab.state == 'normal' else "Icons/files_active.png"
                 center_x: files_tab.center_x
@@ -3955,7 +3182,7 @@
 
         PrinterStatusTab:
             id: printer_status_tab
-            text: "[size=15]\n\n\n\n[/size]Printer"
+            text: "[size=15]\n\n\n\n[/size]" + root.lang.pack['Main_Screen']['Printer']
             color:  (0.5,0.5,0.5,1) if root.ids.printer_status_tab.state == 'normal' else (0.4,0.7,0.91,1)
             markup: True
             font_size: 25
@@ -3969,7 +3196,7 @@
                 height: dp(60)
         UtilitiesTab:
             id: utilities_tab
-            text: "[size=15]\n\n\n\n[/size]Utilities"
+            text: "[size=15]\n\n\n\n[/size]" + root.lang.pack['Main_Screen']['Utilities']
             color:  (0.5,0.5,0.5,1) if root.ids.utilities_tab.state == 'normal' else (0.4,0.7,0.91,1)
             markup: True
             font_size: 25

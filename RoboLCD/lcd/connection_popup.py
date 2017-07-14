@@ -4,25 +4,9 @@ from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from pconsole import pconsole
 from kivy.uix.modalview import ModalView
-from kivy.properties import StringProperty, NumericProperty
-from wizard import ZoffsetWizard
+from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 from kivy.logger import Logger
-
-class Connection_Popup(ModalView):
-    warning = StringProperty('error')
-    body_text = StringProperty('error')
-
-
-    def __init__(self, warning, body_text):
-        super(Connection_Popup, self).__init__()
-        self.warning = warning
-        self.body_text = body_text
-
-    def show(self):
-        self.open()
-
-    def reconnect_button(self):
-        options = roboprinter.printer_instance._printer.connect()
+from functools import partial
 
 class Updating_Popup(ModalView) :
     pass
@@ -41,16 +25,17 @@ class Zoffset_Warning_Popup(ModalView):
     def update_z_offset(self):
         self.current_z_offset = str(pconsole.home_offset['Z'])
         
-    def dismiss_popup(self):
+    def dismiss_popup(self, **kwargs):
         self.dismiss()
-    def start_print_button(self):
+    def start_print_button(self, **kwargs):
         self.dismiss()
         self.file_printer.force_start_print()
 
 class Update_Warning_Popup(ModalView):
     """docstring for Zoffset_Warning_Popup(ModalView)"""
+    
     current_z_offset = StringProperty('--')
-    body_text = StringProperty('[size=40][color=#69B3E7]Update Available[/size][/color][size=30]\n\nWould you like to install the update?\nChangelog: [color=#69B3E7]Robo3D.com/changelogs')
+    body_text = StringProperty('[size=40][color=#69B3E7]' + roboprinter.lang.pack['Warning']['Update']['Sub_Title'] + '[/size][/color][size=30]' + roboprinter.lang.pack['Warning']['Update']['Body'] )
     
     def __init__(self, update_callback, unlock):
         super(Update_Warning_Popup, self).__init__()
@@ -61,10 +46,10 @@ class Update_Warning_Popup(ModalView):
     def update_z_offset(self):
         self.current_z_offset = str(pconsole.home_offset['Z'])
         
-    def dismiss_popup(self):
+    def dismiss_popup(self, **kwargs):
         self.unlock()
         self.dismiss()
-    def start_update_button(self):
+    def start_update_button(self, **kwargs):
         self.unlock()
         self.update_callback()
         self.dismiss()
@@ -74,21 +59,33 @@ class Mintemp_Warning_Popup(ModalView):
     current_temp = StringProperty('--')
     def __init__(self, temp):
         super(Mintemp_Warning_Popup, self).__init__()
-        self.current_temp = 'Min Temp: ' + str(temp)
+        self.current_temp = roboprinter.lang.pack['Warning']['Mintemp'] + str(temp)
         self.open()
         Clock.schedule_once(self.popup_timer, 5)
 
     def popup_timer(self,dt):
         self.dismiss()
 
-class Error_Popup(ModalView):
+class Info_Popup(ModalView):
     error = StringProperty('Error')
     body_text = StringProperty('error')
     def __init__(self, error, body_text):
+        super(Info_Popup, self).__init__()
+        self.error = error
+        self.body_text = body_text
+
+    def show(self):
+        self.open()
+
+class Error_Popup(ModalView):
+    error = StringProperty('Error')
+    body_text = StringProperty('error')
+    callback = ObjectProperty(None)
+    def __init__(self, error, body_text, callback=None, **kwargs):
         super(Error_Popup, self).__init__()
         self.error = error
         self.body_text = body_text
-        self.ids.error_ok.bind(on_press = self.dismiss)
+        self.callback = callback
 
     def show(self):
         self.open()
@@ -122,8 +119,8 @@ class Status_Popup(ModalView):
 class USB_Progress_Popup(ModalView):
     max_progress = NumericProperty(100)
     value_progress = NumericProperty(0)
-    percent_progress = StringProperty("Waiting")
-    error = StringProperty('Error')
+    percent_progress = StringProperty(roboprinter.lang.pack['Warning']['USB_Progress']['Waiting'])
+    error = StringProperty(roboprinter.lang.pack['Warning']['USB_Progress']['Error'])
     
     def __init__(self, error, max_progress):
         super(USB_Progress_Popup, self).__init__()
@@ -141,7 +138,7 @@ class USB_Progress_Popup(ModalView):
         pcent = (self.value_progress / self.max_progress) * 100
         pcent = int(pcent)
 
-        self.percent_progress = str(pcent)+ "% Completed"
+        self.percent_progress = str(pcent)+ roboprinter.lang.pack['Warning']['USB_Progress']['P_Completed']
 
         #map that to the progress bar
 

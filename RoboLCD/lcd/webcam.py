@@ -1,8 +1,9 @@
 import subprocess
 from kivy.logger import Logger
-from fine_tune_zoffset import Title_Button_Screen
+from common_screens import Title_Button_Screen
 from .. import roboprinter
 from kivy.clock import Clock
+from Language import lang
 
 class webcam():
     def __init__(self):
@@ -27,18 +28,18 @@ class Camera(Title_Button_Screen):
     #title_text, body_text, button_function, button_text = "OK", **kwargs
     def __init__(self):
         self.webcam = webcam()
-        self.title_text = "Checking Status"
-        self.body_text = "Please use the button below to toggle the\nstate of the webcam"
-        self.button_text = "Checking State"
+        self.title_text = lang.pack['Webcam']['Sub_Title']
+        self.body_text = lang.pack['Webcam']['Body']
+        self.button_text = lang.pack['Webcam']['Button']
         self.check_state()
         Clock.schedule_interval(self.check_status, 0.2)        
         super(Camera, self).__init__(self.title_text, self.body_text, self.button_function, button_text=self.button_text)
 
     def check_state(self):
         self.cam_on = self.webcam.get_cam()
-        self.title_text = "Webcam is on" if self.cam_on else "Webcam is off"
-        self.body_text = "Please use the button below to toggle the\nstate of the webcam"
-        self.button_text = "Off" if self.cam_on else "On"
+        self.title_text = lang.pack['Webcam']['Webcam_On'] if self.cam_on else lang.pack['Webcam']['Webcam_Off']
+        self.body_text = lang.pack['Webcam']['Body']
+        self.button_text = lang.pack['Webcam']['Button_Off'] if self.cam_on else lang.pack['Webcam']['Button_On']
         self.button_function = self.webcam.stop if self.cam_on else self.webcam.start
 
 

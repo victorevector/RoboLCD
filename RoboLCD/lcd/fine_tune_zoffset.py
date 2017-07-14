@@ -12,8 +12,10 @@ from kivy.clock import Clock
 from pconsole import pconsole
 from connection_popup import Error_Popup, Warning_Popup
 import functools
+from functools import partial
+from common_screens import Button_Screen, Picture_Button_Screen
 import time
-
+from Preheat_Wizard import Preheat_Overseer
 
 class Fine_Tune_ZOffset(object):
     """docstring for Fine_Tune_ZOffset"""
@@ -24,6 +26,8 @@ class Fine_Tune_ZOffset(object):
         self.mode = "R2L" #Modes are L2R and R2L
         self.set_mode(self.mode)
         self.prepared_printer = False
+        self.extruder_setting = 190
+        self.bed_setting = 60
         pconsole.query_eeprom()
         self.welcome_screen()
 
@@ -66,9 +70,9 @@ class Fine_Tune_ZOffset(object):
         
 
     def welcome_screen(self):
-        layout = Button_Screen("Use this wizard to finely tune the Z Offset.\nMake sure PLA filament is loaded before using this tool.", 
-                               self.user_set_mode)
-        title = "Fine Tuning Home Offset"
+        layout = Button_Screen(roboprinter.lang.pack['FT_ZOffset_Wizard']['Welcome']['Body'], 
+                               self.choose_preheat_settings)
+        title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Welcome']['Title']
         name = 'welcome_fine_tune'
         back_destination = roboprinter.robo_screen()
 
@@ -89,6 +93,17 @@ class Fine_Tune_ZOffset(object):
         self.set_mode(self.mode)
         self.prepared_printer = False
 
+    def choose_preheat_settings(self):
+        Preheat_Overseer(end_point=self.collect_heat_settings,
+                         name='preheat_wizard',
+                         title=roboprinter.lang.pack['Utilities']['Preheat'],
+                         back_destination='welcome_fine_tune')
+
+    def collect_heat_settings(self, extruder, bed):
+        self.extruder_setting = extruder
+        self.bed_setting = bed
+        self.user_set_mode()
+
     def user_set_mode(self):
 
         #do a soft reset if we have entered the preparing screen
@@ -106,15 +121,15 @@ class Fine_Tune_ZOffset(object):
             self.set_mode("R2L")
             self.check_for_valid_start()
 
-        layout = Modal_Question("Choose a Starting Corner", 
-                                "\nStart from either the left or right corner.",
-                                "Left",
-                                "Right",
+        layout = Modal_Question(roboprinter.lang.pack['FT_ZOffset_Wizard']['Set_Mode']['Sub_Title'] , 
+                                roboprinter.lang.pack['FT_ZOffset_Wizard']['Set_Mode']['Body'],
+                                roboprinter.lang.pack['FT_ZOffset_Wizard']['Set_Mode']['Option1'],
+                                roboprinter.lang.pack['FT_ZOffset_Wizard']['Set_Mode']['Option2'],
                                 left_corner,
                                 right_corner
                                 )
 
-        title = "Fine Tune Mode"
+        title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Set_Mode']['Title']
         name = self.name_generator()
         back_destination = 'welcome_fine_tune'
         if roboprinter.robosm.has_screen('welcome_fine_tune'):
@@ -159,7 +174,7 @@ class Fine_Tune_ZOffset(object):
                 self._prepare_for_lines()
             else:
                 zoff = pconsole.home_offset['Z']
-                ep = Error_Popup("Z Offset not set", "The Z Offset is set to " + str(zoff) + " Please use the\nZ Offset Wizard before using this tool.")
+                ep = Error_Popup(roboprinter.lang.pack['FT_ZOffset_Wizard']['Z_Error']['Title'], roboprinter.lang.pack['FT_ZOffset_Wizard']['Z_Error']['Body'] + str(zoff) + roboprinter.lang.pack['FT_ZOffset_Wizard']['Z_Error']['Body1'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
                 ep.open()
 
 
@@ -185,7 +200,8 @@ class Fine_Tune_ZOffset(object):
         if not self.prepared_printer and not self.preparing_in_progress:
             self.preparing_in_progress = True
             roboprinter.printer_instance._printer.commands('M400')#Wait for all previous commands to finish (Clear the buffer)
-            roboprinter.printer_instance._printer.commands('M104 S190') #Set Temperature
+            roboprinter.printer_instance._printer.commands('M104 S' + str(self.extruder_setting)) #Set Temperature
+            roboprinter.printer_instance._printer.commands('M140 S' + str(self.bed_setting))
             roboprinter.printer_instance._printer.commands('G28') #Home Printer
             roboprinter.printer_instance._printer.commands('G29')
             roboprinter.printer_instance._printer.commands('G1 X'+ str(self.start_pos_x) + ' Y'+ str(self.start_pos_y) + ' F5000') # go to first corner
@@ -193,8 +209,10 @@ class Fine_Tune_ZOffset(object):
             self.prepared_printer = True
             
             #wait for temperature set
-            layout = Wait_Screen(self.instruction1, "Preparing Printer", "Please wait while the printer prepares for the next step.\n[color=FF0000]Caution: The extruder is hot! Please do not touch it.[/color]")
-            title = "Wait"
+            layout = Wait_Screen(self.instruction1, 
+                                 roboprinter.lang.pack['FT_ZOffset_Wizard']['Prepare_Lines']['Sub_Title'] , 
+                                 roboprinter.lang.pack['FT_ZOffset_Wizard']['Prepare_Lines']['Body'])
+            title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Prepare_Lines']['Title']
             name = 'temp_wait'
             back_destination = 'welcome_fine_tune'
     
@@ -281,8 +299,8 @@ class Fine_Tune_ZOffset(object):
         
         roboprinter.printer_instance._printer.commands('G1 Z'+ str(drop) + ' F5000')
         roboprinter.printer_instance._printer.commands('G1 X'+ str(self.start_pos_x) + ' Y'+ str(self.start_pos_y) + ' F5000') # go to first corner
-        layout = Button_Screen("Please clear your bed of all plastic, then\npress the \"OK\" button.", self.restart)
-        title = "Clear the Bed"
+        layout = Button_Screen(roboprinter.lang.pack['FT_ZOffset_Wizard']['Warn_Restart']['Body'] , self.restart)
+        title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Warn_Restart']['Title']
         name = 'line_restart'
         back_destination = roboprinter.robo_screen()
 
@@ -311,11 +329,9 @@ class Fine_Tune_ZOffset(object):
 
         self.preparing_in_progress = False
         self.prepared_printer = True
-        layout = Button_Screen("To test the current Z Offset, print a line on the bed."
-                               "\nThen adjust the Z Offset until you find the ideal value."
-                               "\nLook to the next screen for a visual reference.",
+        layout = Button_Screen(roboprinter.lang.pack['FT_ZOffset_Wizard']['Instruction']['Body'],
                                self.instruction2)
-        title = "Instructions"
+        title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Instruction']['Title']
         name = 'text_instructions'
         back_destination = roboprinter.robo_screen()
 
@@ -329,7 +345,7 @@ class Fine_Tune_ZOffset(object):
 
     def instruction2(self):
         layout = Picture_Instructions()
-        title = "Instructions"
+        title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Instruction']['Title']
         name = 'picture_instructions'
         back_destination = roboprinter.robo_screen()
 
@@ -347,7 +363,7 @@ class Fine_Tune_ZOffset(object):
     def update_home_offset(self):
         layout = Update_Offset(self.make_line)
 
-        title = "Adjust Offset"
+        title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Update_HO']['Title']
         name = 'home_adjust'
         back_destination = 'picture_instructions'
 
@@ -362,14 +378,14 @@ class Fine_Tune_ZOffset(object):
 
     def choose_to_finish(self):
         from bed_calibration_wizard import Modal_Question, Wait_Screen
-        layout = Modal_Question("Finished?", 
-                                "Do you want to save the new Z Offset?\nPress Choose Corner to continue testing, or press Save\nto finish the wizard.", 
-                                "Choose Corner",
-                                "Save",
+        layout = Modal_Question(roboprinter.lang.pack['FT_ZOffset_Wizard']['Choose_Finish']['Sub_Title'], 
+                                roboprinter.lang.pack['FT_ZOffset_Wizard']['Choose_Finish']['Body'], 
+                                roboprinter.lang.pack['FT_ZOffset_Wizard']['Choose_Finish']['Option1'],
+                                roboprinter.lang.pack['FT_ZOffset_Wizard']['Choose_Finish']['Option2'],
                                 self.user_set_mode,
                                 self.finish_wizard)
 
-        title = "Finished?"
+        title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Choose_Finish']['Title']
         name = 'restart_or_quit'
         back_destination = 'home_adjust'
 
@@ -383,11 +399,11 @@ class Fine_Tune_ZOffset(object):
     def finish_wizard(self):
         roboprinter.printer_instance._printer.commands('M500')
         offset = pconsole.home_offset['Z']
-        layout = Picture_Button_Screen("New Z Offset Saved", 
-                                      "Z Offset value is now " + str(offset),
+        layout = Picture_Button_Screen(roboprinter.lang.pack['FT_ZOffset_Wizard']['Finish']['Sub_Title'], 
+                                      roboprinter.lang.pack['FT_ZOffset_Wizard']['Finish']['Body'] + str(offset),
                                       'Icons/Manual_Control/check_icon.png',
                                       self.goto_main)
-        title = "Saved Offset"
+        title = roboprinter.lang.pack['FT_ZOffset_Wizard']['Finish']['Title']
         name = 'finish_wizard'
         back_destination = roboprinter.robo_screen()
 
@@ -400,87 +416,11 @@ class Fine_Tune_ZOffset(object):
 
     def goto_main(self):
         roboprinter.printer_instance._printer.commands('M104 S0')
+        roboprinter.printer_instance._printer.commands('M140 S0')
         roboprinter.printer_instance._printer.commands('G28')
         roboprinter.robosm.go_back_to_main('utilities_tab')
 
 
-class Button_Screen(BoxLayout):
-    body_text = StringProperty("Error")
-    button_function = ObjectProperty(None)
-    button_text = StringProperty("OK")
-    
-
-
-    def __init__(self, body_text, button_function, button_text = "OK", **kwargs):
-        super(Button_Screen, self).__init__()
-        self.body_text = body_text
-        self.button_function = button_function
-        self.button_text = button_text
-
-class Picture_Button_Screen(BoxLayout):
-    title_text = StringProperty("Error")
-    body_text = StringProperty("Error")
-    image_source = StringProperty("Icons/Slicer wizard icons/button bkg active.png")
-    button_function = ObjectProperty(None)
-    button_text = StringProperty("OK")
-    
-    def __init__(self, title_text, body_text,image_source, button_function, button_text = "OK", **kwargs):
-        super(Picture_Button_Screen, self).__init__()
-        self.title_text = title_text
-        self.body_text = body_text
-        self.image_source = image_source
-        self.button_function = button_function
-        self.button_text = button_text
-
-class Title_Button_Screen(BoxLayout):
-    title_text = StringProperty("Error")
-    body_text = StringProperty("Error")
-    button_function = ObjectProperty(None)
-    button_text = StringProperty("OK")
-    
-    def __init__(self, title_text, body_text, button_function, button_text = "OK", **kwargs):
-        super(Title_Button_Screen, self).__init__()
-        self.title_text = title_text
-        self.body_text = body_text
-        self.button_function = button_function
-        self.button_text = button_text
-
-
-class Picture_Instructions(BoxLayout):
-    
-    def __init__(self):
-        super(Picture_Instructions, self).__init__()
-        pass    
-
-
-class Temperature_Wait_Screen(FloatLayout):
-    continue_function = ObjectProperty(None)
-    body_text = StringProperty("Please wait for the printer to finish preparing")
-    temperature = StringProperty("0")
-
-    def __init__(self, continue_function):
-        super(Temperature_Wait_Screen, self).__init__()
-        self.continue_function = continue_function
-        Clock.schedule_interval(self.wait_for_temp, 0.2)
-
-    def wait_for_temp(self, dt):
-        temps = roboprinter.printer_instance._printer.get_current_temperatures()
-        position_found_waiting_for_temp = False
-
-        #get current temperature
-        if 'tool0' in temps.keys():
-            temp = temps['tool0']['actual']
-            self.temperature = str(temp)
-
-            if temp >= 190:
-                position_found_waiting_for_temp = True
-                #go to the next screen
-                self.continue_function()
-                return False
-
-
-        
-        
 #lines mod
 class Update_Offset(BoxLayout):
     i_toggle_mm = ['Icons/Manual_Control/increments_2_1.png', 'Icons/Manual_Control/increments_2_2.png']
@@ -518,18 +458,86 @@ class Update_Offset(BoxLayout):
     def add_offset(self):
         self.offset += self.f_toggle_mm[self.toggle_mm]
         self.actual_offset = str(pconsole.home_offset['Z'] + self.offset)
-        self.ids.offset_text.text = '[size=27]Use the buttons below to adjust and test the current offset.\n[/size][size=40][color=#69B3E7]' + str(self.actual_offset) + '[/size]'
+        self.ids.offset_text.text = '[size=27]' + roboprinter.lang.pack['FT_ZOffset_Wizard']['Update_Offset']['Body'] + '\n[/size][size=40][color=#69B3E7]' + str(self.actual_offset) + '[/size]'
 
     def subtract_offset(self):
         self.offset -= self.f_toggle_mm[self.toggle_mm]
         self.actual_offset = str(pconsole.home_offset['Z'] + self.offset)
-        self.ids.offset_text.text = '[size=27]Use the buttons below to adjust and test the current offset.\n[/size][size=40][color=#69B3E7]' + str(self.actual_offset) + '[/size]'
+        self.ids.offset_text.text = '[size=27]' + roboprinter.lang.pack['FT_ZOffset_Wizard']['Update_Offset']['Body'] + '\n[/size][size=40][color=#69B3E7]' + str(self.actual_offset) + '[/size]'
+
+class Picture_Instructions(BoxLayout):
+    
+    def __init__(self):
+        super(Picture_Instructions, self).__init__()
+        pass    
+
+# class Button_Screen(BoxLayout):
+#     body_text = StringProperty("Error")
+#     button_function = ObjectProperty(None)
+#     button_text = StringProperty("OK")
+    
+
+
+#     def __init__(self, body_text, button_function, button_text = "OK", **kwargs):
+#         super(Button_Screen, self).__init__()
+#         self.body_text = body_text
+#         self.button_function = button_function
+#         self.button_text = button_text
+
+# class Picture_Button_Screen(BoxLayout):
+#     title_text = StringProperty("Error")
+#     body_text = StringProperty("Error")
+#     image_source = StringProperty("Icons/Slicer wizard icons/button bkg active.png")
+#     button_function = ObjectProperty(None)
+#     button_text = StringProperty("OK")
+    
+#     def __init__(self, title_text, body_text,image_source, button_function, button_text = "OK", **kwargs):
+#         super(Picture_Button_Screen, self).__init__()
+#         self.title_text = title_text
+#         self.body_text = body_text
+#         self.image_source = image_source
+#         self.button_function = button_function
+#         self.button_text = button_text
+
+# class Title_Button_Screen(BoxLayout):
+#     title_text = StringProperty("Error")
+#     body_text = StringProperty("Error")
+#     button_function = ObjectProperty(None)
+#     button_text = StringProperty("OK")
+    
+#     def __init__(self, title_text, body_text, button_function, button_text = "OK", **kwargs):
+#         super(Title_Button_Screen, self).__init__()
+#         self.title_text = title_text
+#         self.body_text = body_text
+#         self.button_function = button_function
+#         self.button_text = button_text
+
+
+
+
+
+# class Temperature_Wait_Screen(FloatLayout):
+#     continue_function = ObjectProperty(None)
+#     body_text = StringProperty("Please wait for the printer to finish preparing")
+#     temperature = StringProperty("0")
+
+#     def __init__(self, continue_function):
+#         super(Temperature_Wait_Screen, self).__init__()
+#         self.continue_function = continue_function
+#         Clock.schedule_interval(self.wait_for_temp, 0.2)
+
+#     def wait_for_temp(self, dt):
+#         temps = roboprinter.printer_instance._printer.get_current_temperatures()
+#         position_found_waiting_for_temp = False
+
+#         #get current temperature
+#         if 'tool0' in temps.keys():
+#             temp = temps['tool0']['actual']
+#             self.temperature = str(temp)
+
+#             if temp >= 190:
+#                 position_found_waiting_for_temp = True
+#                 #go to the next screen
+#                 self.continue_function()
+#                 return False
         
-
-
-
-        
-
-
-
-

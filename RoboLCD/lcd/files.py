@@ -18,13 +18,11 @@ from kivy.logger import Logger
 from .. import roboprinter
 import os
 import shutil
-from robo_sm import screen_manager
 import re
 from scrollbox import ScrollBox, Scroll_Box_Even
 import collections
 from connection_popup import Zoffset_Warning_Popup, Error_Popup, USB_Progress_Popup
 import subprocess
-from Meta_Reader import Meta_Reader
 import threading
 from session_saver import session_saver
 import traceback
@@ -37,6 +35,7 @@ from watchdog.events import FileSystemEventHandler
 from file_explorer import File_Explorer
 from file_explorer import FileOptions
 import re
+from functools import partial
 
 
 USB_DIR = '/home/pi/.octoprint/uploads/USB'
@@ -170,8 +169,6 @@ class PrintFile(GridLayout):
     """
     This class encapsulates the dynamic properties that get rendered on the PrintFile and the methods that allow the user to start a print.
     """
-
-
     name = StringProperty('')
     backbutton_name = ObjectProperty(None)
     file_name = ObjectProperty(None)
@@ -254,14 +251,14 @@ class PrintFile(GridLayout):
         #toggle between button states
         if self.status == 'PRINTER IS BUSY' and self.ids.start.background_normal == "Icons/green_button_style.png":
             self.ids.start.background_normal = "Icons/red_button_style.png"
-            self.ids.start_label.text = '[size=30]Printer Busy[/size]'
-            self.ids.start_icon.source = 'Icons/Manual_Control/printer_button_icon.png'
-            self.subtract_amount = 80
+            self.ids.start.button_text = '[size=30]' + roboprinter.lang.pack['Files']['File_Status']['Busy'] + '[/size]'
+            self.ids.start.image_icon = 'Icons/Manual_Control/printer_button_icon.png'
+         
         elif self.status == "READY TO PRINT" and self.ids.start.background_normal == "Icons/red_button_style.png":
             self.ids.start.background_normal = "Icons/green_button_style.png"
-            self.ids.start_label.text = '[size=30]Start[/size]'
-            self.ids.start_icon.source = 'Icons/Manual_Control/start_button_icon.png'
-            self.subtract_amount = 30
+            self.ids.start.button_text = '[size=30]' + roboprinter.lang.pack['Files']['File_Status']['Start'] + '[/size]'
+            self.ids.start.image_icon = 'Icons/Manual_Control/start_button_icon.png'
+            
 
     def start_print(self, *args):
         #Throw a popup to display the ZOffset if the ZOffset is -10 or more
@@ -278,20 +275,24 @@ class PrintFile(GridLayout):
                     self.force_start_print()
         except Exception as e:
             #raise error
-            error = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
+            error = Error_Popup(roboprinter.lang.pack['Files']['File_Error']['Title'],roboprinter.lang.pack['Files']['File_Error']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
             error.open()
-            Logger.info(e)
+            Logger.info("Start Print Error")
+            Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
+            traceback.print_exc()
 
     def force_start_print(self, *args):
         """Starts print but cannot start a print when the printer is busy"""
         try:
             path_on_disk = roboprinter.printer_instance._file_manager.path_on_disk(octoprint.filemanager.FileDestinations.LOCAL, self.file_path)
             roboprinter.printer_instance._printer.select_file(path=path_on_disk, sd=False, printAfterSelect=True)
-            Logger.info('Funtion Call: start_print')
         except Exception as e:
             #raise error
-            error = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
+            error = Error_Popup(roboprinter.lang.pack['Files']['File_Error']['Title'],roboprinter.lang.pack['Files']['File_Error']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
             error.open()
+            Logger.info("Force Start Print Error")
+            Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
+            traceback.print_exc()
 
 
     def is_ready_to_print(self):
@@ -330,14 +331,15 @@ class PrintUSB(PrintFile):
             copied = self.copy_file(real_path, copy_path, progress_callback=self.progress_update)
             if not copied:
                 self.progress_pop.hide()
-                ep = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
+                ep = Error_Popup(roboprinter.lang.pack['Files']['File_Error']['Title'],roboprinter.lang.pack['Files']['File_Error']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
                 ep.show()
+                Logger.info("attempt to save Error")
 
 
         except Exception as e:
             #raise error
             self.progress_pop.hide()
-            ep = Error_Popup('File Error','There was an error with the selected file\nPlease try again')
+            ep = Error_Popup(roboprinter.lang.pack['Files']['File_Error']['Title'],roboprinter.lang.pack['Files']['File_Error']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
             ep.show()
             Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
             traceback.print_exc()
@@ -361,9 +363,6 @@ class PrintUSB(PrintFile):
         self.dst_obj = open(fdst, 'wb')
         #Do the copy as fast as possible without blocking the UI thread
         Clock.schedule_interval(self.copy_object, 0)
-
-
-
         return True
 
     #doing it this way with a clock object does not block the UI
@@ -393,7 +392,7 @@ class PrintUSB(PrintFile):
 
         if progress == 1.0:
             self.progress_pop.hide()
-            ep = Error_Popup('File Saved','File has been saved to\nthe local directory')
+            ep = Error_Popup(roboprinter.lang.pack['Files']['File_Saved']['Title'] , roboprinter.lang.pack['Files']['File_Saved']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
             ep.show()
             if 'file_callback' in session_saver.saved:
                 session_saver.saved['file_callback']()

@@ -1,0 +1,667 @@
+Load_Success:
+  pass: "Lorem ipsum do"
+
+Main_Screen:
+  Files: "lor s"
+  Printer: "it amet"
+  Utilities: ", consect"
+
+Printer_Status:
+  Minute_Left: "etur adipiscing el"
+  Percent: "i"
+
+
+File_Screen:
+  Z_Offset: "t. Fusce"
+  Infill: " ullam"
+  Layer_Height: "corper\n sapien"
+  Layers: " magna"
+  Estimated_Time: ". Nulla libero"
+  Start: " dui,"
+  Save: " max"
+  Pause: "imus "
+  Resume: "ac hen"
+  Cancel: "drerit"
+  Canceling: " vel, pharetr"
+
+File_Options:
+  Delete: "a ac e"
+  Add_Folder: "x. Cras ve"
+  Move_File: "stibulum "
+  Move_Folder: "accumsan au"
+  Continue: "gue at v"
+  Show_Keyboard: "enenatis. Ali"
+
+Error:
+  File_Error: "quam quis "
+  File_Error_Body: "vestibulum elit, et tristique erat. Pellen\ntesque tincidunt "
+  Filament_Error: "augue euismod, lacin"
+  Filament_Error_Body: "ia neque non, pharetra r"
+
+Warning:
+  Mintemp: "isus. In vel t"
+  Mintemp_Body: "ortor eget ri\nsus vehicula commodo non eu tortor.\n Duis quis lig"
+  Mintemp: "ula quis f"
+  Z_Offset_Warning:
+    Title: "elis sagittis au"
+    Body1: "ctor id ac est. Aliquam"
+    Body2: " placerat, nunc\n sit amet pretium convallis, sem est bib"
+
+  Update:
+    Sub_Title: "endum ligula, eg"
+    Body: "e\nt \ntincidunt erat metus quis quam. Aenean \neget nisl consequat, cursus erat ac, laoreet pur"
+
+  USB_Progress:
+    Waiting: "us. Pra"
+    P_Completed: "esent aucto"
+    Error: "r sap"
+
+
+
+Popup:
+  PYes: "ien"
+  PNo: " a"
+  OK: "nt"
+  Import_Files: "e, nec ullamcorper "
+  Cancel_Print: "ipsum egestas ut. Donec non convallis eros."
+  MainBoard1: " Donec a dolor quis lig"
+  MainBoard2: "ula porttitor fi"
+  Connect: "nibus. "
+  Firmware_Title: "Donec augue turpis, "
+  Firmware_Body: "placerat vel magna sit ame\nt, tempor tincidunt risus. Nu"
+  ZOffset_Title: "llam felis tortor, "
+  ZOffset_Units: "rh"
+  ZOffset_Body: "oncus nec mauris sed, tincidunt scelerisque e\nni\nm.Nullam aliquet mi arcu, quis ferm\nentum purus pharetra quis. Nulla a p"
+  Continue: "osuere s"
+  Z_Offset: "apien. I"
+  Later: "n hac"
+  Update: " habit"
+  Motors_Title: "asse platea dictu"
+  Motors_Body: "mst. Maecenas molestie dignissim enim"
+
+Mainboard:
+  Connection_Title: ", vel efficitur "
+  Connection_Body: "nisi ultricies consequat. Etiam vulputate ru"
+  Connection_Button: "trum "
+
+Utilities:
+  Wizards: "mi phar"
+  Network: "etra sagittis. Cu"
+  Update: "rabitu"
+  Options: "r maxim"
+  System: "us era"
+  Print_Tuning: "t a erat sem"
+  Fan_Control: "per element"
+  Temp_Control: "um. Suspendisse ut "
+  Motor_Control: "nulla lorem. "
+  Preheat: "Praesen"
+  Cooldown: "t tempor"
+  ZOffset: " hendrer"
+  Filament: "it metus"
+  Slicer: ", eu v"
+  FT_Wizard: "arius velit fauc"
+  Bed_Cal: "ibus ut.Maecena"
+  Start_Wifi: "s a massa et lorem"
+  Network_Status: " tempus sollic"
+  QR_Code: "itudin."
+  EEPROM: " Aliqu"
+  Firmware: "am ac sa"
+  MainBoard: "pien vel sem cong"
+  Tool1: "ue ornare "
+  Tool2: "id nec ero"
+  Bed: "s. "
+  Webcam_Status: "Duis tempor m"
+
+RoboIcons:
+  Configure_WiFi: "attis purus, n"
+  Start_WiFi: "on malesuada neque"
+  Network_Status: " posuere nec. "
+  QR: "Sed sem ips"
+  Z_Offset: "um, pretium a p"
+  Fil_Load: "ellentesque ac, "
+  Fil_Change: "pretium ac tort"
+  Slicing: "or. Vivamus cu"
+  FTZ_Offset: "rsus odio quis l"
+  Bed_Cal: "orem aliquam, q"
+  Tool1: "uis ultric"
+  Tool2: "ies lacus "
+  Bed: "mol"
+  Preheat: "estie. "
+  Cooldown: "Quisque "
+  EEPROM: "quis l"
+  USB: "igula mauri"
+  Firmware: "s. Phasellus et"
+  Motors: " placerat "
+  Mainboard: "justo, mat"
+  Shutdown: "tis vive"
+  Reboot: "rra el"
+  Wizards: "it. Dui"
+  Print_Tuning: "s rhoncus, l"
+  Fan_Control: "ibero bland"
+  Network: "it feug"
+  Update: "iat rh"
+  System: "oncus,"
+  Options: " nisl m"
+  Language: "etus con"
+  Webcam: "vallis"
+
+
+System:
+  Shutdown_Title: " nibh, vel bi"
+  Shutdown_Body: "bendum odio quam ut nisi. Cra\ns non lorem libero. Quisque q"
+  Reboot_Title: "uis purus"
+  Reboot_Body: " quis orci ornare ul\nlamcorper. A"
+  USB_Title: "liquam eu fin"
+  USB_Body: "ibus ante. Pellentesque"
+
+
+
+Robo_Controls:
+  Temperature_Controls: " vitae hendrer"
+  Motor_Controls: "it risus. Fusc"
+
+Motor_Controls:
+  Home: "e od"
+  Retract: "io elit"
+  Extrude: ", fauci"
+  Y+: "bu"
+  Y-: "s "
+  X+: "in"
+  X-: " v"
+  Z+: "el"
+  Z-: "it"
+
+Temperature_Controls:
+  Extruder_1: " at, phare"
+  Extruder_2: "tra ultric"
+  Bed: "ies"
+  Preheat: " metus."
+  Cooldown: " Mauris "
+  Celsius_Alone: "luc"
+  Celsius_with_slash: "tus a"
+  Current: "ccumsan "
+  Desired: "varius. "
+  Delete: "Quisqu"
+  Set: "e v"
+  one: "i"
+  two: "t"
+  three: "a"
+  four: "e"
+  five: " "
+  six: "l"
+  seven: "a"
+  eight: "c"
+  nine: "i"
+  zero: "n"
+
+WiFi:
+  Start_Hotspot: "ia lacus, sed interdum justo.Sed in ultricies ex,\n sed facilisis dui. Nulla finibus mauris vitae risus sa"
+  Start: "gitti"
+  Cancel: "s semp"
+  Retry: "er. P"
+  Ok: "ro"
+  AP_Title: "in tellus dol"
+  Empty_SSID: "or, rutrum"
+  Connect: " a lacu"
+  Connected: "s vitae, "
+  Select_Network: "congue loborti"
+  Show_Keyboard: "s eros. Quisq"
+  Enter_Password: "ue quam ex, porta "
+  Hotspot_Title: "a odio sit amet, blan"
+  Hotspot_Body: "d\nit sodales eros. Curabitur magna"
+  Initiating: " purus, malesuada vitae venenatis nec, vehicul"
+  Hotspot_Failure_Title: "a quis magna. I"
+  Hotspot_Failure_Body: "n\nteger suscipit placerat tortor, sed blandit\n arcu molestie"
+  Hotspot_Success_Title: " eu. Curabitur pretiu"
+  Hotspot_Success_Body: "m\n vestibulum ante, et ultrices mauris pharetra \neget. Sed vestibulum dui "
+  Connecting: "nec sapien fau"
+  ellipsis: "cib"
+  Time_Warning: "us, in ullamcorper odio interdu"
+  Success_Connect: "m. Suspendisse a augue ve"
+  WiFi_Failure_Title: "stibulum, posuere"
+  WiFi_Failure_Body: " sapien at, elementum sem. Cras tortor \nnisl, sagittis quis sapien a, elementu"
+  Connecting_dots: "m semper dolo"
+  WiFi: "r. P"
+  And_Wired: "roin varius mollis "
+  Hot_and_Wired: "magna, sit amet posuere nunc te"
+  Hot_ Mode: "mpor ac. Pra"
+  Hot_IP: "esent viverr"
+  Wired: "a scelerisque "
+  No_Mode: "nibh id vulputate. Sed tristique ex sit amet"
+  Error_WiFi: " diam interdum scelerisque. "
+  Connection_Status: "Aenean nec ligula"
+  Hostname: " eget nul"
+  IP: "la "
+  Getting_Status: "Lorem ipsum dolor sit ame"
+
+Preheat:
+  Celsius_Alone: "t, "
+  Celsius_190: "consectetu"
+  Celsius_100: "r adipisci"
+  Celsius_60: "ng elit. "
+  Heating_to: "Fusce ulla"
+  Heating_to_230: "mcorper sapien ma"
+  Heating_to_190: "gna. Nulla libero"
+  Material_Error: " dui, maximus ac hendrerit ve"
+  Material_Message: "l, pharetra ac ex. Cras ve"
+  Choose_Type: "stibulum accumsan augue a"
+  PLA: "t v"
+  ABS: "ene"
+  Stop: "nati"
+  Printer: "s. Aliq"
+  PLA_C2: "uam quis vestibulum elit, et tris"
+  PLA_R2: "tique erat. Pellentesque tincidunt augue euismod, lacin"
+  ABS_C2: "ia neque non, pharetra risus. In "
+  ABS_R2: "vel tortor eget risus vehicula commodo non eu tortor. Du"
+
+
+Filament_Wizard:
+  Wizard_Description: "is quis ligula quis felis sagittis auctor id ac est. Aliq\nuam placerat, nunc sit amet preti"
+  Start: "um co"
+  Heat_230: "nvallis, sem est "
+  Celsius_Alone: "bib"
+  Auto_Next: "endum ligula, eget tincidunt erat metus quis quam\n. Aenean eget nisl consequat, c"
+  Remove_Filament: "ursus erat ac, laoreet purus. Praesent auctor sapien"
+  Next: " ant"
+  Cut_Tip: "e, nec ullamcorper ipsum egestas ut. \nDonec non convallis eros. Donec "
+  Extrude_Filament: "a dolor quis ligula porttitor finibus. Don"
+  Complete_Title: "ec augue turpis, placera"
+  Complete_Body: "t\n vel magna sit amet, tempor tincidunt ris\nus. Nullam fel"
+  Ok: "is"
+
+  Title_15: " tortor, rhoncus ne"
+  Title_25: "c mauris sed, tinci"
+  Title_35: "dunt scelerisque en"
+  Title_45: "im.Nullam aliquet m"
+  Title_55: "i arcu, quis fermen"
+
+  Title_14: "tum purus pharetra "
+  Title_24: "quis. Nulla a posue"
+  Title_34: "re sapien. In hac h"
+  Title_44: "abitasse platea dic"
+
+
+ZOffset_Wizard:
+  Wizard_Description: "tumst. Maecenas molestie dignissim enim, vel effi\ncitur nisi ultricies consequat. Etiam vulp"
+  Start: "utate"
+  Auto_Next: " rutrum mi pharetra sagittis. Curabitur maximus era\nt a erat semper elementum. Suspendisse ut n"
+  Adjust_Instructions: "ulla lorem. Praesent tempor hendrerit metus, eu vari\nus velit faucibus ut.Maecenas a massa et lore\nm tempus sollicitudin. A"
+  Z+: "li"
+  Z-: "qu"
+  Done: "am a"
+  Capture_Offset: "c sapien vel sem congue ornare id ne\nc eros. Duis tempor mattis purus, non males"
+  Finish_Title: "uada neque posuer"
+  Finish_Body1: "e\n nec. Sed sem ipsum, pretiu"
+  Finish_Body2: "m a pellentesque a"
+  Save: "c, p"
+  Cooldown: "retium ac tortor. Vivamus cursus odio quis lorem aliquam\n, quis ultricies lacus mol"
+
+  Welcome: "estie. Quisque "
+  Wait: "quis ligula mauris. Ph"
+  Z_14: "asellus et p"
+  Z_24: "lacerat just"
+  Z_34: "o, mattis vi"
+  Z_44: "verra elit. "
+
+
+Print_Tuning:
+  Fan_Speed: "Duis rhon"
+  Print_Speed: "cus, libero"
+  Flow_Rate: " blandit "
+  Printing_Speed: "feugiat rhoncu"
+  
+
+EEPROM:
+  Apply: "s, ni"
+  Home_Offset: "sl metus con"
+  Probe_Offset: "vallis nibh,"
+  Filament_Settings: " vel bibendum odi"
+  Feed_Rates: "o quam ut "
+  PID_Settings: "nisi. Cras n"
+  Bed_PID: "on lorem libero."
+  Steps_Unit: " Quisque quis "
+  Accelerations: "purus quis or"
+  Max_Accelerations: "ci ornare ullamco"
+  Advanced: "rper. Aliquam eu f"
+  Reset: "inibus ante."
+  Error_Title: " Pellentesque"
+  Error_Body: " vitae hendrerit risus. Fusce odio e"
+
+Slicing_Wizard:
+  Wizard_Description: "lit, faucibus in velit at, pharetra ultricies metus\n. Mauris luctus accumsan varius. Quisque vitae laci"
+  Continue: "nia lacu"
+  Layer_Height: "s, sed\n interd"
+  Infill: "um justo"
+  Material: ".Sed in "
+  Raft: "ultr"
+  Supports: "icies ex"
+
+FT_ZOffset_Wizard:
+  Side_View: ", sed fac"
+  Front_View: "ilisis dui"
+  Bed_High: ". Nulla\n finibus "
+  Bed_Ideal: "mauris \nvitae "
+  Bed_Low: "risus s\nagittis "
+  Test_Instructions: "semper. Proin tellus dolor, rutrum a lacus vitae, congue lobo\nr"
+  Bed_Down: "tis eros"
+  Bed_Up: ". Quis"
+  Test_Offset: "que q\nuam ex,"
+
+  Welcome:
+    Title: " porta a odio sit amet,"
+    Body: " blandit sodales eros. Curabitur magna purus,\n malesuada vitae venenatis nec, vehicula quis magna. Inte"
+
+  Set_Mode:
+    Title: "ger suscipit p"
+    Sub_Title: "lacerat tortor, sed blan"
+    Body: "d\nit arcu molestie eu. Curabitur pretium vesti"
+    Option1: "bulu"
+    Option2: "m ant"
+
+  Z_Error:
+    Title: "e, et ultrices m"
+    Body: "auris pharetra eget. Se"
+    Body1: "d vestibulum dui\n nec sapien faucibus, in ullamcorper odi"
+
+  Prepare_Lines:
+    Title: "o in"
+    Sub_Title: "terdum. Suspendis"
+    Body: "se a augue vestibulum, posuere sapien at, elementum sem. C\nras tortor nisl, sagittis quis sapien a, elementum semper dolor. Proin variu"
+
+  Warn_Restart:
+    Title: "s mollis magn"
+    Body: "a, sit amet posuere nunc tempor ac. Praesen\nt viverra sc\neler\nisque nib"
+
+  Instruction:
+    Title: "h id vulputa"
+    Body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit\n. Fusce ullamcorper sapien magna. Nulla libero dui, maximu\ns ac hendrerit vel, pharetra ac ex. Cras vestibu"
+
+  Update_HO:
+    Title: "lum accumsan "
+
+  Choose_Finish:
+    Title: "augue at "
+    Sub_Title: "venenatis"
+    Body: ". Aliquam quis vestibulum elit, et tri\nstique erat. Pellentesque tincidunt augue euismod, lacin\nia neque non, pharetra"
+    Option1: " risus. In ve"
+    Option2: "l to"
+
+  Finish:
+    Title: "rtor eget ri"
+    Sub_Title: "sus vehicula commo"
+    Body: "do non eu tortor. Duis"
+
+  Update_Offset:
+    mm_001: " quis "
+    mm_005: "ligula"
+    Body: Use the buttons below to adjust and test the current offset.
+
+
+Firmware_Wizard:
+  Select_Firmware: " quis felis sag"
+  Hex_Error_Title: "ittis aucto"
+  Hex_Error_Body: "r id ac est. Aliquam p\nlacerat, nunc sit amet pre"
+  Confirm_Hex: "tium convallis, "
+  Start_Firmware: "sem est bibendum ligula, eget \ntincidunt erat metus quis quam. Aenean eget n\nisl consequat, cursus erat ac"
+  Start: ", lao"
+
+Bed_Cal_Wizard:
+  Welcome:
+    Title: "reet purus. Praesent a"
+    Body: "uctor sapien ante, nec ullamcorper ipsum egestas ut\n. Donec non convallis eros. Donec a dolor quis ligula po"
+    Button: "rttit"
+
+  Tilt_Instructions:
+    Title: "or finibus"
+    Body: ". Donec augue turpis, placerat vel magna sit amet, t\nempor tincidunt risus. Nullam felis tortor, rhoncus nec mauris sed, tincidunt s\ncelerisque enim.Nullam aliquet mi arcu, quis fer"
+    Button: "ment"
+
+  Mode:
+    Title: "um purus phare"
+    Sub_Title: "tra quis. N"
+    Body: "ulla a posuere sapien. In hac habitasse platea dictumst. Ma\necenas molestie dignissim enim, vel efficitur nisi ultri"
+    Button1: "cies c"
+    Button2: "onsequ"
+
+  Prepare:
+    Title1: "at. Et"
+    Title2: "iam vu"
+    Sub_Title: "lputate rutrum mi"
+    Body: " pharetra sagittis. Curabitur maximus erat a erat semper "
+
+  Guided_Instructions:
+    Title: "elementum. Susp"
+    Error: "endis"
+    L_Point: "se ut null"
+    LF_Screw: "a lorem. Praesen"
+    R_Point: "t tempor he"
+    RF_Screw: "ndrerit metus, eu"
+    BR_Point: " varius velit fa"
+    BR_Screw: "ucibus ut.Maecen"
+    BL_Point: "as a massa et l"
+    BL_Screw: "orem tempus sol"
+    Body1: "licitudin. "
+    Body2: "Aliquam ac \nsapien vel sem"
+
+  Manual_Instructions:
+    Title: " congue ornar"
+    Sub_Title: "e id nec eros. Duis tempor mattis purus, non malesu"
+    Left: "ada "
+    Right: "neque"
+    Back_Right: " posuere n"
+    Back_Left: "ec. Sed s"
+
+  Finish_Wizard:
+    Title: "em ipsum, preti"
+    Sub_Title: "um a pellentesque ac, pr"
+    Body: "etium ac tortor. Vivamus cu"
+
+Slicer_Wizard:
+  Confirmation:
+    Title: "rsus odio quis"
+    Button: " lor"
+  Select_File:
+    Title: "em aliquam, qui"
+  Overrides:
+    Title: "s ultricies lacus mol"
+  Progress:
+    Sub_Title: "estie. Q"
+  Error:
+    Profile:
+      Sub_Title: "uisque quis l"
+      Body: "igula mauris.\n Phasellus et \nplacerat justo, m\nattis viverra elit. Duis rhoncus, lib"
+    Slice:
+      Sub_Title: "ero blandit fe"
+      Body: "ugiat rhoncus, nisl metus convallis nib\nh, vel bibendum o"
+
+  Raft_Support:
+    Title: "dio quam ut nisi"
+    Body: ". Cras non lorem libero. Quisque quis pu\nrus quis orci ornare ullamcorper. Aliquam eu finibus an"
+    Supports: "te. Pell"
+    Raft: "ente"
+
+  Print_Quality:
+    Title: "sque vitae he"
+    Body: "ndrerit risus. Fusce odio elit, faucibus in velit a\nt, pharetra ultricies metus. Maur"
+
+    mm_20: "is luct"
+    mm_15: "us accu"
+    mm_10: "msan va"
+    mm_06: "rius. Q"
+  
+  Infill:
+    Title: "uisque"
+    Body: " vitae lacinia lacus, sed interdum justo.Sed in u"
+    p_0: "lt"
+    p_10: "ric"
+    p_25: "ies"
+    p_100: " ex,"
+
+  Material:
+    Title: " sed facilisis"
+    Body: " dui. Nulla finibus mauris vitae risus sagittis\n semper. Proin tellus dolor, rutrum a lacus vit"
+    PLA: "ae,"
+    ABS: " co"
+
+Refresh_Screen:
+  Soft_Reset:
+    Status: "ngue lobortis eros"
+    Title: ". Quisque quam ex, por"
+    Please: "ta a od"
+    Body: "io sit amet, blandit sodales eros. Curabitur\n magna purus, malesuada vitae venenatis nec, vehicula quis\n "
+
+  Reset:
+    Title: "magna. Integ"
+    Body: "er suscipit placerat tortor, sed blan"
+
+  Update_Connection:
+    Successful: "dit arcu m"
+    In_Progress: "olestie eu. "
+    bed_connect: "Curabitur pretium vestibulu"
+    offline: "m ante,"
+
+Firmware:
+  Title: " et ultrices mauris "
+  Body: "pharetra eget. Sed vestibulum dui nec sapien faucib\nus, in ullamcorper o"
+
+Bed_Hot:
+  Title: "dio interdum. Su"
+  Body: "spendisse a augue vestibulum, posuere sapien at, elemen\ntum sem. Cras tortor nisl, sagittis quis sapien"
+
+Filament:
+  Title: " a, elementum semper"
+  Body: " \ndolor. Proin varius mollis magna, sit amet posuere nunc te\nmpor ac. Praesent viver"
+  Button1: "ra"
+  Button2: " scelerisque ni"
+
+Error_Detection:
+  MAINBOARD:
+    Title: "bh id vulputate."
+    Body: " Sed tristique ex sit a"
+    Connection_Offline: "met diam interdum "
+    E_Sub_Title: "scelerisque. Aenean ne"
+    E_Body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n Fusce ullamcorper sapien magna. Nulla libero dui, maximu"
+    E_Button: "s ac "
+    E_Title: "hendrerit vel,"
+  FIRMWARE:
+    Title: " pharetra ac ex. Cra"
+    Body: "s vestibulu"
+    E_Title: "m accumsan augu"
+  BED_HOT:
+    Title: "e at venenatis. "
+    Body: "Aliquam quis vest"
+  BED_DISCONNECT:
+    Title: "ibulum elit, et tristi"
+    Body: "que erat. Pellentesque tincidu"
+    E_Sub_Title: "nt augue euismod, laci"
+    E_Body: "nia neque non, pharetra risus. In vel tortor eget risu"
+    E_Button: "s vehicul"
+    E_Title: "a commodo non eu"
+  PAUSED:
+    Title: " tortor. Dui"
+    Body: "s quis ligula quis felis"
+  FIL_RUNOUT:
+    Title: " sagittis auctor id "
+    Body: "ac est. Aliquam placerat, n"
+    E_Title: "unc sit amet pr"
+  DEFAULT:
+    Title_Idle: "etium conv"
+    Title_Active: "allis, sem "
+    Body_Idle: "est bibendum ligula, e"
+    Body_Active: "get tincidunt erat"
+
+Files:
+  File_Options:
+    Title: " metus quis "
+    Move: "quam. Aen"
+    MoveF: "ean eget ni"
+    Delete: "sl con"
+    AddF: "sequat, cu"
+
+  Error:
+    Title: "rsus erat ac, laoreet "
+    Body: "purus. Praesent auctor sapien\n ante, nec ullamcorper ipsum eges"
+
+  Move_Error:
+    Title: "tas ut. Donec non co"
+    Body: "nvallis eros. Donec a dolor quis ligula \nporttitor finibus. Donec augue turpis, plac"
+
+  Warning:
+    Title: "erat v"
+    Body: "el magna si"
+
+  Keyboard:
+    Title: "t amet, tem"
+    New_Folder: "por tincid"
+
+  Save_File:
+    Title: "unt risus"
+    Sub_Title: ". Nullam f"
+    Body: "elis tortor, rh"
+
+  File_Status:
+    Title: ""
+    Busy: "oncus nec ma"
+    Start: "uris "
+
+  File_Error:
+    Title: "sed, tinci"
+    Body: "dunt scelerisque enim.Nullam aliquet mi ar\ncu, quis fermentu"
+
+  File_Saved:
+    Title: "m purus ph"
+    Body: "aretra quis. Nulla a po\nsuere sapien. In hac"
+
+Update_Printer:
+  Checking: " habitasse "
+  Connection_Error: "platea dictumst. "
+  Connect_Error:
+    Title: "Maecenas molesti"
+    Body: "e dignissim enim, vel effi"
+  Loading:
+    Title: "citur nisi ult"
+    Body: "ricies consequat. Etiam vulp"
+  No_Update:
+    Title: "utate rutrum mi pha"
+    Body: "retra sagittis. C"
+  Welcome:
+    Installed: "urabitur m"
+    Available: "aximus era"
+    RoboOS: "t a er"
+    Update: "at sem"
+    Up2Date: "per elemen"
+
+Button_Screen:
+  Default_Button: "tu"
+
+Tool_Status:
+  Tool1: "m. Suspendisse "
+  Tool2: "ut nulla lorem."
+  Bed: " Praesen"
+
+Switch_Lang:
+  Welcome:
+    Title: "t tempor hendre"
+  Confirmation:
+    Title: "rit metus"
+    Body1: ", eu varius velit fa"
+    Body2: "uc\nibus ut.Maecenas a massa et lorem tempus solli\ncitu\ndin. Aliq"
+    Button: "ua"
+  Choose:
+    Select: "m ac sa"
+    Switch_to: "pien vel s"
+    Are_You_Sure: "em congue orn"
+    Yes_option: "are"
+    No_option: " i"
+    Question: "d"
+
+Webcam:
+  Sub_Title: " nec eros. Duis"
+  Body: " tempor mattis purus, non malesuada neque \nposuere nec. Sed sem"
+  Button: " ipsum, pretiu"
+  Webcam_On: "m a pellente"
+  Webcam_Off: "sque ac, pret"
+  Button_On: "iu"
+  Button_Off: "m a"
+
+

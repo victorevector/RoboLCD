@@ -19,10 +19,10 @@ from scrollbox import ScrollBox, Scroll_Box_Even
 from session_saver import session_saver
 import traceback
 import octoprint.filemanager
-from kivy.core.window import Window
-from kivy.uix.vkeyboard import VKeyboard
+from common_screens import KeyboardInput, Modal_Question_No_Title
 from connection_popup import Error_Popup, Warning_Popup
 import octoprint.filemanager
+from functools import partial
 
 #This Classes express purpose is to explore the filesystem with a certain type of file in mind.
 USB_DIR = '/home/pi/.octoprint/uploads/USB'
@@ -216,50 +216,83 @@ class FolderButton(Button):
 #This Class is for creating/deleting files or folders. It will most commonly be used as a long press for Files and Folders
 class FileOptions(BoxLayout):
     name = StringProperty('error')
-    move_text = StringProperty('Move File')
+    move_text = StringProperty(roboprinter.lang.pack['Files']['File_Options']['Move'])
     def __init__(self, name, path, folder = False, **kwargs):
         super(FileOptions, self).__init__()
         self.name = name
         self.path = path
         self.isFolder = folder
         if self.isFolder:
-            self.move_text = "Move Folder"
+            self.move_text = roboprinter.lang.pack['Files']['File_Options']['MoveF']
         self.file_manager = roboprinter.printer_instance._file_manager
         back_destination = roboprinter.robo_screen()
         roboprinter.back_screen(name=self.name + "folder_options", 
-                                title="File Options", 
+                                title=roboprinter.lang.pack['Files']['File_Options']['Title'], 
                                 back_destination=back_destination, 
                                 content=self
                                 )
     #Todo: Add a modal screen to ask the user if they are sure they want to delete this file/folder
     def delete(self):
+
+        current_screen = roboprinter.robosm.current
+        def confirm_delete():
+            if self.isFolder:
+                #delete the folder
+                try:
+                    path = "/".join(self.path)
+                    #path = roboprinter.printer_instance._file_manager.path_on_disk('local', path)
+                    roboprinter.printer_instance._file_manager.remove_folder('local', path, recursive=True)
+                    roboprinter.robosm.go_back_to_main('files_tab')
+                except Exception as e:
+                    Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
+                    traceback.print_exc()
+    
+                    ep = Error_Popup(roboprinter.lang.pack['Files']['Error']['Title'], roboprinter.lang.pack['Files']['Error']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
+                    ep.open()
+            #delete the file
+            else:
+                try:
+                    path = roboprinter.printer_instance._file_manager.path_in_storage('local', self.path)
+                    roboprinter.printer_instance._file_manager.remove_file('local', path)
+                    roboprinter.robosm.go_back_to_main('files_tab')
+                except Exception as e:
+                    Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
+                    traceback.print_exc()
+    
+                    ep = Error_Popup(roboprinter.lang.pack['Files']['Error']['Title'], roboprinter.lang.pack['Files']['Error']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
+                    ep.open()
+    
+            Clock.schedule_once(self.update_files, 2)
+
+        def cancel():
+            roboprinter.robosm.current = current_screen
+
+        #set variables for Folder or File
+        title = roboprinter.lang.pack['Files']['Delete_File_Conf']['Title']
+        body = roboprinter.lang.pack['Files']['Delete_File_Conf']['Body']
+        pos = roboprinter.lang.pack['Files']['Delete_File_Conf']['positive']
+        neg = roboprinter.lang.pack['Files']['Delete_File_Conf']['negative']
         if self.isFolder:
-            #delete the folder
-            try:
-                path = "/".join(self.path)
-                #path = roboprinter.printer_instance._file_manager.path_on_disk('local', path)
-                roboprinter.printer_instance._file_manager.remove_folder('local', path, recursive=True)
-                roboprinter.robosm.go_back_to_main('files_tab')
-            except Exception as e:
-                Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
-                traceback.print_exc()
+            title = roboprinter.lang.pack['Files']['Delete_Folder_Conf']['Title']
+            body = roboprinter.lang.pack['Files']['Delete_Folder_Conf']['Body']
 
-                ep = Error_Popup("File Cannot be Deleted", "Try again, If this continues\ncheck your filesystem for errors")
-                ep.open()
-        #delete the file
-        else:
-            try:
-                path = roboprinter.printer_instance._file_manager.path_in_storage('local', self.path)
-                roboprinter.printer_instance._file_manager.remove_file('local', path)
-                roboprinter.robosm.go_back_to_main('files_tab')
-            except Exception as e:
-                Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
-                traceback.print_exc()
 
-                ep = Error_Popup("File Cannot be Deleted", "Try again, If this continues\ncheck your filesystem for errors")
-                ep.open()
+        #make confirmation screen
+        content = Modal_Question_No_Title(body, 
+                                          pos, 
+                                          neg, 
+                                          confirm_delete, 
+                                          cancel)
+    
+        #make screen
+        roboprinter.robosm._generate_backbutton_screen(name='delete_confirmation', 
+                                                     title = title , 
+                                                     back_destination=current_screen, 
+                                                     content=content
+                                                     )      
+    
 
-        Clock.schedule_once(self.update_files, 2)
+
         
 
     def update_files(self,dt):
@@ -302,101 +335,6 @@ class FileOptions(BoxLayout):
             self.path = self.path.split('/')
             Save_Local_File('/'.join(self.path), self.name)
 
-class KeyboardInput(FloatLayout):
-    kbContainer = ObjectProperty()
-    keyboard_callback = ObjectProperty(None)
-
-    def __init__(self, keyboard_callback = None, **kwargs):
-        super(KeyboardInput, self).__init__(**kwargs)
-        self.back_destination = roboprinter.robo_screen()
-
-        roboprinter.back_screen("name_folder", 
-                                title="Folder Name", 
-                                back_destination=self.back_destination, 
-                                content=self)
-        self.current_screen = roboprinter.robo_screen()
-        self._keyboard = None
-        self._set_keyboard('keyboards/abc.json')
-
-        if keyboard_callback != None:
-            self.keyboard_callback = keyboard_callback
-
-        self.keyboard_watch = Clock.schedule_interval(self.monitor_screen_change, 0.2)
-
-    def close_screen(self):
-        if self._keyboard:
-            Window.release_all_keyboards()
-        roboprinter.robosm.current = self.back_destination
-        self.keyboard_watch.cancel()
-
-    def monitor_screen_change(self,dt):
-
-        if self.current_screen != roboprinter.robo_screen():
-            if self._keyboard:
-                Window.release_all_keyboards()
-
-            return False
-            
-
-
-
-        
-        
-    def _set_keyboard(self, layout):
-        #Dock the keyboard
-        kb = Window.request_keyboard(self._keyboard_close, self)
-        if kb.widget:
-            self._keyboard = kb.widget
-            self._keyboard.layout = layout
-            self._style_keyboard()
-        else:
-            self._keyboard = kb
-        self._keyboard.bind(on_key_down=self.key_down)
-        Logger.info('Keyboard: Init {}'.format(layout))
-
-    def _keyboard_close(self):
-        if self._keyboard:
-            self._keyboard.unbind(on_key_down=self.key_down)
-            self._keyboard = None
-
-    def _style_keyboard(self):
-        if self._keyboard:
-            self._keyboard.margin_hint = 0,.02,0,0.02
-            self._keyboard.height = 250
-            self._keyboard.key_background_normal = 'Icons/Keyboard/keyboard_button.png'
-            self.scale_min = .4
-            self.scale_max = 1.6
-
-
-    def key_down(self, keyboard, keycode, text, modifiers):
-        """
-        Callback function that catches keyboard events and writes them as password
-        """
-        # Writes to self.ids.password.text
-        if self.ids.fname.text == 'New_Folder': #clear stub text with first keyboard push
-            self.ids.fname.text = ''
-        if keycode == 'backspace':
-            self.ids.fname.text = self.ids.fname.text[:-1]
-        elif keycode == 'capslock' or keycode == 'normal' or keycode == 'special':
-            pass
-        elif keycode == 'toggle':
-            self.toggle_keyboard()
-        else:
-            self.ids.fname.text += text
-
-    def toggle_keyboard(self):
-        # Logger.info('Current Keyboard: {}'.format(dir(self._keyboard)))
-        if self._keyboard.layout == "keyboards/abc.json":
-            # self.ids.toggle_keyboard.text = "abcABC"
-            self._keyboard.layout = "keyboards/123.json"
-        else:
-            # self.ids.toggle_keyboard.text = "123#+="
-            self._keyboard.layout = "keyboards/abc.json"
-
-
-
-
-
 class Save_Local_File():
     def __init__(self, local_path, name, folder=False, **kwargs):
         #super(Save_File, self).__init__()
@@ -408,7 +346,7 @@ class Save_Local_File():
         back_destination = str(roboprinter.robo_screen())
         Logger.info(back_destination)
         roboprinter.back_screen(name="local", 
-                                title="Save File", 
+                                title=roboprinter.lang.pack['Files']['Save_File']['Title'], 
                                 back_destination=back_destination, 
                                 content=layout,
                                 cta = self.save,
@@ -454,7 +392,7 @@ class Save_Local_File():
 
     #have to add *args and **kwargs because of the backbutton screen
     def save(self, *args,**kwargs):
-        self.wp = Warning_Popup('Saving', "Please Wait")
+        self.wp = Warning_Popup(roboprinter.lang.pack['Files']['Warning']['Title'], roboprinter.lang.pack['Files']['Warning']['Body'])
         self.wp.open()
 
         Clock.schedule_once(self._save, 0)
@@ -487,7 +425,7 @@ class Save_Local_File():
             Logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+ str(e))
             traceback.print_exc()
 
-            ep = Error_Popup("File Cannot be Moved", "If this continues the file you attemped\nto move may already exist at that location")
+            ep = Error_Popup(roboprinter.lang.pack['Files']['Move_Error']['Title'] , roboprinter.lang.pack['Files']['Move_Error']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
             ep.open()
         
         
@@ -525,7 +463,7 @@ class Save_File():
         back_destination = str(roboprinter.robo_screen())
         Logger.info(back_destination)
         roboprinter.back_screen(name="local", 
-                                title="Save File", 
+                                title=roboprinter.lang.pack['Files']['Save_File']['Title'], 
                                 back_destination=back_destination, 
                                 content=layout,
                                 cta = self.save,
@@ -614,7 +552,7 @@ class Save_File():
             if len(fit_filename) > 24:
                 fit_filename = "..." + fit_filename[len(fit_filename) - 24:]
 
-            layout = Confirmation_Screen("File Saved",  fit_filename + " Has been saved", "Icons/Slicer wizard icons/check_icon.png", roboprinter.robosm.go_back_to_main)            
+            layout = Confirmation_Screen(roboprinter.lang.pack['Files']['Save_File']['Sub_Title'],  fit_filename + roboprinter.lang.pack['Files']['Save_File']['Body'], "Icons/Slicer wizard icons/check_icon.png", roboprinter.robosm.go_back_to_main)            
             sc = Screen(name = 'confirmation')
             sc.add_widget(layout)
             roboprinter.robosm.add_widget(sc)

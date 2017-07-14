@@ -12,7 +12,7 @@ from kivy.logger import Logger
 from kivy.clock import Clock
 from pconsole import pconsole
 import thread
-from connection_popup import Connection_Popup, Updating_Popup, Error_Popup, Warning_Popup, USB_Progress_Popup
+from connection_popup import Error_Popup, USB_Progress_Popup
 import os
 import tempfile
 import traceback
@@ -21,6 +21,8 @@ import subprocess
 from scrollbox import ScrollBox, Scroll_Box_Even
 from file_explorer import Save_File
 from file_explorer import File_Explorer
+from common_screens import Button_Group_Observer, OL_Button, Override_Layout
+from Preheat_Wizard import Preheat_Overseer
 
 USB_DIR = '/home/pi/.octoprint/uploads/USB'
 FILES_DIR = '/home/pi/.octoprint/uploads'
@@ -55,7 +57,7 @@ class Slicer_Wizard(FloatLayout):
     def show_confirmation_screen(self):
         next_action = self.open_file_select_screen
         screen_name = "slicing wizard"
-        title = "Slicing Wizard"
+        title = roboprinter.lang.pack['Slicer_Wizard']['Confirmation']['Title']
         back_destination = self.sm.current
         layout = STL_Confirmation_Screen(next_action)
         self.sm._generate_backbutton_screen(name = screen_name, title = title, back_destination=back_destination, content=layout)
@@ -67,10 +69,11 @@ class Slicer_Wizard(FloatLayout):
         layout = File_Explorer('model', self.create_button, enable_editing = False)
         #continue to the stl select screen
         back_destination = self.sm.current
-        name = "Choose STL File"
+        title = roboprinter.lang.pack['Slicer_Wizard']['Select_File']['Title']
+        name = "choose_file"
         
 
-        self.sm._generate_backbutton_screen(name = name, title = name, back_destination=back_destination, content=layout)
+        self.sm._generate_backbutton_screen(name = name, title = title, back_destination=back_destination, content=layout)
 
     #a helper function so we can use the file explorer
     def create_button(self, filename, date, path, **kwargs):
@@ -85,7 +88,7 @@ class Slicer_Wizard(FloatLayout):
 
     def choose_overrides(self, name, path):
         screen_name = 'slicer_overrides'
-        title = "Choose Slicer Options"
+        title = roboprinter.lang.pack['Slicer_Wizard']['Overrides']['Title']
         back_destination = self.sm.current
         real_path = roboprinter.printer_instance._file_manager.path_on_disk('local', path)
         Logger.info(real_path)
@@ -94,7 +97,7 @@ class Slicer_Wizard(FloatLayout):
     
     def slice_stl(self, name, path, overrides):
         #get the profile from octoprint
-        self.progress_pop =  USB_Progress_Popup("Slicing " + name, 1)
+        self.progress_pop =  USB_Progress_Popup(roboprinter.lang.pack['Slicer_Wizard']['Progress']['Sub_Title'] + name, 1)
         self.progress_pop.show()
         self.stl_name = name.replace(".stl", "")
         self.stl_name = self.stl_name.replace(".STL", "")
@@ -133,23 +136,21 @@ class Slicer_Wizard(FloatLayout):
                     Logger.info('Restarting the slice, Rec Depth = ' + str(dt+1))
                     self.start_slice(dt+1)
                 else:
-                    ep = Error_Popup("Profile Error", "The profile \"robo.profile\" does not exist\nand cannot be automatically restored")
+                    ep = Error_Popup(roboprinter.lang.pack['Slicer_Wizard']['Error']['Profile']['Sub_Title'], roboprinter.lang.pack['Slicer_Wizard']['Error']['Profile']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
                     ep.show()
             #if the backup does not exist then error out
             else:
                 Logger.info('Slicer Error: Path Does not exist')
-                ep = Error_Popup("Profile Error", "The profile \"robo.profile\" does not exist\nand cannot be automatically restored")
+                ep = Error_Popup(roboprinter.lang.pack['Slicer_Wizard']['Error']['Profile']['Sub_Title'], roboprinter.lang.pack['Slicer_Wizard']['Error']['Profile']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
                 ep.show()
             
 
     def sliced(self, **kwargs):
         Logger.info(kwargs)
         if '_error' in kwargs:
-            self.progress_pop.hide()
+            #doing this will get rid of graphical errors. Kivy does not like being managed from an outside thread.
             Logger.info(str(kwargs['_error']))
-            os.remove(self.temp_path)
-            ep = Error_Popup("Slicing Failed", "The File has failed to slice correctly\nPlease try again")
-            ep.show()
+            Clock.schedule_once(self.error_pop, 0.01)
         elif '_analysis' in kwargs:
             #initialize meta data
             ept = 0
@@ -175,6 +176,13 @@ class Slicer_Wizard(FloatLayout):
             #after slicing ask the user where they want the file to be saved at
             Clock.schedule_once(self.save_file, 0.01)
 
+
+    def error_pop(self, dt, *args, **kwargs):
+        self.progress_pop.hide()
+        
+        os.remove(self.temp_path)
+        ep = Error_Popup(roboprinter.lang.pack['Slicer_Wizard']['Error']['Slice']['Sub_Title'], roboprinter.lang.pack['Slicer_Wizard']['Error']['Slice']['Body'],callback=partial(roboprinter.robosm.go_back_to_main, tab='printer_status_tab'))
+        ep.show()
      # This takes a number in seconds and returns a dictionary of the hours/minutes/seconds
     def parse_time(self, time):
         m, s = divmod(time, 60)
@@ -199,7 +207,13 @@ class Slicer_Wizard(FloatLayout):
     def slice_progress(self, *args, **kwargs):
         if '_progress' in kwargs:
             #Logger.info(str(kwargs['_progress']))
-            self.progress_pop.update_progress(kwargs['_progress'])
+            self.current_progress = kwargs['_progress']
+            #Just trying to avoid graphical issues
+            Clock.schedule_once(self.get_progress, 0)
+            
+
+    def get_progress(self, dt, *args, **kwargs):
+        self.progress_pop.update_progress(self.current_progress)
     
 
 class stl_Button(Button):
@@ -228,10 +242,9 @@ class Override_Page(object):
     def __init__(self, name, path, slice_callback):
         super(Override_Page, self).__init__()
         #initialize properties
-        self._support = False
-        self._raft = False
+        self._support = 'none'
+        self._platform_adhesion = 'none'
         self._first_layer_width = 300.0
-        self._material = 'PLA'
         self._layer_height = 0.15
         self._infill = 20
         self._fans = True
@@ -240,7 +253,7 @@ class Override_Page(object):
         self.slice_callback = slice_callback
         self.name = name
         self.path = path
-        self.load_raft_and_supports()
+        self.set_support()
 
         
 
@@ -259,34 +272,19 @@ class Override_Page(object):
         Logger.info("setting support to: " + str(self._support))
 
     @property
-    def raft(self):
-        Logger.info("Getting raft")
-        return self._raft
+    def platform_adhesion(self):
+        Logger.info("Getting platform_adhesion")
+        return self._platform_adhesion
 
-    @raft.setter
-    def raft(self, value):
-        self._raft = value
-        Logger.info("setting raft to: " + str(self._raft))
-        if self._raft == True:
+    @platform_adhesion.setter
+    def platform_adhesion(self, value):
+        self._platform_adhesion = value
+        Logger.info("setting platform_adhesion to: " + str(self._platform_adhesion))
+        if self._platform_adhesion != 'none':
             self._first_layer_width = 100.0
         else:
             self._first_layer_width = 300.0
 
-    @property
-    def material(self):
-        Logger.info("Getting material")
-        return self._material
-
-    @material.setter
-    def material(self, value):
-        acceptable_material = {'ABS':'ABS', 'PLA': 'PLA'}
-        if value in acceptable_material:
-            self._material = value
-            if self._material == 'ABS':
-                self._fans = False
-            else:
-                self._fans = True
-        Logger.info("setting material to: " + str(self._material))
     @property
     def layer_height(self):
         Logger.info("Getting layer_height")
@@ -309,23 +307,82 @@ class Override_Page(object):
 
     #########################################end Class Properties
 
+    def set_support(self, **kwargs):
 
+        sup_overseer = Button_Group_Observer()
 
-    def load_raft_and_supports(self):
-        def supports(state):
-            self.support = state
-        def rafts(state):
-            self.raft = state
+        #functions to alter self.support
+        def none(state):
+            self.support = 'none'
+        def buildplate(state):
+            self.support = 'buildplate'
+        def everywhere(state):
+            self.support = 'everywhere'
 
-        support_button = OL_Button("Supports", "Icons/Slicer wizard icons/Supports.png", supports)
-        raft_button = OL_Button("Raft", "Icons/Slicer wizard icons/Rafts.png", rafts)
+        none_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Support']['No_Supports'],
+                                "Icons/Slicer wizard icons/No Supports.png",
+                                none,
+                                enabled = True,
+                                observer_group = sup_overseer)
 
-        bl = [support_button, raft_button]
+        buildplate_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Support']['Buildplate'],
+                                "Icons/Slicer wizard icons/Supports buildplate.png",
+                                buildplate,
+                                enabled = False,
+                                observer_group = sup_overseer)
 
-        layout = Override_Layout(bl, "Adding a raft will improve bed adhesion\nSupports are suggested for prints with steep overhangs")
+        everywhere_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Support']['Everywhere'],
+                                "Icons/Slicer wizard icons/Supports everywhere.png",
+                                everywhere,
+                                enabled = False,
+                                observer_group = sup_overseer)
+
+        bl = [none_button, buildplate_button, everywhere_button]
+
+        layout = Override_Layout(bl, roboprinter.lang.pack['Slicer_Wizard']['Support']['Body'])
+        back_destination = roboprinter.robosm.current
+        roboprinter.back_screen(name = 'support_page',
+                                title = roboprinter.lang.pack['Slicer_Wizard']['Support']['Title'],
+                                back_destination=back_destination,
+                                content=layout,
+                                cta = self.raft_option,
+                                icon = "Icons/Slicer wizard icons/next.png")
+
+    
+    def raft_option(self):
+
+        raft_bgo = Button_Group_Observer()
+
+        def none(state):
+            self.platform_adhesion = 'none'
+        def raft(state):
+            self.platform_adhesion = 'raft'
+        def brim(state):
+            self.platform_adhesion = 'brim'
+
+        none_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Raft_Support']['no_raft'], 
+                                "Icons/Slicer wizard icons/No Supports.png", 
+                                none,
+                                enabled = False,
+                                observer_group = raft_bgo)
+        raft_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Raft_Support']['raft'], 
+                                "Icons/Slicer wizard icons/rafts_1.png", 
+                                raft,
+                                enabled = True,
+                                observer_group = raft_bgo)
+
+        brim_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Raft_Support']['brim'], 
+                                "Icons/Slicer wizard icons/brim.png", 
+                                brim,
+                                enabled = False,
+                                observer_group = raft_bgo)
+
+        bl = [none_button, raft_button, brim_button]
+
+        layout = Override_Layout(bl, roboprinter.lang.pack['Slicer_Wizard']['Raft_Support']['Body'])
         back_destination = roboprinter.robosm.current
         roboprinter.back_screen(name = 'raft and support', 
-                                title = 'Raft and Support', 
+                                title = roboprinter.lang.pack['Slicer_Wizard']['Raft_Support']['Title'] , 
                                 back_destination=back_destination, 
                                 content=layout,
                                 cta = self.print_quality,
@@ -348,17 +405,34 @@ class Override_Page(object):
             if state:
                 self.layer_height = 0.06
 
-        mm_20_button = OL_Button("0.20 mm", "Icons/Slicer wizard icons/60px/step1 (1).png", mm_20, enabled = False, observer_group = bgo_pq)
-        mm_15_button = OL_Button("0.15 mm", "Icons/Slicer wizard icons/60px/step2 (1).png", mm_15, enabled = True, observer_group = bgo_pq)
-        mm_10_button = OL_Button("0.10 mm", "Icons/Slicer wizard icons/60px/step3 (1).png", mm_10, enabled = False, observer_group = bgo_pq)
-        mm_06_button = OL_Button("0.06 mm", "Icons/Slicer wizard icons/60px/step4.png", mm_06, enabled = False, observer_group = bgo_pq)
+        mm_20_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Print_Quality']['mm_20'], 
+                                "Icons/Slicer wizard icons/60px/step1 (1).png", 
+                                mm_20, 
+                                enabled = False, 
+                                observer_group = bgo_pq)
+        mm_15_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Print_Quality']['mm_15'], 
+                                "Icons/Slicer wizard icons/60px/step2 (1).png", 
+                                mm_15, 
+                                enabled = True, 
+                                observer_group = bgo_pq)
+        mm_10_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Print_Quality']['mm_10'], 
+                                "Icons/Slicer wizard icons/60px/step3 (1).png", 
+                                mm_10, 
+                                enabled = False, 
+                                observer_group = bgo_pq)
+        mm_06_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Print_Quality']['mm_06'], 
+                                "Icons/Slicer wizard icons/60px/step4.png", 
+                                mm_06, 
+                                enabled = False, 
+                                observer_group = bgo_pq)
+
         bl = [mm_20_button, mm_15_button, mm_10_button, mm_06_button]
 
 
-        layout = Override_Layout(bl, "A smaller print quality will produce a fine print,\nbut it will take longer to print")
+        layout = Override_Layout(bl, roboprinter.lang.pack['Slicer_Wizard']['Print_Quality']['Body'])
         back_destination = roboprinter.robosm.current
         roboprinter.back_screen(name = 'print quality', 
-                                title = 'Print Quality', 
+                                title = roboprinter.lang.pack['Slicer_Wizard']['Print_Quality']['Title'] , 
                                 back_destination=back_destination, 
                                 content=layout,
                                 cta = self.infill_layout,
@@ -382,17 +456,34 @@ class Override_Page(object):
             if state:
                 self.infill = 100
 
-        percent_0 = OL_Button("0%", "Icons/Slicer wizard icons/hollow.png", p_0, enabled = False, observer_group = bgo_pq)
-        percent_10 = OL_Button("10%", "Icons/Slicer wizard icons/10%.png", p_10, enabled = True, observer_group = bgo_pq)
-        percent_25 = OL_Button("25%", "Icons/Slicer wizard icons/25%.png", p_25, enabled = False, observer_group = bgo_pq)
-        percent_100 = OL_Button("100%", "Icons/Slicer wizard icons/100%.png", p_100, enabled = False, observer_group = bgo_pq)
+        percent_0 = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Infill']['p_0'], 
+                              "Icons/Slicer wizard icons/hollow.png", 
+                              p_0, 
+                              enabled = False, 
+                              observer_group = bgo_pq)
+        percent_10 = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Infill']['p_10'], 
+                               "Icons/Slicer wizard icons/10%.png", 
+                               p_10, 
+                               enabled = True, 
+                               observer_group = bgo_pq)
+        percent_25 = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Infill']['p_25'], 
+                               "Icons/Slicer wizard icons/25%.png", 
+                               p_25, 
+                               enabled = False, 
+                               observer_group = bgo_pq)
+        percent_100 = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Infill']['p_100'], 
+                                "Icons/Slicer wizard icons/100%.png", 
+                                p_100, 
+                                enabled = False, 
+                                observer_group = bgo_pq)
+
         bl = [percent_0, percent_10, percent_25, percent_100]
 
 
-        layout = Override_Layout(bl, "Infill sets how dense the inside of the object is")
+        layout = Override_Layout(bl, roboprinter.lang.pack['Slicer_Wizard']['Infill']['Body'])
         back_destination = roboprinter.robosm.current
         roboprinter.back_screen(name = 'infill', 
-                                title = 'Infill', 
+                                title = roboprinter.lang.pack['Slicer_Wizard']['Infill']['Title'], 
                                 back_destination=back_destination, 
                                 content=layout,
                                 cta = self.choose_material,
@@ -400,80 +491,50 @@ class Override_Page(object):
 
     def choose_material(self):
         
-        bgo_pq = Button_Group_Observer()
+        Preheat_Overseer(end_point=self.collect_heat_settings,
+                         name='preheat_wizard',
+                         title=roboprinter.lang.pack['Utilities']['Preheat'],
+                         back_destination='infill')
 
-        def absm(state):
-            if state:
-                self.material = 'ABS'
-        def plam(state):
-            if state:
-                self.material = 'PLA'
-        
+    def collect_heat_settings(self, extruder, bed):
+        self.print_temperature = [extruder,0,0,0]
+        self.print_bed_temperature = bed
+        self.set_fans()
 
-        abs_button = OL_Button("ABS", "Icons/Slicer wizard icons/ABS.png", absm, enabled = False, observer_group = bgo_pq)
-        pla_button = OL_Button("PLA", "Icons/Slicer wizard icons/PLA.png", plam, enabled = True, observer_group = bgo_pq)
-        bl = [abs_button, pla_button]
+    def set_fans(self):
 
+        fan_overseer = Button_Group_Observer()
 
-        layout = Override_Layout(bl, "PLA will set the nozzle to 190 degrees celsius\nABS will set the nozzle to 230 degrees celsius")
+        def fans_on(state):
+            self._fans = True
+
+        def fans_off(state):
+            self._fans = False
+
+        on_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Fans']['fan_on'],
+                              "Icons/Slicer wizard icons/Fans on.png",
+                              fans_on,
+                              enabled = True,
+                              observer_group = fan_overseer)
+
+        off_button = OL_Button(roboprinter.lang.pack['Slicer_Wizard']['Fans']['fan_off'],
+                              "Icons/Slicer wizard icons/Fans off.png",
+                              fans_off,
+                              enabled = False,
+                              observer_group = fan_overseer)
+
+        bl = [on_button, off_button]
+
+        layout = Override_Layout(bl, roboprinter.lang.pack['Slicer_Wizard']['Fans']['Body'])
         back_destination = roboprinter.robosm.current
-        roboprinter.back_screen(name = 'material', 
-                                title = 'Print Material', 
-                                back_destination=back_destination, 
+        roboprinter.back_screen(name = 'fans_page',
+                                title = roboprinter.lang.pack['Slicer_Wizard']['Fans']['Title'],
+                                back_destination=back_destination,
                                 content=layout,
                                 cta = self.continue_slicing,
                                 icon = "Icons/Slicer wizard icons/next.png")
 
-    def placeholder(self):
-        current_overrides = {'rafts': self.raft,
-                             'support': self.support,
-                             'material': self.material,
-                             'infill': self.infill,
-                             'layer_height': self.layer_height}
-        Logger.info(str(current_overrides))
-        pass
-
     def continue_slicing(self):
-        acceptable_material = {
-                                'ABS': [230,0,0,0],
-                                'PLA': [190,0,0,0]
-        }
-        model = roboprinter.printer_instance._settings.get(['Model'])
-
-        if model == "Robo R2":
-            bed = {
-                    'ABS': 80,
-                    'PLA': 60
-            }
-        elif model == "Robo C2":
-            bed = {
-                    'ABS': 0,
-                    'PLA': 0
-            }
-        #just in case Model is set to None or someone has messed with it and broken everything
-        else:
-            bed = {
-                    'ABS': 0,
-                    'PLA': 0
-            }
-
-        if self.material in acceptable_material:
-            self.print_temperature = acceptable_material[self.material]
-
-            self.print_bed_temperature = bed[self.material]
-        else:
-            Logger.info("Defaulting to PLA. #############")
-            self.print_temperature = acceptable_material['PLA']
-
-        if self.raft:
-            self.platform_adhesion = 'raft'
-        else:
-            self.platform_adhesion = 'none'
-             
-        if self.support:
-            self.support = 'buildplate'
-        else:
-            self.support = 'none'
 
         overrides = {
                     'layer_height': self.layer_height,
@@ -489,124 +550,15 @@ class Override_Page(object):
                     'fan_full_height': 0.1 if self._fans else -1
                     
                     }
+        # add the brim settings to the override
+        if self.platform_adhesion == 'brim':
+            overrides['skirt_line_count'] = 1
+            overrides['skirt_gap'] = False
+            overrides['skirt_minimal_length'] = False
+            overrides['skirt_gap'] = False
+            overrides['brim_line_count'] = 10
 
         Logger.info(str(overrides))
 
         self.slice_callback(self.name, self.path, overrides)
-
-class Override_Layout(BoxLayout):
-    body_text = StringProperty("Error")
-
-    def __init__(self, button_list, body_text, **kwargs):
-        super(Override_Layout, self).__init__()
-        self.body_text =  body_text
-        self.button_list = button_list
-        self.alter_layout()
-
-    def alter_layout(self):
-        grid = self.ids.button_grid
-
-        grid.clear_widgets()
-
-        button_count = len(self.button_list)
-        if button_count == 2:
-            #make a 2 grid
-            grid.add_widget(Label(text=""))
-            for button in self.button_list:
-                grid.add_widget(button)
-            grid.add_widget(Label(text=""))
-        elif button_count == 4:
-            #make a 4 grid
-            for button in self.button_list:
-                grid.add_widget(button)
-        elif button_count == 3:
-            #make a 3 grid
-            for button in self.button_list:
-                grid.add_widget(button)
-        else:
-            #Throw an error because there's only supposed to be 2 and 4
-            pass
-
-
-class OL_Button(Button):
-    button_text = StringProperty("Error")
-    pic_source = StringProperty("Icons/Slicer wizard icons/low.png")
-    button_background = ObjectProperty("Icons/Keyboard/keyboard_button.png")
-    button_bg = ObjectProperty(["Icons/Slicer wizard icons/button bkg inactive.png", "Icons/Slicer wizard icons/button bkg active.png"])
-    bg_count = NumericProperty(0)
-    button_function = ObjectProperty(None)
-    def __init__(self, body_text, image_source, button_function, enabled = True, observer_group = None, **kwargs):
-        super(OL_Button, self).__init__()
-        self.button_text = body_text
-        self.pic_source = image_source
-        self.button_function = button_function
-
-        #add self to observer group
-        self.observer_group = observer_group
-        if self.observer_group != None:
-            self.observer_group.register_callback(self.button_text, self.toggle_bg)
-            if enabled:
-                self.observer_group.change_button(self.button_text)
-        else:
-            if enabled:
-                #show blue or grey for enabled or disables
-                self.change_state(enabled)
-                
-
-    def change_bg(self):
-        if self.observer_group != None:
-            if self.observer_group.active_button != self.button_text:
-                if self.bg_count == 1 :
-                    self.bg_count = 0
-                else:
-                    self.bg_count += 1
-        
-                if self.bg_count == 1:
-                    self.observer_group.change_button(self.button_text)
-
-                #self.change_state(self.bg_count)
-        else:
-            if self.bg_count == 1:
-                self.bg_count = 0
-            else:
-                self.bg_count += 1
-            self.change_state(self.bg_count)
-
-    def toggle_bg(self, name):
-        if str(name) == str(self.button_text):
-            self.button_function(True)
-            self.bg_count = 1
-        else:
-            self.bg_count = 0
-        self.button_background = self.button_bg[self.bg_count]
-
-    def change_state(self, state):
-        if state:
-            self.bg_count = 1
-            self.button_function(True)
-        else:
-            self.bg_count = 0
-            self.button_function(False)
-        self.button_background = self.button_bg[self.bg_count]
-
-class Button_Group_Observer():
-    def __init__(self):
-        self._observers = {}
-        self.active_button = 'none'
-
-    def register_callback(self, name, callback):
-        self._observers[name] = callback
-
-    def change_button(self, name):
-        self.active_button = name
-        if name in self._observers:
-            for observer in self._observers:
-                self._observers[observer](name)
-
-
-
-
-   
-
-
 
