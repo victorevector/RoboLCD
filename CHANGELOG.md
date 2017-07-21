@@ -1,5 +1,11 @@
 # RoboLCD Changelog
 
+## 1.9.1 (2017-7-21)
+
+### Bug Fixes
+
+* Fixed touch screen support for HDMI-powered C2 screens. 
+
 ## 1.9.0 (2017-7-14)
 
 ### Improvements

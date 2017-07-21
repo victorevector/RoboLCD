@@ -34,7 +34,6 @@ RoboLCD/lcd/pconsole.py
 RoboLCD/lcd/printer_jog.py
 RoboLCD/lcd/printerstatus.py
 RoboLCD/lcd/robo_controls.py
-RoboLCD/lcd/robo_sm.py
 RoboLCD/lcd/scrollbox.py
 RoboLCD/lcd/session_saver.py
 RoboLCD/lcd/slicer_wizard.py

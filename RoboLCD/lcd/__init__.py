@@ -910,7 +910,13 @@ def start():
 
     def load_C2(self):
       #load C2
-      Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=rotation=270,param=invert_y=1')
+      import os
+      if os.path.exists("/dev/fb1"):
+        Logger.info("Frame Buffer C2")
+        Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=rotation=270,param=invert_y=1')
+      else: 
+        Logger.info("HDMI C2")
+        Config.set('input', '%(name)s', 'probesysfs,provider=hidinput,param=rotation=180,param=invert_y=1,param=invert_x=1')
       path = self.concat_2_files('C2.kv', 'lcd_mini.kv')
       sm = Builder.load_file(path)
       Logger.info('Screen Type: {}'.format('c2'))
