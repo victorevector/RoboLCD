@@ -309,7 +309,7 @@ class Mover():
     def raise_buildplate(self, value):
         roboprinter.printer_instance._printer.commands('G28')
         roboprinter.printer_instance._printer.commands('G90')
-        roboprinter.printer_instance._printer.commands('G1 Z20')
+        roboprinter.printer_instance._printer.commands('G1 Z20 F3000')
 
     def motors_off(self, value):            
         roboprinter.printer_instance._printer.commands('M18')

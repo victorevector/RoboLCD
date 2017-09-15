@@ -1,3 +1,31 @@
+# Change Log 1.10.0
+
+### Major Changes
+ - File System Redesign
+    - Sort By Alphabet, Size, Date, or Type
+        - Sorting by size will result in each file listing their size
+        - Any other sorting will show the date the file was added
+    - Users can now Copy, Move, or Delete multiple files and folders at once on USB or Local Files
+    - STL and Hex files added to the file view
+    - SLicer Wizard and Firmware wizard will be activated when selecting an STL or Hex file
+    - USB and Local Files will now show their Used / Total Space on the drive.
+    - Meta Data will load when a file is selected for the first time. Then it will be saved for future use
+    - Browsing Files is now faster
+### Minor Changes
+ - Octoprint
+    - Changed FileSystem to load Hex Files correctly on the Web Dash
+ - Meta-Reader
+    - Changed File Analysis so it did not choke on folders without the 'children' catagory 
+ - RoboLCD
+    - Connection screens will now reflect the realtime connection information (Reset Connction, Bed Disconnect, Mainboard Disconnect)
+    - Filament change will now push material through the nozzle before starting the retraction move
+    - Added 'F3000' to Raise Z option in motor controls so it would rise at an acceptable speed instead of the last speed given to the printer
+    - Fixed Network Title. It used to say Wizards
+    - Fixed the Error box starting up with a solid White image.
+    - Fixed up and down buttons getting stuck on the File Screen
+    - Fixed Keyboard bug that would keep the keyboard up when an error occured
+    - Tool monitor will now show one decimal place. Graphical errors occured when showing two or more decimal places
+
 # Change Log 1.9.0
  - Motor Control redesign
     - Added Motors Off 

@@ -173,8 +173,8 @@ class PConsole(octoprint.printer.PrinterCallback):
 
         #get the position
         if self.sent_M114:
-            p = "X:([-0-9.00]+) Y:([-0-9.00]+) Z:([-0-9.00]+) E:([-0-9.00]+) Count X: ([-0-9]+) Y:([-0-9]+) Z:([-0-9]+)"
-            temp_pos = re.findall(p, data)
+            p = "X:([-0-9.00]+)Y:([-0-9.00]+)Z:([-0-9.00]+)E:([-0-9.00]+)CountX:([-0-9]+)Y:([-0-9]+)Z:([-0-9]+)"
+            temp_pos = re.findall(p, data.replace(" ", ""))
             if temp_pos != []:
                 self.position = temp_pos[0]
                 #roboprinter.printer_instance._logger.info('Position Update')

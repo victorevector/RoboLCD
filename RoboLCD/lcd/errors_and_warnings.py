@@ -15,6 +15,7 @@ import time
 from bed_calibration_wizard import Modal_Question
 from common_screens import Button_Screen, Picture_Button_Screen, Title_Button_Screen
 from functools import partial
+from kivy.core.window import Window
 
 class Refresh_Screen(Title_Button_Screen):
     # title_text, body_text, image_source, button_function, button_text = "OK", **kwargs
@@ -31,11 +32,28 @@ class Refresh_Screen(Title_Button_Screen):
                 self.bed_checker.cancel()
                 self.bed_checker = None
 
+        Clock.schedule_interval(self.check_for_screen_change, 0.2)
+        session_saver.register_event_updater("Refresh_screen", self.on_event)
+
         super(Refresh_Screen, self).__init__(title_text, body_text, self.reset, button_text)
 
         #Immediately start the refresh function as if someone had pressed the button
         if self.start_refresh:
             self.reset()
+
+    def on_event(self, event, payload):
+        Logger.info("Event!")
+        Logger.info(str(event))
+        Logger.info(str(payload))
+
+        if event == "PrinterStateChanged":
+            if 'state_id' in payload:
+                state = payload['state_id']
+                if state == 'CONNECTING':
+                    if self.clock_monitor == None:
+                        self.clock_monitor = Clock.schedule_interval(self.update_connection_status, 0.2)
+                    
+
 
 
     def soft_reset(self):
@@ -77,8 +95,13 @@ class Refresh_Screen(Title_Button_Screen):
 
         self.title_text = str(self.reconnect_choice) + roboprinter.lang.pack['Refresh_Screen']['Update_Connection']['Successful']
         self.body_text = status
-        self.clock_monitor.cancel()
+        if self.clock_monitor != None:
+            self.clock_monitor.cancel()
         Clock.schedule_interval(self.check_connection_reset, 0.2)
+        Clock.schedule_once(self.return_to_main, 2)
+
+    def return_to_main(self, dt):
+        roboprinter.robosm.go_back_to_main('printer_status_tab')
 
     def slow_disconnect(self, dt):
         current_data = roboprinter.printer_instance._printer.get_current_data()
@@ -96,7 +119,8 @@ class Refresh_Screen(Title_Button_Screen):
                      + roboprinter.lang.pack['Refresh_Screen']['Soft_Reset']['Body'] 
                      + '[color=FF0000]'  + status.replace("Error:","").strip() + '[/color]'
                      )
-        self.clock_monitor.cancel()
+        if self.clock_monitor != None:
+            self.clock_monitor.cancel()
         Clock.schedule_interval(self.check_connection_reset, 0.2)
         
     def update_connection_status(self, dt):
@@ -121,7 +145,7 @@ class Refresh_Screen(Title_Button_Screen):
         else:
             if not self.changed_text:
                 Clock.schedule_once(self.slow_disconnect, 0.5)
-            self.changed_text = True
+                self.changed_text = True
 
         if status.find("Offline") != -1:
             self.body_text = roboprinter.lang.pack['Refresh_Screen']['Update_Connection']['offline']
@@ -173,6 +197,15 @@ class Refresh_Screen(Title_Button_Screen):
         else:
             return False
 
+    def check_for_screen_change(self, dt):
+
+        current_screen = str(roboprinter.robosm.current) 
+
+
+        if current_screen != 'mainboard' and current_screen != 'mainboard_status':
+            session_saver.unregister_event_updater("Refresh_screen")
+            return False
+
 
 
 class Firmware_Upgrade(Picture_Button_Screen):
@@ -216,11 +249,11 @@ class Error_Detection(Button):
     bed_temp = NumericProperty(0)
     error_title = StringProperty("")
     error_body = StringProperty("")
-    error_icon = StringProperty("")
+    error_icon = StringProperty("Icons/Printer Status/blank-warning.png")
     error_function = ObjectProperty(None)
-    last_error = ""
+    last_error = "NONE"
     pause_lock = False
-    caret_size = NumericProperty(0.2)
+    caret_size = NumericProperty(0.0)
     firm_lock = False
 
     first_default = False
@@ -306,6 +339,9 @@ class Error_Detection(Button):
             #if the error is not a warning, then pop the error
             if error is not 'BED_HOT' and error is not 'DEFAULT' and error is not self.last_error:
                 acceptable_errors[error]['function']()
+
+                #kill any attached keyboard
+                Window.release_all_keyboards()
         else:
             session_saver.saved['current_error'] = 'DEFAULT'
             self.error_title = acceptable_errors['DEFAULT']['title']

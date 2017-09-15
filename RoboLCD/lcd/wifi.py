@@ -1,4 +1,4 @@
-from .. import roboprinter
+from RoboLCD import roboprinter
 from kivy.uix.screenmanager import Screen
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, NumericProperty
 from kivy.uix.button import Button
@@ -13,12 +13,11 @@ from kivy.uix.image import Image
 from kivy.graphics import *
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
-from scrollbox import ScrollBox
 from kivy.uix.gridlayout import GridLayout
 import thread
 from functools import partial
 from kivy.core.window import Window
-from scrollbox import ScrollBox, Scroll_Box_Even
+from scrollbox import Scroll_Box_Even
 
 from netconnectd import NetconnectdClient
 import base64

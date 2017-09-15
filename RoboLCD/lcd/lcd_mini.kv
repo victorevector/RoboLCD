@@ -20,6 +20,11 @@
         rows: 1
         size_hint_y: 0.25
         Label:
+            text: "[size=22]" + root.meta_status
+            text_size: self.size
+            markup: True
+            halign: 'left'
+            valign: 'center'
         Label:
             text: "[size=22]{}".format(app.root.lang.pack['File_Screen']['Estimated_Time']) + ": {0:02d}:".format(root.hours) + "{0:02d}:".format(root.minutes) + "{0:02d}[/size]".format(root.seconds)
             text_size: self.size
@@ -279,7 +284,6 @@
     id: folder_b
     markup: True
     background_color: (0,0,0,1)
-    on_press: root.folder_on_press()
     on_release: root.folder_on_release()
     BoxLayout:
         pos: folder_b.pos
@@ -305,100 +309,281 @@
             halign: 'left'
             valign: 'center'
 
-        Button:
-            background_color: (0,0,0,1)
+
+<File_Progress>:
+    orientation: 'vertical'
+    padding: 10,10,10,10
+    spacing:15
+    BoxLayout:
+        size_hint_y: 0.3
+        orientation: 'horizontal'
+        Label:
+            text: root.title
+            markup: True
+            font_size: 35
+            text_size: self.size
+            halign: 'center'
+            valign: 'center'
+
+    BoxLayout:
+        orientation: 'horizontal'
+        id: title_bar
+        size_hint_y: 0.3
+        Label:
+            #size_hint_x: 1.75
+            text: root.moving_file
+            font_size: 35
+            markup: True
+            text_size: self.size
+            shorten: True
+            halign: 'left'
+            valign: 'center'
+            color: 0.4,0.7,0.91,1 
+        Label:
+            size_hint_x: 0.3
+            text: root.progress
+            markup: True
+            halign: 'right'
+            valign: 'center'
+            text_size: self.size        
+
+    BoxLayout:
+        size_hint_y: 0.3
+        orientation: 'vertical'
+        id: progress_and_time
+        
+        BoxLayout:
+            size_hint_y: 0.3
+            padding:10,0,10,0
+            id: progress_bar_goes_here  
+            canvas.after:
+                #progress bar
+                Color:
+                    #grey 817F7F
+                    rgba: 0.50390625,0.49609375,0.49609375,1
+                Rectangle:
+                    pos: progress_bar_goes_here.x, progress_bar_goes_here.y
+                    size: progress_bar_goes_here.width, progress_bar_goes_here.height
+        
+                Color:
+                    #white
+                    rgba: 1,1,1,1
+                Rectangle:
+                    pos:progress_bar_goes_here.x, progress_bar_goes_here.y
+                    size: root.progress_number, progress_bar_goes_here.height
+
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: root.file_exists
+            size_hint_y: 1.25
+            markup: True
+            halign: 'center'
+            valign: 'center'
+            text_size: self.size
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            Auto_Image_Label_Button:
+                disabled: root.button_state
+                button_text: "[size=30]" + root.replace_text
+                image_icon: 'Icons/Files_Icons/File_Options/Replace.png'
+                background_normal: 'Icons/blue_button_style.png'
+                on_press: root.replace()
+            Auto_Image_Label_Button:
+                disabled: root.button_state
+                button_text: "[size=30]" + root.keep_both_text
+                image_icon: 'Icons/Files_Icons/File_Options/Keep both.png'
+                background_normal: 'Icons/blue_button_style.png'
+                on_press: root.keep_both()
+            Auto_Image_Label_Button:
+                disabled: root.button_state
+                button_text: "[size=30]" + root.skip_text
+                image_icon: 'Icons/Files_Icons/File_Options/Skip.png'
+                background_normal: 'Icons/blue_button_style.png'
+                on_press: root.skip()
+
+
+<StandardFileButton>:
+    id: file_b
+    canvas.after:
+        Color:
+            rgba: root.selected_color
+        #make an outline
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: True
+            width: 2
+            points: file_b.x, file_b.y + 5, file_b.x, file_b.y + file_b.height, file_b.x + file_b.width, file_b.y + file_b.height, file_b.x + file_b.width, file_b.y + 5
+
+    markup: True
+    background_color: (0,0,0,1)
+    on_release: root.file_on_release()
+    BoxLayout:
+        id: bl
+        size: file_b.size
+        pos: file_b.pos
+        orientation: 'horizontal'
+        spacing: 15
+        padding: 10,10
+        
+        Image:
+            size_hint_x: 0.1
+            source: root.icon
+            halign: 'center'
+            valign: 'center'
+        
+        Label:
+            size_hint_x: 1
+            id:filename
+            text: root.filename
+            markup: True
+            font_size: 30
+            shorten: True
+            text_size: self.size
+            halign: 'left'
+            valign: 'center'
+        Label:
             size_hint_x: 0.2
-            id: file_options
-            on_press: root.edit_function()
-            Image:
-                x:file_options.x
-                center_y: file_options.center_y
-                source: root.edit_icon
-                size_hint: None, None
-                halign: 'right'
-                valign: 'center'
+            id:date
+            text: root.date
+            markup: True
+            font_size: 20
+            text_size: self.size
+            halign: 'right'
+            valign: 'center'
+
+<StandardFileView>:
+    id: screen
+    orientation: 'vertical'
+    
+    Label:
+        text: '[size=40][color=#69B3E7]{}[/size]'.format(root.file_data['name']) + '[/color][/size][size=30]\n\n' + root.body_text
+        size: self.texture_size
+        markup: True
+        valign: 'middle'
+        halign: 'center'
+   
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: 0.5
+        padding: [root.width/7, 10, root.width/7, 10]
+        spacing: 10
+
+        Auto_Image_Label_Button:
+            disabled: root.button_state
+            button_text: "[size=30]" + app.root.lang.pack['Firmware_Wizard']['Start'] + '[/size]'
+            image_icon: "Icons/Manual_Control/start_button_icon.png"
+            background_normal: "Icons/green_button_style.png"
+            on_press: root.button_function() 
+
+<File_Option_Button>:
+    id: file_b
+    canvas.after:
+        Color:
+            rgba: root.selected_color
+        #make an outline
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: True
+            width: 2
+            points: file_b.x, file_b.y + 5, file_b.x, file_b.y + file_b.height, file_b.x + file_b.width, file_b.y + file_b.height, file_b.x + file_b.width, file_b.y + 5
+
+    markup: True
+    background_color: (0,0,0,1)
+    on_press: root.on_press_button()
+    BoxLayout:
+        id: bl
+        size: file_b.size
+        pos: file_b.pos
+        orientation: 'horizontal'
+        spacing: 15
+        padding: 10,10
+        
+        Image:
+            size_hint_x: 0.1
+            source: root.icon
+            halign: 'center'
+            valign: 'center'
+        
+        Label:
+            size_hint_x: 1 if root.extra_content != None else 2
+            id:filename
+            text: root.name
+            markup: True
+            font_size: 30
+            shorten: True
+            text_size: self.size
+            halign: 'left'
+            valign: 'center'
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_x: 1 if root.extra_content != None else 0 #if there is no extra content then just maximise this area
+            id:extra_content
+            Auto_Image_Label_Button:
+                pos: self.pos if extra_content.size_hint_x == 1 else [1000,1000]
+                id: list_switcher
+                width: self.parent.width
+                size_hint_x: self.parent.size_hint_x
+                button_text: "[size=30]" + root.ec_text
+                image_icon: "Icons/Files_Icons/File_Options/Switch.png"
+                background_normal: "Icons/Printer Status/blank-warning.png"
+                on_press: root.up_list()
+
+<File_Counter>:
+    id: bl
+    canvas.before:
+        Color:
+            rgba: 0,0,0,1
+        Rectangle:
+            pos: bl.pos
+            size: bl.size
+    orientation: 'horizontal'
+    spacing: 15
+    padding: 10,10
+    
+    Image:
+        
+        size_hint_x: 0.1
+        source: "Icons/Files_Icons/File_Options/Files selected.png"
+        halign: 'center'
+        valign: 'center'
+    
+    Label:
+        size_hint_x: 1
+        id:filename
+        text: root.files_selected + root.file_count 
+        markup: True
+        font_size: 30
+        shorten: True
+        text_size: self.size
+        halign: 'left'
+        valign: 'center'
+
+<Up_Down_Buttons>:
+    orientation: 'horizontal'
+    id: ud_button
+
+    Button:
+        id: up
+        background_color: 0,0,0,0
+        on_press: root.up()
+        width: 0 if ud_button.width == 0 else self.width
+        size_hint_x: 0 if ud_button.width == 0 else 1
+        Image:
+            source: "Icons/Files_Icons/File_Options/Switch.png"
+            pos: up.pos
+            size: up.size
+
+
 
 <FilesContent>:
     orientation: 'horizontal'
 
-<FileOptions>:
-    id: file_o
-    orientation: 'vertical'
-    Label:
-        size_hint_y: 0.5
-        markup: True
-        halign: 'center'
-        valign: 'center'
-        text: "[size=60][color=#69B3E7]" + root.name
-        text_size: self.size
-        size: self.size
-        shorten: True
-
-    BoxLayout:
-        orientation: 'horizontal'
-        size: file_o.size
-        pos: file_o.pos
-        padding: 25,25,25,25
-        spacing: 25
-        Button:
-            id: deleter
-            background_normal: "Icons/Slicer wizard icons/button bkg inactive.png"
-            on_press: root.delete()  
-            BoxLayout: 
-                pos: deleter.pos
-                size: deleter.size
-                padding: 15,15
-                orientation: 'vertical'
-                Image:
-                    source: "Icons/Files_Icons/trash.png"
-                Label:
-                    size_hint_y: 0.2
-                    id: delete_file
-                    markup: True
-                    text : "[size=30]{}".format(app.root.lang.pack['File_Options']['Delete'])
-                    text_size: self.size
-                    valign: 'middle'
-                    halign: 'center'
-                    
-
-        Button:
-            id: add_folder
-            background_normal: "Icons/Slicer wizard icons/button bkg inactive.png"
-            on_press: root.add_folder()
-            BoxLayout: 
-                pos: add_folder.pos
-                size: add_folder.size
-                padding: 15,15
-                orientation: 'vertical'
-                Image:
-                    source: "Icons/Files_Icons/Add folder.png"
-                Label:
-                    size_hint_y: 0.2
-                    id: delete_file
-                    markup: True
-                    text : "[size=30]{}".format(app.root.lang.pack['File_Options']['Add_Folder'])
-                    text_size: self.size
-                    valign: 'middle'
-                    halign: 'center'
-        Button:
-            id: mover
-            background_normal: "Icons/Slicer wizard icons/button bkg inactive.png"
-            on_press: root.move_object()
-            BoxLayout: 
-                pos: mover.pos
-                size: mover.size
-                padding: 15,15
-                orientation: 'vertical'
-                Image:
-                    source: "Icons/Files_Icons/Move file.png" if root.move_text == app.root.lang.pack['File_Options']['Move_File'] else "Icons/Files_Icons/Move folder.png"
-                Label:
-                    size_hint_y: 0.2
-                    id: delete_file
-                    markup: True
-                    text : "[size=30]" + root.move_text
-                    text_size: self.size
-                    valign: 'middle'
-                    halign: 'center'
                     
 <KeyboardInput>:
     Label:
@@ -425,8 +610,27 @@
         font_size: 30
         on_press: root._set_keyboard('keyboards/abc.json')
 
+<KeyboardInput_file_bb>:
+    Label:
+        id: fname
+        size_hint: 1, .2
+        pos_hint: {'top': 1}
+        halign: 'center'
+        valign: 'center'
+        text: root.default_text
+        font_size: 35
+        color: 1,1,1,1
+    Button:
+        id: show_keyboard
+        size_hint: .35, .2
+        pos_hint: {'x': .35, 'y': .30}
+        text: app.root.lang.pack['File_Options']['Show_Keyboard']
+        font_size: 30
+        on_press: root._set_keyboard('keyboards/abc.json')
+
 <Auto_Image_Label_Button>:
     id:auto_button
+    disabled: root.disabled
     background_normal: root.background_normal
     on_press: root.button_press()
 
@@ -828,6 +1032,7 @@
             points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 600, popup.y + 400, popup.x + 600, popup.y, popup.x,popup.y
     BoxLayout:
         orientation: 'vertical'
+        padding: 0, 10, 0 ,0
 
         Image:
             size_hint_y: 0.5
@@ -1874,6 +2079,7 @@
     orientation: 'horizontal'
     id:box_even
     size: self.parent.size if self.parent != None else self.size
+    pos: self.parent.pos if self.parent != None else self.pos
     
     BoxLayout:
         size: box_even.size
@@ -1928,6 +2134,48 @@
             halign: 'left'
             text_size: self.width, None
 
+<Scroll_Box_File_List>:
+    orientation: 'horizontal'
+    spacing: 10
+    scroll: scroll
+
+    BoxLayout:
+        id: content
+        orientation: 'vertical'
+        StandardFileButton:
+            id:button_1
+        StandardFileButton:
+            id:button_2
+        StandardFileButton:
+            id:button_3
+        StandardFileButton:
+            id:button_4
+        
+    #scroll Buttons
+    BoxLayout:
+        orientation: 'vertical'
+        id:scroll
+        size_hint_x: 0.25
+        spacing: 20
+        padding: 10,10,10,10
+        Button:
+            id:button_up
+            background_normal:"Icons/Printer Status/blank-warning.png"
+            background_down:"Icons/Printer Status/blank-warning.png"
+            Image:
+                source: root.up_icon
+                pos: button_up.pos
+                size: button_up.size
+        Button:
+            id: button_down
+            background_normal:"Icons/Printer Status/blank-warning.png"
+            background_down:"Icons/Printer Status/blank-warning.png"
+            Image:
+                source: root.down_icon
+                pos: button_down.pos
+                size: button_down.size
+
+
 
 <Scroll_Box_Icons>:
     background_color: (0,0,0,1)
@@ -1943,7 +2191,7 @@
 <Robo_Icons>:
     id: robo_icon
     background_color: (0,0,0,1)
-    on_press: app.root.generate_screens(root.generator)
+    on_press: app.root.generate_screens(root.generator) if root.callback == None else root.execute_function()
     disabled: root.button_state
     BoxLayout:
         size: robo_icon.size
@@ -1953,7 +2201,7 @@
         spacing: 10
         Image:
             size: self.texture_size
-            source: root.img_source            
+            source: root.img_source   
         Label:
             size: self.texture_size
             text: root.icon_name
@@ -1961,7 +2209,31 @@
             markup: True
             max_lines: 2
             halign: 'center'
-            valign: 'bottom'
+            valign: 'center'
+
+
+<Storage_Icons>:
+    id: robo_icon
+    background_color: (0,0,0,1)
+    on_press: app.root.generate_screens(root.generator) if root.callback == None else root.execute_function()
+    disabled: root.button_state
+    
+    Image:
+        id: icon
+        size: self.texture_size
+        source: root.img_source
+        pos: robo_icon.x + ((robo_icon.width - icon.width) / 2), (label.y + label.height) + 40
+    Label:
+        id: label
+        size: self.texture_size
+        pos: robo_icon.x + ((robo_icon.width - label.width) / 2), robo_icon.y + (robo_icon.height / 6)
+        text: root.icon_name
+        font_size: 30
+        markup: True
+        max_lines: 2
+        halign: 'center'
+        valign: 'bottom'
+
 
 <Temperature_Label>:
     id: temp_icon
@@ -2365,7 +2637,7 @@
             button_text: "[size=30]" + app.root.lang.pack['Firmware_Wizard']['Start'] + '[/size]'
             image_icon: "Icons/Manual_Control/start_button_icon.png"
             background_normal: "Icons/green_button_style.png"
-            on_press: root.button_function(root.path)
+            on_press: root.start_firmware()
 
 <STL_Confirmation_Screen>:
     id: screen
@@ -2373,15 +2645,20 @@
     rows: 3
     BoxLayout:
         orientation: 'vertical'
-        Image:
-            size_hint_y: 0.35
-            source: "Icons/Manual_Control/info_icon.png"
+        Label:
+            text: '[size=40][color=#69B3E7]' + root.file_name
+            markup: True
+            shorten: True
+            valign: 'center'
+            halign: 'center'
+            size: self.size
 
     Label:
         text: '[size=30]' + app.root.lang.pack['Slicing_Wizard']['Wizard_Description'] + '[/size]'
         markup: True
         valign: 'middle'
         halign: 'center'
+        size: self.size
 
     BoxLayout:
         orientation: 'vertical'
@@ -2390,6 +2667,7 @@
         spacing: 10
 
         Auto_Image_Label_Button:
+            disabled: root.button_state
             button_text: "[size=30]" + app.root.lang.pack['Slicing_Wizard']['Continue'] + '[/size]'
             image_icon: "Icons/Manual_Control/start_button_icon.png"
             background_normal: 'Icons/blue_button_style.png'
@@ -3172,7 +3450,7 @@
             font_size: 25
             background_color: (0.3, 0.3, 0.3, 1) if root.ids.files_tab.state == 'normal' else (0.5,0.5,0.5,1)
             content: files_content.__self__
-            on_press: root.query_eeprom()
+            on_press: root.update_file_sizes()
             Image:
                 source: "Icons/files.png" if root.ids.files_tab.state == 'normal' else "Icons/files_active.png"
                 center_x: files_tab.center_x

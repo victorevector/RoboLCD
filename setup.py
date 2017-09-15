@@ -15,8 +15,8 @@ class Install_Deps(object):
         local_path = os.path.dirname(os.path.realpath(__file__))
         r = pip.main(['install', '--upgrade', '--no-deps', '--force-reinstall',
                       'https://github.com/Robo3D/OctoPrint-FirmwareUpdater/archive/0.2.1.zip',
-                      "https://github.com/Robo3D/Meta-Reader/archive/1.0.8.zip",
-                      "https://github.com/Robo3D/roboOctoprint/archive/1.3.2.zip",
+                      "https://github.com/Robo3D/Meta-Reader/archive/1.1.0.zip",
+                      "https://github.com/Robo3D/roboOctoprint/archive/1.3.3.zip",
                      ])
         if r is not 0:
             print("Could not install RoboLCD dependencies: Meta_Reader and/or OctoPrint_FirmwareUpdater")
@@ -57,7 +57,7 @@ plugin_package = "RoboLCD"
 plugin_name = "RoboLCD"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "1.9.1"
+plugin_version = "1.10.0"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module

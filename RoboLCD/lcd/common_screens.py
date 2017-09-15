@@ -20,6 +20,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.core.window import Window
 from kivy.uix.vkeyboard import VKeyboard
 from Language import lang
+from RoboLCD.lcd.session_saver import session_saver
 
 #available common screens:
 
@@ -416,7 +417,6 @@ class KeyboardInput(FloatLayout):
         self.current_screen = roboprinter.robo_screen()
         self._keyboard = None
         self._set_keyboard('keyboards/abc.json')
-
         if keyboard_callback != None:
             self.keyboard_callback = keyboard_callback
 

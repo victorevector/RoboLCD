@@ -1,6 +1,6 @@
 from kivy.uix.label import Label
 from kivy.uix.tabbedpanel import TabbedPanelHeader
-from scrollbox import ScrollBox, Scroll_Box_Even, Scroll_Box_Icons, Robo_Icons
+from scrollbox import Scroll_Box_Even, Scroll_Box_Icons, Robo_Icons
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import NumericProperty, ObjectProperty, StringProperty

@@ -6,7 +6,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.togglebutton import ToggleButton
-from .. import roboprinter
+from RoboLCD import roboprinter
 from functools import partial
 from kivy.logger import Logger
 from kivy.clock import Clock
@@ -18,9 +18,7 @@ import tempfile
 import traceback
 import shutil
 import subprocess
-from scrollbox import ScrollBox, Scroll_Box_Even
-from file_explorer import Save_File
-from file_explorer import File_Explorer
+from scrollbox import Scroll_Box_Even
 from common_screens import Button_Group_Observer, OL_Button, Override_Layout
 from Preheat_Wizard import Preheat_Overseer
 
@@ -31,7 +29,7 @@ CURA_DIR = '/home/pi/.octoprint/slicingProfiles/cura'
 
 class Slicer_Wizard(FloatLayout):
 
-    def __init__(self,robosm, back_destination):
+    def __init__(self,file_data, back_button_callback):
         super(Slicer_Wizard, self).__init__()
 
         #make default meta data
@@ -47,68 +45,51 @@ class Slicer_Wizard(FloatLayout):
         #make sure the tmp directory exists
         self.search_for_temp_dir()
 
-        self.sm = robosm
+        self.sm = roboprinter.robosm
         self.oprint = roboprinter.printer_instance
+        self.back_button_callback = back_button_callback
+        self.file_data = file_data
 
         #show the confirmation screen
 
         self.show_confirmation_screen()
 
     def show_confirmation_screen(self):
-        next_action = self.open_file_select_screen
         screen_name = "slicing wizard"
         title = roboprinter.lang.pack['Slicer_Wizard']['Confirmation']['Title']
-        back_destination = self.sm.current
-        layout = STL_Confirmation_Screen(next_action)
-        self.sm._generate_backbutton_screen(name = screen_name, title = title, back_destination=back_destination, content=layout)
-
-
-        
-
-    def open_file_select_screen(self):
-        layout = File_Explorer('model', self.create_button, enable_editing = False)
-        #continue to the stl select screen
-        back_destination = self.sm.current
-        title = roboprinter.lang.pack['Slicer_Wizard']['Select_File']['Title']
-        name = "choose_file"
-        
-
-        self.sm._generate_backbutton_screen(name = name, title = title, back_destination=back_destination, content=layout)
-
-    #a helper function so we can use the file explorer
-    def create_button(self, filename, date, path, **kwargs):
-        return stl_Button(filename, path, date, self.choose_overrides)
-
-
+        back_destination = "File_Explorer"
+        layout = STL_Confirmation_Screen(self.choose_overrides, self.file_data['name'])
+        roboprinter.back_screen(name = screen_name, 
+                                title = title, 
+                                back_destination=back_destination, 
+                                content=layout
+                                )
 
     def search_for_temp_dir(self):
         if not os.path.exists(TEMP_DIR):
             os.makedirs(TEMP_DIR)
             Logger.info("Made temp directory for slicing")
 
-    def choose_overrides(self, name, path):
+    def choose_overrides(self):
         screen_name = 'slicer_overrides'
         title = roboprinter.lang.pack['Slicer_Wizard']['Overrides']['Title']
         back_destination = self.sm.current
-        real_path = roboprinter.printer_instance._file_manager.path_on_disk('local', path)
-        Logger.info(real_path)
-        layout = Override_Page(name, real_path, self.slice_stl)
+        layout = Override_Page(self.slice_stl)
 
     
-    def slice_stl(self, name, path, overrides):
+    def slice_stl(self, overrides):
         #get the profile from octoprint
-        self.progress_pop =  USB_Progress_Popup(roboprinter.lang.pack['Slicer_Wizard']['Progress']['Sub_Title'] + name, 1)
+        self.progress_pop =  USB_Progress_Popup(roboprinter.lang.pack['Slicer_Wizard']['Progress']['Sub_Title'] + self.file_data['name'], 1)
         self.progress_pop.show()
-        self.stl_name = name.replace(".stl", "")
+        self.stl_name = self.file_data['name'].replace(".stl", "")
         self.stl_name = self.stl_name.replace(".STL", "")
         self.stl_name = self.stl_name + ".gcode"
-        self.stl_path = path
+        self.stl_path = roboprinter.printer_instance._file_manager.path_on_disk('local', self.file_data['path'])
         self.overrides = overrides
 
         Clock.schedule_once(self.start_slice, 0.1)
 
     def start_slice(self,dt):
-        
         profiles = roboprinter.printer_instance._slicing_manager.all_profiles('cura', require_configured=False)
         if 'robo' in profiles:
             #start slice
@@ -202,7 +183,8 @@ class Slicer_Wizard(FloatLayout):
     # they are created in.
     def save_file(self, dt):
         Logger.info('Saving data ' + self.temp_path + ' along with the meta data: ' + str(self.meta))
-        Save_File(self.temp_path, meta_data=self.meta)
+        #save the file
+        self.back_button_callback(self.temp_path, self.meta, back_to_name='fans_page')
 
     def slice_progress(self, *args, **kwargs):
         if '_progress' in kwargs:
@@ -216,30 +198,23 @@ class Slicer_Wizard(FloatLayout):
         self.progress_pop.update_progress(self.current_progress)
     
 
-class stl_Button(Button):
-    button_text = StringProperty("Error")
-    stl_name = StringProperty("ERROR")
-    path = StringProperty("Error")
-    date = StringProperty("Error")
-    button_function = ObjectProperty(None)
-    def __init__(self,hexname, path, date, function):
-        super(stl_Button, self).__init__()
-        self.stl_name = hexname
-        self.path = path
-        self.button_function = function
-        self.button_text = self.stl_name
-        self.date = date
-
 class STL_Confirmation_Screen(GridLayout):
     button_function = ObjectProperty(None)
+    file_name = StringProperty('')
+    button_state = BooleanProperty(False)
 
-    def __init__(self, function):
+    def __init__(self, function, file_name):
         super(STL_Confirmation_Screen, self).__init__()
         self.button_function = function
+        self.file_name = file_name
+        if roboprinter.printer_instance._printer.is_ready() and not roboprinter.printer_instance._printer.is_printing() and not roboprinter.printer_instance._printer.is_paused():
+            self.button_state = False
+        else:
+            self.button_state = True
 
 class Override_Page(object):
 
-    def __init__(self, name, path, slice_callback):
+    def __init__(self, slice_callback):
         super(Override_Page, self).__init__()
         #initialize properties
         self._support = 'none'
@@ -251,8 +226,6 @@ class Override_Page(object):
 
         #variable for calling once the user is done setting overrides
         self.slice_callback = slice_callback
-        self.name = name
-        self.path = path
         self.set_support()
 
         
@@ -560,5 +533,4 @@ class Override_Page(object):
 
         Logger.info(str(overrides))
 
-        self.slice_callback(self.name, self.path, overrides)
-
+        self.slice_callback(overrides)

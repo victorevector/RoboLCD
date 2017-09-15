@@ -27,12 +27,15 @@ class MainScreen(Screen):
     def query_eeprom(self):
         if not roboprinter.printer_instance._printer.is_printing():
 
-            pconsole.query_eeprom()        
+            pconsole.query_eeprom()  
+
+    def update_file_sizes(self):
+        self.ids.files_content.update_file_sizes()      
 
     
     def open_tab(self, tab_id):
         t = self.ids[tab_id]
-        Logger.info('Tab: {}'.format(t))
+        #Logger.info('Tab: {}'.format(t))
         self.ids.mstp.switch_to(t)
 
 

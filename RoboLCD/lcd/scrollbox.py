@@ -10,63 +10,8 @@ from kivy.logger import Logger
 from kivy.properties import NumericProperty, ObjectProperty, StringProperty,  BooleanProperty
 from robo_controls import Temperature_Label
 from kivy.clock import Clock
-
-
-class ScrollBox(BoxLayout):
-    """
-    Custom widget -- ScrollBox. BoxLayout with 2 halves. Left half is a ScrollView and right half is 2 up and down buttons that scroll the ScrollView.
-    """
-    scroll = ObjectProperty(None)
-    updown_layout = ObjectProperty(None)
-    custom_content = ObjectProperty(None)
-
-    def __init__(self, content, **kwargs):
-        """
-        Constructs the layout. Input requires populated Gridlayout (content) that gets injected into ScrollView (self.scroll). Up and down buttons will scroll through items in gridlayout.
-        """
-        super(ScrollBox, self).__init__(orientation='horizontal', **kwargs)
-        self.scroll = self._create_scroll_view()
-        self.updown_layout = self._create_up_down_button()
-        self.custom_content = content
-
-        self.scroll.add_widget(self.custom_content)
-        self.add_widget(self.scroll)
-        self.add_widget(self.updown_layout)
-
-
-    def _create_scroll_view(self):
-        scrollview = ScrollView(id='scrollview', do_scroll_x=False, do_scroll_y=False, size_hint_y=1, size_hint_x=0.8)
-        return scrollview
-
-    def _create_up_down_button(self):
-        gridlayout = GridLayout(rows=2, size_hint_x=0.2, spacing=20, padding=(10,10,10,10))
-        button_up = Button(
-                           background_normal="Icons/Up-arrow-grey.png",
-                           background_down="Icons/Up-arrow-blue.png",
-                           )
-        button_up.bind(on_press=self.up_action_file)
-        button_down = Button(
-                             background_normal="Icons/Down-arrow-grey.png",
-                             background_down="Icons/Down-arrow-blue.png",
-                             )
-        button_down.bind(on_press=self.down_action_file)
-        gridlayout.add_widget(button_up)
-        gridlayout.add_widget(button_down)
-        return gridlayout
-
-    def up_action_file(self, *args):
-        scroll_distance = 0.4
-        #makes sure that user cannot scroll into the negative space
-        if self.scroll.scroll_y + scroll_distance > 1:
-            scroll_distance = 1 - self.scroll.scroll_y
-        self.scroll.scroll_y += scroll_distance
-
-    def down_action_file(self, *args):
-        scroll_distance = 0.4
-        #makes sure that user cannot scroll into the negative space
-        if self.scroll.scroll_y - scroll_distance < 0:
-            scroll_distance = self.scroll.scroll_y
-        self.scroll.scroll_y -= scroll_distance
+from RoboLCD import roboprinter
+from RoboLCD.lcd.Language import lang
 
 
 class Scroll_Box_Even(BoxLayout):
@@ -86,13 +31,15 @@ class Scroll_Box_Even(BoxLayout):
         self.grid = self.ids.content
         self.max_pos = len(button_array) - 4
         self.buttons = button_array
-        if len(button_array) <= 4:
-            self.scroll.clear_widgets()
+        self.original_scroll_size = self.scroll.size_hint_x
+        self.original_scroll_width = self.scroll.width
+        if len(self.buttons) <= 4:
             self.scroll.size_hint_x = 0
             self.scroll.width = 0.1
         self.populate_buttons()
 
     def up_button(self):
+        # Logger.info("Up hit")
         self.position -= 1
         if self.position < 0:
             self.position = 0
@@ -123,7 +70,7 @@ class Scroll_Box_Even(BoxLayout):
         
 
     def down_button(self):
-        
+        # Logger.info("down hit")
         self.position += 1
         if self.position > self.max_pos:
             self.position = self.max_pos
@@ -148,7 +95,19 @@ class Scroll_Box_Even(BoxLayout):
 
     def on_down_clock(self, dt):
         self.down_button()
-        
+
+    def check_for_scroll(self):
+        if len(self.buttons) <= 4:
+            self.scroll.size_hint_x = 0
+            self.scroll.width = 0.1
+        else:
+            self.scroll.size_hint_x = self.original_scroll_size
+            self.scroll.width = self.original_scroll_width
+
+    def repopulate_for_new_screen(self):
+        self.position = 0
+        self.max_pos = len(self.buttons) - 4
+        self.populate_buttons()
 
     def populate_buttons(self):
         content = self.grid
@@ -160,6 +119,8 @@ class Scroll_Box_Even(BoxLayout):
                 content.add_widget(self.buttons[self.position + x])
             else:
                 content.add_widget(Button(text='', background_color = [0,0,0,1]))
+
+        self.check_for_scroll()
 
 class Scroll_Box_Even_Button(Button):
     button_text = StringProperty("Error")
@@ -198,7 +159,7 @@ class Scroll_Box_Icons(GridLayout):
         else:
             self.cols = 1
             self.rows = 1
-        Logger.info("Cols: " + str(self.cols) + " Rows: " + str(self.rows))
+        #Logger.info("Cols: " + str(self.cols) + " Rows: " + str(self.rows))
         
         self.sm = robosm
         self.grid = self.ids.content
@@ -226,17 +187,70 @@ class Robo_Icons(Button):
     img_source = StringProperty("Icons/Icon_Buttons/Robo_Controls.png")
     icon_name = StringProperty("Robo Controls")
     button_state = ObjectProperty(False)
-    def __init__(self, _image_source, _icon_name, _generator_function):
+    callback = ObjectProperty(None)
+    def __init__(self, _image_source, _icon_name, _generator_function, callback=None):
         super(Robo_Icons, self).__init__()
         self. generator = _generator_function
         self.img_source = _image_source
+        self.original_icon_name = _icon_name
         self.icon_name = _icon_name
         self.button_state = False
-
-    
-
+        self.callback = callback
 
 
+    def execute_function(self):
+        self.icon_name = lang.pack['Files']['File_Tab']['Loading']
+        self.current_screen = roboprinter.robosm.current
+        self.first_loop = False
+        Clock.schedule_interval(self.Icon_Loading, 0.2)
+        
+    def Icon_Loading(self, dt):
+
+        #check if this is the first iteration
+        if not self.first_loop:
+            self.first_loop = True
+            self.callback(generator=self. generator, name=self.icon_name)
+
+        if self.current_screen != roboprinter.robosm.current:
+            self.icon_name = self.original_icon_name
+            #Logger.info("Exiting Loading loop")
+            return False
+'''
+Same as Robo Icons, the kivy file is different though
+'''
+class Storage_Icons(Button):
+    generator= StringProperty("ROBO_CONTROLS")
+    img_source = StringProperty("Icons/Icon_Buttons/Robo_Controls.png")
+    icon_name = StringProperty("Robo Controls")
+    button_state = ObjectProperty(False)
+    callback = ObjectProperty(None)
+    def __init__(self, _image_source, _icon_name, _generator_function, callback=None):
+        super(Storage_Icons, self).__init__()
+        self. generator = _generator_function
+        self.img_source = _image_source
+        self.original_icon_name = _icon_name
+        self.icon_name = _icon_name
+        self.button_state = False
+        self.callback = callback
+
+
+    def execute_function(self):
+        self.icon_name = lang.pack['Files']['File_Tab']['Loading']
+        self.current_screen = roboprinter.robosm.current
+        self.first_loop = False
+        Clock.schedule_interval(self.Icon_Loading, 0.2)
+        
+    def Icon_Loading(self, dt):
+
+        #check if this is the first iteration
+        if not self.first_loop:
+            self.first_loop = True
+            self.callback(generator=self. generator, name=self.icon_name)
+
+        if self.current_screen != roboprinter.robosm.current:
+            self.icon_name = self.original_icon_name
+            Logger.info("Exiting Loading loop")
+            return False
 
 class Scroll_Box_Icons_Anchor(FloatLayout):
     """We should try to not have more than six icons on the screen"""

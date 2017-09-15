@@ -1,10 +1,39 @@
 # RoboLCD Changelog
 
+## 1.10.0 (2017-9-15)
+
+* File system overhaul:
+    * Supports gcode, stl, and hex files.
+    * Supports local and usb mounted filesystems.
+    * Sort by a-z, size, date, or file type.
+    * Copy, move, or delete multiple files and folders at once.
+    * Displays storage capacity used and total.
+    * Meta data analysis performed when new file is selected for faster loading of file view.
+
+* Reset connection screens now show connection status to printer's motor and temperature controls.
+
+* Filament change will now push material through the nozzle before starting the retraction move. This mitigates filaments that get stuck and can't be pulled out easily.
+
+* Added gcode command, 'F3000', to Raise Z option in motor controls so it would rise at an acceptable speed.
+
+
+## Bug Fixes
+
+* Fixed Network Title. It used to say Wizards
+
+* Fixed the Error box starting up with a solid White image.
+
+*  Fixed up and down buttons getting stuck on the File Screen
+
+* Fixed Keyboard bug that would keep the keyboard up when an error occured.
+
+*  Tool monitor will now show one decimal place. Graphical errors occured when showing two or more decimal places
+
 ## 1.9.1 (2017-7-21)
 
 ### Bug Fixes
 
-* Fixed touch screen support for HDMI-powered C2 screens. 
+* Fixed touch screen support for HDMI-powered C2 screens.
 
 ## 1.9.0 (2017-7-14)
 

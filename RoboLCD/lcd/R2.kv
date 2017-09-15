@@ -414,3 +414,79 @@
             id: content_layout #self.content gets added to ScrollView via WifiScreen_instance.populate_layout()
             #padding: 10,0,10,17
             orientation: "horizontal"
+
+<File_BB>:
+    background_color: 0,0,0,1
+
+    GridLayout:
+        rows: 2
+        orientation: 'vertical'
+        padding: 10,0,10,17
+        BoxLayout:
+            id: title_bar
+            canvas.before:
+                Color:
+                    rgba: 0,0,0,1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            orientation: 'horizontal'
+            size_hint_y: .3
+            Button:
+                background_color: 0,0,0,1
+                id: back_button
+                on_press: root.execute_back_function()
+                
+                size_hint_x: .2
+                Image:
+                    source: 'Icons/back.png'
+                    center_x: self.parent.center_x
+                    center_y: self.parent.center_y
+
+            Label:
+                id: title
+                canvas.before:
+                    Color:
+                        rgba: 0,0,0,1
+                    Rectangle:
+                        pos: title.pos
+                        size: title.size
+                text: root.title
+                font_size: 40
+                shorten: True
+                shorten_from: 'right'
+                text_size: title.size
+                halign: 'center'
+                valign: 'center'
+            Button:
+                id: file_content
+                size_hint_x: .2
+                background_color: 0,0,0,1
+                on_press: root.execute_option_function()
+                Image:
+                    id: cta_image
+                    source: root.icon
+                    pos: file_content.pos
+                    size: file_content.size
+
+        BoxLayout:
+            id: content_layout #self.content gets added to ScrollView via WifiScreen_instance.populate_layout()
+            #padding: 10,0,10,17
+            orientation: "horizontal"
+
+<Empty_Popup>:
+    background_color: 0,0,0,1
+    id: popup
+    size_hint_x: None
+    size_hint_y: None
+    size: 750, 400
+    auto_dismiss: False
+    canvas.after:
+        Color:
+            rgba: 0.41,0.7,0.91,1
+        Line:
+            cap: 'round'
+            joint: 'round'
+            close: False
+            width: 3
+            points: popup.x, popup.y, popup.x, popup.y + 400, popup.x + 750, popup.y + 400, popup.x + 750, popup.y, popup.x,popup.y

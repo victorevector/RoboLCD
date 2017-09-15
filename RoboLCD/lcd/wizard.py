@@ -154,6 +154,9 @@ class FilamentWizard(Widget):
         #end the event before starting it again
         if self.extrude_event != None:
             self.end_extrude_event()
+
+        #extrude a little bit before retracting
+        roboprinter.printer_instance._printer.extrude(20.0)
         self.extrude_event = Clock.schedule_interval(self.retract, 1)
 
 

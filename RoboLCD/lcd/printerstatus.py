@@ -20,7 +20,7 @@ from session_saver import session_saver
 import time
 import traceback
 from functools import partial
-from scrollbox import ScrollBox, Scroll_Box_Even, Scroll_Box_Icons, Robo_Icons
+from scrollbox import Scroll_Box_Even, Scroll_Box_Icons, Robo_Icons
 from common_screens import Auto_Image_Label_Button
 
 #errors and warnings
@@ -597,14 +597,14 @@ class ModalPopup(ModalView):
 
 class Tool_Status(BoxLayout):
     name = StringProperty("Error")
-    current_temperature = NumericProperty(0)
-    max_temp = NumericProperty(0)
+    current_temperature = NumericProperty(0.0)
+    max_temp = NumericProperty(0.0)
     tool = StringProperty('tool0')
     progress = NumericProperty(0)
 
     def __init__(self, name, tool, **kwargs):
         super(Tool_Status, self).__init__(**kwargs)
-        self.name=name
+        self.name = name
         self.tool = tool
         Clock.schedule_interval(self.update_temp_and_progress, .1)
 
@@ -620,28 +620,30 @@ class Tool_Status(BoxLayout):
             
             self.max_temp = temps[self.tool]['target']
 
+            #round to one decimal place so that the numbers can fit on the screen 
+            if isinstance(self.current_temperature, float):
+                self.current_temperature = round(self.current_temperature,1)
+            else:
+                self.current_temperature = float(self.current_temperature)
+
+            if isinstance(self.max_temp, float):
+                self.max_temp = round(self.max_temp, 1)
+            else:
+                self.max_temp = float(self.max_temp)
+
+
+
             if self.tool == 'bed':
                 if 'bed' in pconsole.temperature:
                     if float(pconsole.temperature['bed']) <= 0:
-                        self.current_temperature = 0
+                        self.current_temperature = 0.0
 
-            #update progress
-            # if int(self.max_temp) == 0:
-            #     self.progress = 0
-            # else:
-            #     self.progress = (float(self.current_temperature) / float(self.max_temp)) * float(self.ids.progress_bar_goes_here.width)
-            #     if self.progress >= float(self.ids.progress_bar_goes_here.width):
-            #         self.progress = float(self.ids.progress_bar_goes_here.width)
-            
-
-            
-            #Logger.info(str(self.current_temperature) + " "  + str(self.max_temp))
         except Exception as e:
             #Logger.info("Temperature Error")
             if self.tool == 'bed':
                 if 'bed' in pconsole.temperature:
                     if float(pconsole.temperature['bed']) <= 0:
-                        self.current_temperature = 0
+                        self.current_temperature = 0.0
           
         
 class Custom_Progress_Bar(FloatLayout):
