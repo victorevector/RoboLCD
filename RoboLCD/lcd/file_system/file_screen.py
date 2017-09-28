@@ -34,6 +34,8 @@ from RoboLCD import roboprinter
 from RoboLCD.lcd.pconsole import pconsole
 from RoboLCD.lcd.Language import lang
 from RoboLCD.lcd.session_saver import session_saver
+from RoboLCD.lcd.common_screens import Error_Popup
+from RoboLCD.lcd.connection_popup import Zoffset_Warning_Popup
 
 
 #octoprint

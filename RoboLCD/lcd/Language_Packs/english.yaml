@@ -73,7 +73,7 @@ Popup:
   ZOffset_Title: "Current Z-Offset is "
   ZOffset_Units: "mm"
   ZOffset_Body: "This is the default setting for the Z-Offset.\n\nPlease set the Z-Offset\nbefore resuming the print."
-  Continue: "OK"
+  Continue: "Start Print"
   Z_Offset: "Z-Offset"
   Later: "Later"
   Update: "Update"

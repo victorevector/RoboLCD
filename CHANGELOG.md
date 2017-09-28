@@ -1,6 +1,14 @@
 # RoboLCD Changelog
 
+## 1.10.1 (2017-9-28)
+
+### Bug Fixes
+
+* Fixed: screen freezes when you try to print a file and your z offset is set outside range of 0 or -20. 
+
 ## 1.10.0 (2017-9-15)
+
+### Improvements
 
 * File system overhaul:
     * Supports gcode, stl, and hex files.
