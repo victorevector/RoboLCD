@@ -1,0 +1,5 @@
+*.pyc
+.remote-sync.json
+.idea
+.DS_Store
+.ftpconfig 
